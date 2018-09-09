@@ -24,4 +24,4 @@ Sessions.schema = new SimpleSchema({
 
 });
 
-Sessions.attachSchema(Sessions.schema);
+// Sessions.attachSchema(Sessions.Sessions);

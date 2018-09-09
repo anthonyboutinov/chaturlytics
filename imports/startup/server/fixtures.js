@@ -1,14 +1,13 @@
 // Fill the DB with example data on startup
 
 import { Meteor } from 'meteor/meteor';
-import { DataPoints } from '../../api/datapoints/datapoints.js';
 
 Meteor.startup(() => {
 
   if (Meteor.users.find().count() === 0) {
     const data = [
       {
-        usernames: ['***REMOVED***'],
+        url: '***REMOVED_URL***',
         email: "***REMOVED_EMAIL***",
         password: "password",
       }
@@ -19,10 +18,9 @@ Meteor.startup(() => {
       const id = Accounts.createUser({
         email: user.email,
         password: user.password,
-        // profile: { name: user.name }
-        usernames: user.usernames,
+        url: user.url,
       });
-      console.log({newUser: Meteor.users.find(id).fetch()});
+      // console.log({newUser: Meteor.users.find(id).fetch()});
     });
 
   }

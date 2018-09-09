@@ -1,3 +1,117 @@
-<template name="App_body">
-  {{> Template.dynamic template=main}}
+<template name="Layout_body">
+
+  <div id="navbar-wrapper">
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+      <div class="container is-fluid">
+        <div class="navbar-brand">
+          <div class="navbar-item has-text-weight-bold">
+            Chaturlytics<span style="font-size: 0.75em; font-weight: 400; color: rgb(231, 128, 5); margin-top: -.5em; margin-left: 0.3em">Alpha</span>
+          </div>
+
+          <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+          </a>
+        </div>
+
+        <div class="navbar-menu">
+          <div class="navbar-start">
+
+            <div class="navbar-item">
+              <div class="tags has-addons">
+                {{#if isBroadcasting}}
+                  <span class="tag is-success has-text-white"><i class="fas fa-fw fa-video"></i></span>
+                  <span class="tag is-success has-text-white">{{timeOnline}}</span>
+                  <span class="tag">Broadcast live</span>
+                {{else}}
+                <span class="tag is-dark has-text-white"><i class="fas fa-fw fa-video-slash"></i></span>
+                <span class="tag">Offline</span>
+                {{/if}}
+              </div>
+            </div>
+
+            <!-- <div class="navbar-item">
+              <div class="tags has-addons">
+                <span class="tag is-success has-text-white"><i class="fas fa-fw fa-video"></i></span>
+                <span class="tag is-success has-text-white">3</span>
+                <span class="tag">Multiple broadcasts live</span>
+              </div>
+            </div> -->
+
+            <div class="navbar-item">
+              <div class="tags has-addons">
+                <span class="tag is-dark has-text-white"><i class="fas fa-fw fa-donate"></i></span>
+                <span class="tag is-dark has-text-white">N</span>
+                <span class="tag">TKN / hour</span>
+              </div>
+            </div>
+
+            <div class="navbar-item">
+              <a class="tags has-addons force-sync">
+                <span class="tag is-dark has-text-white"><i class="fas fa-fw fa-sync"></i></span>
+                <span class="tag is-link">Force sync</span>
+              </a>
+            </div>
+
+          </div>
+          <div class="navbar-end">
+            <div class="navbar-item"> {{> loginButtons align='right'}} </div>
+          </div>
+
+        </div>
+      </div>
+    </nav>
+  </div>
+
+  <!-- <div class="container"> -->
+
+  <div class="" id="menu-wrapper">
+
+    <aside class="menu">
+      <ul class="menu-list">
+        <li><a><i class="fas fa-fw fa-home"></i> Home</a></li>
+      </ul>
+      <p class="menu-label">
+        <i class="fas fa-fw fa-glasses"></i> Reports
+      </p>
+      <ul class="menu-list">
+        <li><a href="/view/calendar/week"><i class="fas fa-fw fa-calendar"></i> Calendar</a>
+          <ul>
+            <li><a href="/view/calendar/month">Month View</a></li>
+            <li><a href="/view/calendar/week">Week View</a></li>
+            <li><a href="/view/calendar/day">Day View</a></li>
+            <li><a>List View</a></li>
+          </ul>
+        </li>
+        <li><a><i class="fas fa-fw fa-chart-line"></i> Charts</a>
+          <ul>
+            <li><a>Composite by Session</a></li>
+            <li><a>Month View</a></li>
+            <li><a>Week View</a></li>
+            <li><a>Day View</a></li>
+          </ul>
+        </li>
+        <li><a class="{{isActiveAsCurrentRouteNamed 'view.logs'}}" href="/view/logs"><i class="fas fa-fw fa-stream"></i> Logs</a></li>
+      </ul>
+      <p class="menu-label">
+        <i class="fas fa-fw fa-cog"></i> Administration
+      </p>
+      <ul class="menu-list">
+        <li> <a><i class="fas fa-fw fa-users"></i> Manage Profiles</a> </li>
+        <li><a><i class="fas fa-fw fa-money-check-alt"></i> Membership</a></li>
+        <li><a class="{{isActiveAsCurrentRouteNamed 'settings'}}" href="/settings"><i class="fas fa-fw fa-cog"></i> Settings</a></li>
+      </ul>
+    </aside>
+
+  </div>
+
+  <div id="content-wrapper">
+    <section class="{{#unless sectionless}}section{{/unless}}">
+      <div class="{{#unless sectionless}}container is-fluid{{/unless}}">
+        {{> Template.dynamic template=content}}
+      </div>
+    </section>
+  </div>
+
 </template>

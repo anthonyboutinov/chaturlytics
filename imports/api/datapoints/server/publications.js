@@ -3,8 +3,12 @@ import { check } from 'meteor/check';
 import { DataPoints } from '../datapoints.js';
 
 Meteor.publish('dataPoints.all', function () {
+  if (!this.userId) {
+    return this.ready();
+  }
 
-  return DataPoints.find();
+  Meteor._sleepForMs(2000);
+  return DataPoints.find({userId: this.userId});
 });
 
 
@@ -16,11 +20,10 @@ Meteor.publish('dataPoints.forDates', function (startTime, endTime) {
   check(startTime, Date);
   check(endTime, Date);
 
-  return DataPoints.find(
-    {
-      userId: this.userId,
-      startTime: { $gte: startTime },
-      endTime : { $lte: endTime }
-    }
-  );
+  Meteor._sleepForMs(2000);
+  return DataPoints.find({
+    userId: this.userId,
+    startTime: { $gte: startTime },
+    endTime : { $lte: endTime }
+  });
 });

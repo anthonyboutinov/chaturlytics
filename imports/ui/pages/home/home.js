@@ -1,3 +1,4 @@
 import './home.html';
 
-import '../../components/logView/logView.js';
+import '../../components/logsView/logsView.js';
+import '../../components/dateChartView/dateChartView.js';

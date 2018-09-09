@@ -1,0 +1,54 @@
+<template name="logsView">
+  <h2 class="title">Logs</h2>
+
+  <h3 class="is-size-4">Data Points</h3>
+  <table class="table is-fullwidth is-hoverable is-size-7">
+    <thead>
+      <tr>
+        <td>SessionId</td>
+        <td>From</td>
+        <td>To</td>
+        <td>Duration</td>
+        <td>Tokens Earned</td>
+        <td>Followers Earned</td>
+        <td>Num Viewers</td>
+        <td>Num Registered Viewers</td>
+        <td>Num Tokened Viewers</td>
+        <td></td>
+      </tr>
+    </thead>
+    {{#each dataPoints}}
+      <tr>
+        <td>{{sessionId}}</td>
+        <td>{{timelll startTime }}</td>
+        <td>{{timelll endTime}}</td>
+        <td>{{duration}}</td>
+        <td class="has-text-right">{{deltaTokens}} TKN</td>
+        <td class="has-text-right">{{deltaFollowers}}</td>
+        <td class="has-text-right">{{numViewers}}</td>
+        <td class="has-text-right">{{numRegisteredViewers}}</td>
+        <td class="has-text-right">{{numTokenedViewers}}</td>
+        <td><a class="delete-dataPoint delete has-background-danger"></a></td>
+      </tr>
+    {{/each}}
+  </table>
+
+  <h3 class="is-size-4">Sessions</h3>
+  <table class="table is-fullwidth is-hoverable is-size-7">
+    <thead>
+    <tr>
+      <td>SessionId</td>
+      <td>From</td>
+      <td>To</td>
+      <td>Duration</td>
+      <td></td>
+    </tr>
+    </thead>
+    {{#each sessions}}
+      <tr>
+        <td>{{_id}}</td><td>{{timelll startTime}}</td><td>{{timelll endTime}}</td><td>{{duration}}</td>
+        <td><a class="delete delete-session has-background-danger"></a></td>
+      </tr>
+    {{/each}}
+  </table>
+</template>

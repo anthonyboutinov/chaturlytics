@@ -1,4 +1,4 @@
-import './sessions.js'; //collection.js
+import './userprofiles.js'; //collection.js
 import './schema.js';
 // import './hooks.js';
 

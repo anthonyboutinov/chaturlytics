@@ -1,0 +1,54 @@
+<template name="Page_settings">
+  <h2 class="title">Settings</h2>
+
+  <nav class="panel">
+    <p class="panel-heading">
+      Add user profile to track
+    </p>
+    <div class="panel-block">
+
+      <div class="columns">
+        <div class="column is-one-half">
+
+          <form name="addUserProfile">
+            <label class="label">Chaturbate Token URL</label>
+            <div class="field has-addons">
+              <div class="control is-expanded">
+                <input class="input" type="text" placeholder="URL" name="url">
+              </div>
+              <div class="control">
+                <button type="submit" class="button is-primary">Submit</button>
+              </div>
+            </div>
+          </form>
+
+        </div>
+        <div class="column">
+          <p class="is-size-7 has-text-dark">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        </div>
+
+      </div>
+
+    </div>
+  </nav>
+
+  <table class="table is-fullwidth">
+    <thead>
+      <tr>
+        <td></td>
+        <td>Username</td>
+        <td colspan="2">Token</td>
+        <td>Next Sync</td>
+      </tr>
+    </thead>
+    <tr>
+      {{#each userProfiles}}
+        <td> <i class="fas fa-fw fa-toggle-on {{#if isActive}}has-text-success{{else}}has-text-gray{{/if}} is-size-4"></i> </td>
+        <td>{{username}}</td>
+        <td> <i class="fas fa-fw {{#if urlTokenHasExpired}}fa-exclamation-circle has-text-danger{{else}}fa-circle has-text-success{{/if}} is-size-5"></i> </td>
+        <td>{{url}}</td>
+        <td>{{nextCheck}}</td>
+      {{/each}}
+    </tr>
+  </table>
+</template>
