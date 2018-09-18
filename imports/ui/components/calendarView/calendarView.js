@@ -16,8 +16,9 @@ Template.calendarView.onRendered(function() {
   this.calendar = new Calendar('#calendar', {
     defaultView: FlowRouter.getParam('calendarViewMode'),
     // scheduleView: false,
-    taskView: false,
+    taskView: true,
     isReadOnly: true,
+    useDetailPopup: true,
     template: {
       monthGridHeader: function(model) {
         var date = new Date(model.date);
@@ -32,6 +33,27 @@ Template.calendarView.onRendered(function() {
       },
     }
   });
+
+  this.calendar.setTheme({
+    'week.timegridSchedule.borderRadius': '0',
+  });
+
+  this.calendar.on('clickSchedule', function(event) {
+    var schedule = event.schedule;
+    console.log({event, schedule});
+    //
+    // if (lastClickSchedule) {
+    //     calendar.updateSchedule(lastClickSchedule.id, lastClickSchedule.calendarId, {
+    //         isFocused: false
+    //     });
+    // }
+    // calendar.updateSchedule(schedule.id, schedule.calendarId, {
+    //     isFocused: true
+    // });
+    //
+    // lastClickSchedule = schedule;
+    // // open detail view
+});
 
   this.autorun(function() {
     FlowRouter.watchPathChange();
@@ -53,6 +75,9 @@ Template.calendarView.onRendered(function() {
         start: session.startTime.toString(),
         end: session.endTime.toString(),
         category: 'time',
+        color: '#2576af',
+        borderColor: '#2576af',
+        bgColor: 'rgba(59, 173, 248, 0.15)',
       }
     }));
 
@@ -62,12 +87,17 @@ Template.calendarView.onRendered(function() {
 
 Template.calendarView.events({
 
-  'click .pagination-previous'(event, instance) {
+  'click .act-previous'(event, instance) {
     event.preventDefault();
     instance.calendar.prev();
   },
-  'click .pagination-next'(event, instance) {
+  'click .act-next'(event, instance) {
     event.preventDefault();
     instance.calendar.next();
+  },
+
+  'click .act-today'(event, instance) {
+    event.preventDefault();
+    instance.calendar.today();
   },
 });

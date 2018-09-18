@@ -1,6 +1,6 @@
 <template name="Layout_body">
 
-  <div id="navbar-wrapper">
+  <div id="navbar-wrapper" class="has-text-white">
     <nav class="navbar" role="navigation" aria-label="main navigation">
       <div class="container is-fluid">
         <div class="navbar-brand">
@@ -22,11 +22,11 @@
               <div class="tags has-addons">
                 {{#if isBroadcasting}}
                   <span class="tag is-success has-text-white"><i class="fas fa-fw fa-video"></i></span>
-                  <span class="tag is-success has-text-white">{{timeOnline}}</span>
-                  <span class="tag">Broadcast live</span>
+                  <span class="tag is-success has-text-white">Live</span>
+                  <span class="tag">{{timeOnline}}</span>
                 {{else}}
                 <span class="tag is-dark has-text-white"><i class="fas fa-fw fa-video-slash"></i></span>
-                <span class="tag">Offline</span>
+                <span class="tag">{{timeOffline}}</span>
                 {{/if}}
               </div>
             </div>
@@ -42,7 +42,7 @@
             <div class="navbar-item">
               <div class="tags has-addons">
                 <span class="tag is-dark has-text-white"><i class="fas fa-fw fa-donate"></i></span>
-                <span class="tag is-dark has-text-white">N</span>
+                <span class="tag is-dark has-text-white">{{tokensPerHour}}</span>
                 <span class="tag">TKN / hour</span>
               </div>
             </div>
@@ -56,7 +56,8 @@
 
           </div>
           <div class="navbar-end">
-            <div class="navbar-item"> {{> loginButtons align='right'}} </div>
+            {{#if currentUser}}<div class="navbar-item"> {{currentUserProfile.username}} </div>{{/if}}
+            <div class="navbar-item"> <i class="fas fa-user-circle"></i>&nbsp;{{> loginButtons align='right'}} </div>
           </div>
 
         </div>
@@ -66,30 +67,31 @@
 
   <!-- <div class="container"> -->
 
-  <div class="" id="menu-wrapper">
+  <div id="menu-wrapper">
 
     <aside class="menu">
       <ul class="menu-list">
-        <li><a><i class="fas fa-fw fa-home"></i> Home</a></li>
+        <li><a class="{{isActiveAsCurrentRouteNamed 'home'}}" href="/"><i class="fas fa-fw fa-home"></i> Home</a></li>
       </ul>
       <p class="menu-label">
         <i class="fas fa-fw fa-glasses"></i> Reports
       </p>
       <ul class="menu-list">
-        <li><a href="/view/calendar/week"><i class="fas fa-fw fa-calendar"></i> Calendar</a>
+        <!-- <li><a href="/view/calendar/week"><i class="fas fa-fw fa-calendar"></i> Calendar</a>
           <ul>
             <li><a href="/view/calendar/month">Month View</a></li>
             <li><a href="/view/calendar/week">Week View</a></li>
             <li><a href="/view/calendar/day">Day View</a></li>
             <li><a>List View</a></li>
           </ul>
-        </li>
-        <li><a><i class="fas fa-fw fa-chart-line"></i> Charts</a>
+        </li> -->
+        <li><a href="/view/sessions"><i class="fas fa-fw fa-video"></i> Broadcasts List</a></li>
+        <li><a><i class="fas fa-fw fa-chart-line"></i> Metrics</a>
           <ul>
-            <li><a>Composite by Session</a></li>
-            <li><a>Month View</a></li>
-            <li><a>Week View</a></li>
-            <li><a>Day View</a></li>
+            <li><a href="view/metrics/sessions"><i class="fas fa-fw fa-video"></i> Broadcasts</a></li>
+            <li><a href="view/metrics/earnings"><i class="fas fa-fw fa-dollar-sign"></i> Earnings</a></li>
+            <li><a href="view/metrics/followers"><i class="fas fa-fw fa-heart"></i> Followers</a></li>
+            <li><a href="view/metrics/viewers"><i class="fas fa-fw fa-eye"></i> Viewers</a></li>
           </ul>
         </li>
         <li><a class="{{isActiveAsCurrentRouteNamed 'view.logs'}}" href="/view/logs"><i class="fas fa-fw fa-stream"></i> Logs</a></li>
@@ -106,7 +108,7 @@
 
   </div>
 
-  <div id="content-wrapper">
+  <div id="content-wrapper" class="{{#if translucentBackground}}has-effect-translucent-background{{/if}}">
     <section class="{{#unless sectionless}}section{{/unless}}">
       <div class="{{#unless sectionless}}container is-fluid{{/unless}}">
         {{> Template.dynamic template=content}}

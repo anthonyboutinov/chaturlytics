@@ -1,10 +1,51 @@
 <template name="calendarView">
 
-  <nav class="pagination is-centered is-rounded" role="navigation" aria-label="pagination" style="padding: .75rem 1.5rem;min-height:4.5rem">
+  <div class="container is-fluid" style="padding: .5rem 1.5rem;">
+    <div class="level">
+      <div class="level-left">
+        <div class="level-item is-size-3">
+          <span class="has-text-weight-semibold">September</span>&nbsp;<span class="has-text-weight-light">2018</span>
+        </div>
+      </div>
+      <div class="level-right">
+        <div class="level-item">
+
+          <div class="field has-addons">
+            <p class="control">
+              <a class="button act-previous">
+                <span class="icon is-small">
+                  <i class="fas fa-fw fa-chevron-left"></i>
+                </span>
+                <!-- <span>Previous</span> -->
+              </a>
+            </p>
+            <p class="control">
+              <a class="button go-today">
+                <span>Today</span>
+              </a>
+            </p>
+            <p class="control">
+              <a class="button act-next">
+                <span class="icon is-small">
+                  <i class="fas fa-fw fa-chevron-right"></i>
+                </span>
+                <!-- <span>Next</span> -->
+              </a>
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- <nav class="pagination is-centered is-rounded" role="navigation" aria-label="pagination">
     <a class="pagination-previous has-background-white" style="min-width: 8em"><i class="fas fa-fw fa-chevron-left"></i> Previous</a>
     <a class="pagination-next has-background-white" style="min-width: 8em;">Next <i class="fas fa-fw fa-chevron-right"></i></a>
-    <div class="pagination-list">Now</div>
-  </nav>
+    <div class="pagination-list">
+      <a class="scroll-to-today">Now</a>
+    </div>
+  </nav> -->
 
   <div id="calendar" style="height: calc(99.5vh - 3.25rem - 4.5rem);"></div>
 

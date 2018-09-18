@@ -39,6 +39,7 @@ Meteor.methods({
       fields: {url: 1, username: 1},
       reactive: false,
     }).forEach(function(item) {
+      console.log("Calling dataPoints.getDataPointFromChaturbate for " + item.username);
       Meteor.call('dataPoints.getDataPointFromChaturbate', item.url, item.username);
     });
   },
@@ -132,8 +133,10 @@ Meteor.methods({
       // Check sooner in and around a session, check less ofter during the off-time
 
 
+      const isOnline = rawDataPoint.time_online > -1;
+      let isOnlineOrJustFinishedStreaming = isOnline;
       // Check if the session has recently started
-      if (rawDataPoint.time_online > -1 && !lastSessionId) {
+      if (isOnline && !lastSessionId) {
         // Create a new session
         // With start time of broadcast start time
         endTime = new Date();
@@ -147,7 +150,7 @@ Meteor.methods({
         console.log("session started", {startTime, endTime});
       } else
       // else check if session has recently finished
-      if (rawDataPoint.time_online === -1 && lastSessionId) {
+      if (!isOnline && lastSessionId) {
         const lastSession = Sessions.findOne(lastSessionId);
         // if finished we're after last session's data point
         if (lastSession.endTime) {
@@ -169,21 +172,19 @@ Meteor.methods({
           // Make this data point a part of that sessions
           endTime = rawDataPoint.last_broadcast;
           sessionId = lastDataPoint.sessionId;
+          isOnlineOrJustFinishedStreaming = true;
           console.log("session finished, updating session", {endTime});
         }
       } else
       // else if this is during an off-time
-      if (rawDataPoint.time_online === -1 && !lastSessionId) {
+      if (!isOnline && !lastSessionId) {
         // Maybe we can simply update the last data point instead of creating a new one?
         console.log("off-time");
         updateInsteadOfCreatingANewDataPoint = lastDataPoint
           && lastDataPoint.rawTokens === rawDataPoint.token_balance
           && lastDataPoint.rawFollowers === rawDataPoint.num_followers
           && lastDataPoint.votesUp === rawDataPoint.votes_up
-          && lastDataPoint.votesDown === rawDataPoint.votes_down
-          && lastDataPoint.numViewers === rawDataPoint.num_viewers
-          && lastDataPoint.numRegisteredViewers === rawDataPoint.num_registered_viewers
-          && lastDataPoint.numTokenedViewers === rawDataPoint.num_tokened_viewers;
+          && lastDataPoint.votesDown === rawDataPoint.votes_down;
         nextCheckOption = nextCheckOptionLater;
       } else // else if the session is ongoing
       {
@@ -229,6 +230,7 @@ Meteor.methods({
 
         const dataPoint = {
           userId,
+          username: rawDataPoint.username,
           sessionId,
           startTime: startTime || lastDataPoint ? lastDataPoint.endTime : null,
           endTime: endTime || new Date(),
@@ -236,9 +238,9 @@ Meteor.methods({
           rawTokens: rawDataPoint.token_balance,
           deltaFollowers: lastDataPoint ? rawDataPoint.num_followers - lastDataPoint.rawFollowers : rawDataPoint.num_followers,
           deltaTokens,
-          numViewers: rawDataPoint.num_viewers,
-          numRegisteredViewers: rawDataPoint.num_registered_viewers,
-          numTokenedViewers: rawDataPoint.num_tokened_viewers,
+          numViewers: isOnlineOrJustFinishedStreaming ? rawDataPoint.num_viewers : 0,
+          numRegisteredViewers: isOnlineOrJustFinishedStreaming ? rawDataPoint.num_registered_viewers : 0,
+          numTokenedViewers: isOnlineOrJustFinishedStreaming ? rawDataPoint.num_tokened_viewers : 0,
           satisfactionScore: rawDataPoint.satisfaction_score,
           votesUp: rawDataPoint.votes_up,
           votesDown: rawDataPoint.votes_down
@@ -272,4 +274,27 @@ Meteor.methods({
     }
 
   },
+
+  'dataPoints.getAvgTokensPerHourDuringOnlineTime'() {
+    if (!this.userId) {
+      return false;
+    }
+    let sum = 0;
+    let hours = 0;
+    DataPoints.find({
+      userId: this.userId,
+      sessionId: {$ne: null},
+      startTime: {$ne: null},
+    }, {
+      fields: {
+        deltaTokens: 1,
+        startTime: 1,
+        endTime: 1,
+      }
+    }).map(function(doc) {
+      sum += doc.deltaTokens;
+      hours += moment(doc.endTime).diff(doc.startTime, 'hours', true); // If you want a floating point number, pass true as the third argument;
+    });
+    return Math.round(sum / hours);
+  }
 });

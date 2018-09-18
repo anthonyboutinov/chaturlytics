@@ -28,3 +28,4 @@ accounts-ui
 fourseven:scss
 seba:minifiers-autoprefixer
 momentjs:moment
+littledata:synced-cron

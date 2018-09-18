@@ -20,4 +20,15 @@ Meteor.methods({
     }
     return Sessions.remove({_id, userId: this.userId});
   },
+
+  'sessions.countInDateRange'() {
+    if (!this.userId) {
+      return false;
+    }
+    const userDashboardSessionsCountDateRange = 30; //days
+    return Sessions.find({
+      userId: this.userId,
+      startTime: {$gte: moment().subtract(userDashboardSessionsCountDateRange, 'days').toDate()}
+    }).count();
+  },
 });

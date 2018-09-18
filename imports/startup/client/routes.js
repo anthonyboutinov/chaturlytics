@@ -4,15 +4,17 @@ import { BlazeLayout } from 'meteor/kadira:blaze-layout';
 // Import needed templates
 import '../../ui/layouts/body/body.js';
 import '../../ui/pages/home/home.js';
+import '../../ui/pages/logs/logs.js';
 import '../../ui/pages/calendarViews/calendarViews.js';
 import '../../ui/pages/settings/settings.js';
+import '../../ui/pages/sessions/sessions.js';
 import '../../ui/pages/not-found/not-found.js';
 
 // Set up all routes in the app
 FlowRouter.route('/', {
   name: 'home',
   action() {
-    BlazeLayout.render('Layout_body', { content: 'Page_home' });
+    BlazeLayout.render('Layout_body', { content: 'Page_home', translucentBackground: true });
   },
 });
 
@@ -38,10 +40,20 @@ let viewRouts = FlowRouter.group({
 viewRouts.route('/logs', {
   name: 'view.logs',
   action() {
-    BlazeLayout.render('Layout_body', { content: 'Page_home' });
+    BlazeLayout.render('Layout_body', { content: 'Page_logs' });
   },
   triggersEnter: [function(context, redirect) {
     console.log('running /logs trigger');
+  }]
+});
+
+viewRouts.route('/sessions', {
+  name: 'view.sessions',
+  action() {
+    BlazeLayout.render('Layout_body', { content: 'Page_sessions', sectionless: true });
+  },
+  triggersEnter: [function(context, redirect) {
+    console.log('running /sessions trigger');
   }]
 });
 
@@ -51,7 +63,7 @@ viewRouts.route('/calendar/:calendarViewMode', {
     BlazeLayout.render('Layout_body', { content: 'Page_calendarViews', sectionless: true });
   },
   triggersEnter: [function(context, redirect) {
-    console.log('running /logs trigger');
+    console.log('running /calendar trigger');
   }]
 });
 

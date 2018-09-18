@@ -12,6 +12,9 @@ Template.Page_settings.helpers({
   userProfiles() {
     return UserProfiles.find();
   },
+  hasMultipleUserProfiles() {
+    return UserProfiles.find().count() > 1;
+  }
 });
 
 Template.Page_settings.events({
@@ -25,5 +28,15 @@ Template.Page_settings.events({
         target.url.value = '';
       }
     });
-  }
+  },
+
+  'click .set-current-userprofile'(event) {
+    event.preventDefault();
+    Meteor.call('userProfiles.setCurrent', this.username);
+  },
+
+  'click .toggle-data-collection'(event) {
+    event.preventDefault();
+    Meteor.call('userProfiles.toggleDataCollection', this.username, !this.isActive);
+  },
 });

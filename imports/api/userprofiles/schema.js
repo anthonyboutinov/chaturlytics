@@ -33,6 +33,12 @@ UserProfiles.schema = new SimpleSchema({
     optional: true,
   },
 
+  isCurrent: {
+    type: Boolean,
+    optional: true,
+    defaultValue: true,
+  }
+
 });
 
 UserProfiles.attachSchema(UserProfiles.schema);

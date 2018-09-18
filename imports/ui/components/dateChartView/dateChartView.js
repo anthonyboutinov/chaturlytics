@@ -4,8 +4,9 @@ import './dateChartView.html';
 import { DataPoints } from '/imports/api/datapoints/datapoints.js';
 
 
-Template.logsView.onCreated(function () {
+Template.dateChartView.onCreated(function () {
   // Meteor.subscribe('dataPoints.forDates', (new Date()).subMinutes(60*24), new Date());
+  // FIXME: subscribe to sessions's datapoints
   Meteor.subscribe('dataPoints.all');
 
   Meteor.setTimeout(function () {
@@ -20,7 +21,8 @@ Template.logsView.onCreated(function () {
       });
     }
 
-    const dataPoints = DataPoints.find({sessionId: {$ne: null}}).fetch();
+    let dataPoints = DataPoints.find({sessionId: {$ne: null}}).fetch();
+    dataPoints.unshift(DataPoints.findOne({endTime: dataPoints[0].startTime}));
     const dataPointProjections = {
       rawFollowers: _mapToTime(dataPoints, 'rawFollowers'),
       numViewers: _mapToTime(dataPoints, 'numViewers'),
@@ -37,38 +39,42 @@ Template.logsView.onCreated(function () {
         data: {
           datasets: [
             {
-              label: "Number of Followers",
+              label: "Followers Overall",
               fill: false,
               borderColor: '#6b4661',
+              pointBackgroundColor: '#6b4661',
               data: dataPointProjections.rawFollowers,
               yAxisID: 'B',
               lineTension: 0,
             },
             {
-              label: "Number of Viewers",
+              label: "Viewers Overall",
               fill: false,
               borderColor: '#21668f',
+              pointBackgroundColor: '#21668f',
               data: dataPointProjections.numViewers,
               yAxisID: 'A',
-              lineTension: 0,
+              // lineTension: 0,
               // steppedLine: true,
             },
             {
               label: "Number of Registered Viewers",
               fill: false,
               borderColor: '#4aaa97',
+              pointBackgroundColor: '#4aaa97',
               data: dataPointProjections.numRegisteredViewers,
               yAxisID: 'A',
-              lineTension: 0,
+              // lineTension: 0,
               // steppedLine: true,
             },
             {
               label: "Number of Tokened Viewers",
               fill: false,
               borderColor: '#5ac59a',
+              pointBackgroundColor: '#5ac59a',
               data: dataPointProjections.numTokenedViewers,
               yAxisID: 'A',
-              lineTension: 0,
+              // lineTension: 0,
               // steppedLine: true,
             },
           ]

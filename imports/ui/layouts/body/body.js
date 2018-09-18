@@ -1,7 +1,9 @@
 import './body.html';
 import { DataPoints } from '/imports/api/datapoints/datapoints.js';
 import { Sessions } from '/imports/api/sessions/sessions.js';
+import { UserProfiles } from '/imports/api/userprofiles/userprofiles.js';
 import { Meteor } from 'meteor/meteor';
+import { ReactiveVar } from 'meteor/reactive-var';
 
 function isActive(value) {
   return value === true ? "is-active" : null;
@@ -10,7 +12,14 @@ function isActive(value) {
 Template.Layout_body.onCreated(function() {
   var instance = this;
 
-  const subscription = instance.subscribe('sessions.last');
+  instance.subscribe('userProfiles.all');
+
+  instance.subscribe('sessions.last');
+  instance.tokensPerHour = new ReactiveVar('…');
+
+  Meteor.call('dataPoints.getAvgTokensPerHourDuringOnlineTime', function(error, result) {
+    instance.tokensPerHour.set(result);
+  });
 });
 
 Template.Layout_body.helpers({
@@ -21,9 +30,16 @@ Template.Layout_body.helpers({
   },
 
   isBroadcasting() {
+    const liveSession = Sessions.findOne({
+      endTime: null
+    });
+    if (liveSession) {
+      return true;
+    }
     const lastSession = Sessions.findOne({}, {
       orderBy: {endTime: -1}
     });
+    console.log({lastSession});
     if (!lastSession || lastSession.endTime && lastSession.endTime < new Date()) {
       return false;
     } else {
@@ -32,15 +48,34 @@ Template.Layout_body.helpers({
   },
 
   timeOnline() {
+    const liveSession = Sessions.findOne({
+      endTime: null
+    });
+    if (liveSession) {
+      return moment(liveSession.startTime).fromNow(true);
+    } 
+  },
+
+  timeOffline() {
     const lastSession = Sessions.findOne({}, {
       orderBy: {endTime: -1}
     });
-    if (!lastSession || lastSession.endTime && lastSession.endTime < new Date()) {
-      return null;
+    if (!lastSession) {
+      return "Offline";
+    } else if (lastSession.endTime > moment().subtract(1, 'days')) {
+      return "Offline";
     } else {
-      return moment(lastSession.startTime).fromNow(true);
+      return "Offline " + moment(lastSession.endTime).fromNow(true);
     }
   },
+
+  tokensPerHour() {
+    return Template.instance().tokensPerHour.get();
+  },
+
+  currentUserProfile() {
+    return UserProfiles.findOne({isCurrent: true});
+  }
 
 });
 

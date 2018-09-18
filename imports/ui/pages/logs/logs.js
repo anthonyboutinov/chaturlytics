@@ -1,14 +1,15 @@
+import './logs.html';
+
 import { DataPoints } from '/imports/api/datapoints/datapoints.js';
 import { Sessions } from '/imports/api/sessions/sessions.js';
 import { Meteor } from 'meteor/meteor';
-import './logsView.html';
 
 Date.prototype.subMinutes = function(m){
   this.setMinutes(this.getMinutes()-m);
   return this;
 }
 
-Template.logsView.onCreated(function () {
+Template.Page_logs.onCreated(function () {
   // Meteor.subscribe('dataPoints.forDates', (new Date()).subMinutes(60*24), new Date());
   Meteor.subscribe('dataPoints.all');
 
@@ -25,7 +26,7 @@ Template.logsView.onCreated(function () {
   }), 30000);
 });
 
-Template.logsView.helpers({
+Template.Page_logs.helpers({
   dataPoints() {
     return DataPoints.find({});
   },
@@ -34,6 +35,19 @@ Template.logsView.helpers({
   },
   timelll(date) {
     return date ? moment(date).format("lll") : "";
+  },
+  timeframe() {
+    const start = this.startTime ? moment(this.startTime).format('lll') + ' - ' : '-∞ to ';
+    let end = '';
+    let format = 'lll';
+    if (this.endTime) {
+      const isLessThanHourLong = moment(this.endTime).date() === moment(this.startTime).date(); //moment(this.endTime).diff(this.startTime, 'minutes') < 59;
+      if (this.startTime && isLessThanHourLong) {
+        format = 'LT';
+      }
+      end = moment(this.endTime).format(format);
+    }
+    return start + end;
   },
   duration() {
     Template.instance().seconds.get();
@@ -44,15 +58,22 @@ Template.logsView.helpers({
       return moment(this.startTime).fromNow(true);
     }
     const endTime = this.endTime || new Date();
-    return moment(endTime).diff(this.startTime, 'minutes') + " min";
+    const isMoreThanAnHourLong = moment(endTime).diff(this.startTime, 'minutes') > 59;
+    let diffMeasure = 'minutes';
+    let label = 'min';
+    if (isMoreThanAnHourLong) {
+      diffMeasure = 'hours';
+      label = 'h';
+    }
+    return moment(endTime).diff(this.startTime, diffMeasure) + ' ' + label;
   },
 });
 
-Template.logsView.onDestroyed(function() {
+Template.Page_logs.onDestroyed(function() {
   Meteor.clearInterval(this.handle);
 });
 
-Template.logsView.events({
+Template.Page_logs.events({
   // 'submit .add'(event) {
   //   event.preventDefault();
   //   const target = event.target;

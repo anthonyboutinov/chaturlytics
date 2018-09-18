@@ -1,0 +1,41 @@
+<template name="Page_sessions">
+
+  <div class="container is-fluid">
+
+    <div class="columns">
+      <div class="column is-one-third">
+        <div class="section">
+
+        <h3 class="title">Broadcasts List</h3>
+        <p class="subtitle">Select a broadcast to view the details on it.</p>
+        <table class="table is-fullwidth is-hoverable is-size-7">
+          <thead>
+          <tr>
+            <td>From-to</td>
+            <td>Duration</td>
+          </tr>
+          </thead>
+          {{#each sessions}}
+            <tr act-select-session="">
+              <td>{{timeframe}}</td><td>{{duration}}</td>
+            </tr>
+          {{/each}}
+        </table>
+
+        </div>
+
+      </div>
+      <div class="column" style="min-height: calc(100vh - 3.25rem); border-left: 1px solid rgb(233, 233, 233);">
+        <div class="section">
+          {{#with currentlyViewedSession}}
+            <h4 class="title is-size-2">{{timeframe}}</h4>
+            {{> dateChartView}}
+          {{/with}}
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+</template>

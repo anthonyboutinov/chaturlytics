@@ -1,7 +1,23 @@
 // @import "{}/node_modules/bulma/bulma.sass";
 
 
+body, #content-wrapper {
+  min-height: 100vh;
+}
 
+.section .section {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.has-effect-translucent-background {
+  background-color: #f4f6fb;
+  background-image: url('/img/dashboard-background@2x.jpg');
+  background-position: bottom right;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+}
 
 #menu-wrapper {
   position: fixed;
@@ -11,7 +27,12 @@
   left: 0;
   width: 16rem;
   height: auto;
-  background: #f8f8f8;
+  // background: #f8f8f8;
+  background-color: #344258;
+  background-image: url('/img/menubar@2x.jpg');
+  background-position: top;
+  background-repeat: no-repeat;
+  background-size: cover;
   overflow-y: scroll;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
@@ -32,7 +53,8 @@
     }
 
     .menu-label {
-      border-top: 1px solid rgba(0, 0, 0, 0.07);
+      // border-top: 1px solid rgba(0, 0, 0, 0.07);
+      border-top: 1px solid rgba(0, 0, 0, 0.15);
       padding-top: 1.5em;
       padding-left: 2.6em;
       padding-right: 1.25em;
@@ -41,6 +63,19 @@
       }
     }
   }
+
+  .menu-list {
+    a {
+      color: #ffffff;
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.09);
+        color: #ffffff;
+      }
+    }
+  }
+  .menu-label {
+    color: rgba(255, 255, 255, 0.5);
+  }
 }
 
 #content-wrapper {
@@ -48,8 +83,8 @@
   margin-left: 16rem;
 }
 
-.menu-list>li>a {
-  &>.fa, &>.fas {
+.menu-list {
+  & .fa, & .fas {
     margin-right: .75em;
   }
 }
@@ -65,4 +100,51 @@
 
 .navbar-brand {
   width: 17rem;
+}
+
+.card-dashboard {
+  margin-top: 1rem;
+
+  .card-header {
+    box-shadow: none;
+
+    &-title {
+      text-align: right;
+      display: grid;
+      padding-right: 1.5rem;
+      padding-bottom: 0.25rem;
+      padding-top: 1.25rem;
+    }
+    .card-icon-box {
+      transform: translateY(-1rem);
+      display: block;
+      font-size: 4.25rem;
+      width: 1em;
+      height: 1em;
+      box-shadow: 0 14px 26px -12px rgba(127, 0, 255, 0.42), 0 4px 23px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(127, 0, 255, 0.2);
+      margin-left: 0.75rem;
+      margin-bottom: -1.5rem;
+      border-radius: 3px;
+
+      &>i {
+        font-size: 0.33em;
+        line-height: 4.25rem;
+        color: white;
+      }
+    }
+  }
+
+  .card-content {
+    text-align: right;
+    padding-top: 0;
+    padding-bottom: 1rem;
+  }
+
+  .card-footer {
+    border: none;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 5.75rem;
+  }
 }

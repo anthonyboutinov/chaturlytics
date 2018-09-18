@@ -1,0 +1,55 @@
+<template name="dashboardView">
+
+  <div class="columns">
+
+
+    <div class="column is-4">
+      <div class="card card-dashboard">
+        <header class="card-header">
+          <div class="card-icon-box has-background-info">
+            <i class="fas fa-fw fa-video fa-stack-1x fa-inverse"></i>
+          </div>
+          <p class="card-header-title subtitle">
+            Broadcasts
+          </p>
+        </header>
+        <div class="card-content">
+          <span class="has-text-info">
+            <span class="is-size-4">{{sessionsCount}}</span> <span class="is-size-7">this month</span>
+          </span>
+        </div>
+        <div class="card-footer">
+          <div class="card-footer-item">
+            <a href="#" class="has-text-gray">See all</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="column is-4">
+      <div class="card card-dashboard">
+        <header class="card-header">
+          <div class="card-icon-box has-background-success">
+            <i class="fas fa-fw fa-dollar-sign fa-stack-1x fa-inverse"></i>
+          </div>
+          <p class="card-header-title subtitle">
+            Earnings
+          </p>
+        </header>
+        <div class="card-content">
+          <span class="has-text-success">
+            <span class="is-size-7">$</span><span class="is-size-4">1,027</span> <span class="is-size-7">this month</span>
+          </span>
+        </div>
+        <div class="card-footer">
+          <div class="card-footer-item">
+            <a href="#" class="has-text-gray">Details</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+</template>
