@@ -38,8 +38,6 @@ Meteor.publish('dataPoints.forSession', function (sessionId) {
   const firstDataPointForTheSession = DataPoints.findOne({
     userId: this.userId,
     sessionId
-  }, {
-    orderBy: {endTime: -1}
   });
   console.log({firstDataPointForTheSession});
   return DataPoints.find({

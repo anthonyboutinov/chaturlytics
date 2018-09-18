@@ -2,6 +2,8 @@
 
   <h4 class="title is-size-3">{{timeframe session}}</h4>
 
+  <hr>
+
   <nav class="level">
     <div class="level-item has-text-centered">
       <div>
@@ -17,18 +19,38 @@
     </div>
     <div class="level-item has-text-centered">
       <div>
-        <p class="heading">Followers</p>
+        <p class="heading">Followers <i class="fas fa-fw fa-info-circle has-text-grey-light"></i></p>
         <p class="title is-size-4">+{{sumColumn 'deltaFollowers'}}</p>
       </div>
     </div>
     <div class="level-item has-text-centered">
       <div>
-        <p class="heading">Viewers</p>
+        <p class="heading">Viewers <i class="fas fa-fw fa-info-circle has-text-grey-light"></i></p>
         <p class="title is-size-4">{{viewers}}</p>
       </div>
     </div>
   </nav>
 
-  {{> dateChartView session=session}}
+  <hr>
+
+  <h5 class="title is-size-4">Combined Chart</h5>
+  {{#with combinedChartConfig}}
+    {{> dateChartView session=session chartConfig=chartConfig}}
+  {{/with}}
+
+  <h5 class="title is-size-4">Tokens</h5>
+  {{#with tokensChartConfig}}
+    {{> dateChartView session=session chartConfig=chartConfig}}
+  {{/with}}
+
+  <h5 class="title is-size-4">Followers</h5>
+  {{#with followersChartConfig}}
+    {{> dateChartView session=session chartConfig=chartConfig}}
+  {{/with}}
+
+  <h5 class="title is-size-4">Viewers</h5>
+  {{#with viewersChartConfig}}
+    {{> dateChartView session=session chartConfig=chartConfig}}
+  {{/with}}
 
 </template>

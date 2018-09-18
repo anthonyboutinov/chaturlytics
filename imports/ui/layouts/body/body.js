@@ -38,7 +38,7 @@ Template.Layout_body.helpers({
       return true;
     }
     const lastSession = Sessions.findOne({}, {
-      orderBy: {endTime: -1}
+      sort: {endTime: -1}
     });
     console.log({lastSession});
     if (!lastSession || lastSession.endTime && lastSession.endTime < new Date()) {
@@ -59,7 +59,7 @@ Template.Layout_body.helpers({
 
   timeOffline() {
     const lastSession = Sessions.findOne({}, {
-      orderBy: {endTime: -1}
+      sort: {endTime: -1}
     });
     if (!lastSession) {
       return "Offline";

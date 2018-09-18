@@ -28,10 +28,14 @@ Template.Page_logs.onCreated(function () {
 
 Template.Page_logs.helpers({
   dataPoints() {
-    return DataPoints.find({});
+    return DataPoints.find({}, {
+      sort: {endTime: -1}
+    });
   },
   sessions() {
-    return Sessions.find({});
+    return Sessions.find({}, {
+      sort: {endTime: -1}
+    });
   },
   timelll(date) {
     return date ? moment(date).format("lll") : "";

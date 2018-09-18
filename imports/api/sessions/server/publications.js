@@ -45,7 +45,7 @@ Meteor.publish('sessions.last', function() {
 
   Meteor._sleepForMs(2000);
   return Sessions.find({userId: this.userId}, {
-    orderBy: {endTime: -1},
+    sort: {endTime: -1},
     limit: 1
   });
 });

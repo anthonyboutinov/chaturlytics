@@ -26,7 +26,9 @@ Template.Page_sessions.onCreated(function () {
 Template.Page_sessions.helpers({
 
   sessions() {
-    return Sessions.find({});
+    return Sessions.find({}, {
+      sort: {endTime: -1}
+    });
   },
   timelll(date) {
     return date ? moment(date).format("lll") : "";
