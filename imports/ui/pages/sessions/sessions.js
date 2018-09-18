@@ -21,6 +21,7 @@ Template.Page_sessions.onCreated(function () {
   }), 30000);
 
   instance.currentlyViewedSession = new ReactiveVar();
+
 });
 
 Template.Page_sessions.helpers({
@@ -30,9 +31,11 @@ Template.Page_sessions.helpers({
       sort: {endTime: -1}
     });
   },
+
   timelll(date) {
     return date ? moment(date).format("lll") : "";
   },
+
   timeframe() {
     const start = this.startTime ? moment(this.startTime).format('lll') + ' - ' : '-∞ to ';
     let end = '';
@@ -64,6 +67,14 @@ Template.Page_sessions.helpers({
 
   currentlyViewedSession() {
     return Template.instance().currentlyViewedSession.get();
+    // FlowRouter.watchPathChange();
+    // const session = Sessions.findOne({_id: FlowRouter.getParam('_id')});
+    // console.log({session});
+    // return session;
+  },
+
+  isActive() {
+    return this._id === Template.instance().currentlyViewedSession.get()._id ? "active" : null;
   }
 
 });
@@ -74,9 +85,15 @@ Template.Page_sessions.onDestroyed(function() {
 
 Template.Page_sessions.events({
 
-  'click tr[act-select-session]'(event, instance) {
+  'click .do-open'(event, instance) {
     event.preventDefault();
-    instance.currentlyViewedSession.set(this);
-    console.log({currentlyViewedSessionSetTo: this});
+    const self = this;
+    Meteor.setTimeout(()=>{
+      instance.currentlyViewedSession.set(self);
+      // console.log({currentlyViewedSessionSetTo: self});
+    }, 200);
+    instance.currentlyViewedSession.set(null);
+    // console.log({currentlyViewedSessionSetTo: null});
+
   }
 });

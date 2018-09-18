@@ -47,7 +47,7 @@ viewRouts.route('/logs', {
   }]
 });
 
-viewRouts.route('/sessions', {
+viewRouts.route('/sessions/:_id?', {
   name: 'view.sessions',
   action() {
     BlazeLayout.render('Layout_body', { content: 'Page_sessions', sectionless: true });

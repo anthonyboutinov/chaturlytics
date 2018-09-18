@@ -34,7 +34,7 @@ Template.dateChartView.onRendered(function () {
         });
       }
 
-      Meteor.setTimeout(() => {
+      // Meteor.setTimeout(() => {
 
         console.log({instance});
 
@@ -82,23 +82,23 @@ Template.dateChartView.onRendered(function () {
             xAxes: [{
                 type: 'time',
                 time: {
-                    displayFormats: {
-                        quarter: 'MMM D'
-                    }
+                  displayFormats: {
+                    quarter: 'MMM D'
+                  }
                 }
             }]
           },
         };
 
         if (dataPointProjections.rawFollowers) {
-            options.scales.yAxes.push({
-              id: 'followers',
-              type: 'linear',
-              position: 'right',
-              ticks: {
-                min: dataPointProjections.rawFollowers[0].y,
-              },
-            });
+          options.scales.yAxes.push({
+            id: 'followers',
+            type: 'linear',
+            position: 'right',
+            ticks: {
+              min: dataPointProjections.rawFollowers[0].y,
+            },
+          });
         }
 
         let hasThird = false;
@@ -115,24 +115,19 @@ Template.dateChartView.onRendered(function () {
           });
         }
 
-        console.log(dataPointProjections);
-
         instance.dataReady.set(true);
         instance.chart = new Chart(drawingContext, {
-            // The type of chart we want to create
-            type: dataContext.chartConfig.type || 'line',
-            // The data for our dataset
-            data: {
-              datasets
-            },
-            // Configuration options go here
-            options: options
+          // The type of chart we want to create
+          type: dataContext.chartConfig.type || 'line',
+          // The data for our dataset
+          data: {
+            datasets
+          },
+          // Configuration options go here
+          options: options
         });
 
-        console.log(instance.chart);
-
-
-      }, 0);
+      // }, 0);
     }); // eof Meteor.subscribe
 
   }); // eof autorun

@@ -9,15 +9,14 @@
         <h3 class="title">Broadcasts List</h3>
         <p class="subtitle">Select a broadcast to view the details on it.</p>
         <table class="table is-fullwidth is-hoverable is-size-7">
-          <thead>
-          <tr>
-            <td>From-to</td>
-            <td>Duration</td>
-          </tr>
-          </thead>
           {{#each sessions}}
             <tr act-select-session="">
-              <td>{{timeframe}}</td><td>{{duration}}</td>
+              <td>
+                <a class="do-open {{isActive}}" href="#">
+                  {{timeframe}}<br>
+                  {{duration}}
+                </a>
+              </td>
             </tr>
           {{/each}}
         </table>
