@@ -1,6 +1,6 @@
 import './sessions.html';
 
-import '../../components/dateChartView/dateChartView.js';
+import '../../components/sessionInfoView/sessionInfoView.js';
 
 // import { DataPoints } from '/imports/api/datapoints/datapoints.js';
 import { Sessions } from '/imports/api/sessions/sessions.js';
@@ -44,23 +44,20 @@ Template.Page_sessions.helpers({
     }
     return start + end;
   },
+
   duration() {
     Template.instance().seconds.get();
+
     if (!this.startTime) {
       return null;
     }
+
     if (!this.endTime) {
       return moment(this.startTime).fromNow(true);
     }
     const endTime = this.endTime || new Date();
-    const isMoreThanAnHourLong = moment(endTime).diff(this.startTime, 'minutes') > 59;
-    let diffMeasure = 'minutes';
-    let label = 'min';
-    if (isMoreThanAnHourLong) {
-      diffMeasure = 'hours';
-      label = 'h';
-    }
-    return moment(endTime).diff(this.startTime, diffMeasure) + ' ' + label;
+    const duration = moment.duration(moment(endTime).diff(this.startTime));
+    return duration.format("h [hrs] m [min]");
   },
 
   currentlyViewedSession() {
@@ -75,7 +72,7 @@ Template.Page_sessions.onDestroyed(function() {
 
 Template.Page_sessions.events({
 
-  'tr[act-select-session]'(event, instance) {
+  'click tr[act-select-session]'(event, instance) {
     event.preventDefault();
     instance.currentlyViewedSession.set(this);
     console.log({currentlyViewedSessionSetTo: this});

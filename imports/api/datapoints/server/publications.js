@@ -27,3 +27,26 @@ Meteor.publish('dataPoints.forDates', function (startTime, endTime) {
     endTime : { $lte: endTime }
   });
 });
+
+Meteor.publish('dataPoints.forSession', function (sessionId) {
+  if (!this.userId) {
+    return this.ready();
+  }
+  check(sessionId, String);
+
+  Meteor._sleepForMs(2000);
+  const firstDataPointForTheSession = DataPoints.findOne({
+    userId: this.userId,
+    sessionId
+  }, {
+    orderBy: {endTime: -1}
+  });
+  console.log({firstDataPointForTheSession});
+  return DataPoints.find({
+    userId: this.userId,
+    $or: [
+      {sessionId},
+      {endTime: firstDataPointForTheSession.startTime}
+    ]
+  });
+});

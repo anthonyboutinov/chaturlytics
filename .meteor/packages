@@ -29,3 +29,4 @@ fourseven:scss
 seba:minifiers-autoprefixer
 momentjs:moment
 littledata:synced-cron
+oaf:moment-duration-format

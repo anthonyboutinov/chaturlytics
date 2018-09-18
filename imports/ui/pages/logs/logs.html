@@ -29,7 +29,7 @@
           <td class="has-text-right">{{numViewers}}</td>
           <td class="has-text-right">{{numRegisteredViewers}}</td>
           <td class="has-text-right">{{numTokenedViewers}}</td>
-          <td><a class="delete-dataPoint delete has-background-danger"></a></td>
+          <td class="has-text-right"><a class="delete-dataPoint delete has-background-danger"></a></td>
         </tr>
       {{/each}}
     </table>
@@ -49,7 +49,7 @@
       {{#each sessions}}
         <tr>
           <td>{{_id}}</td><td>{{timeframe}}</td><td>{{duration}}</td>
-          <td><a class="delete delete-session has-background-danger"></a></td>
+          <td class="has-text-right"><a class="delete delete-session has-background-danger"></a></td>
         </tr>
       {{/each}}
     </table>

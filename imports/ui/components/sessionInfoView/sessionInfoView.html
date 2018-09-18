@@ -1,0 +1,34 @@
+<template name="sessionInfoView">
+
+  <h4 class="title is-size-3">{{timeframe session}}</h4>
+
+  <nav class="level">
+    <div class="level-item has-text-centered">
+      <div>
+        <p class="heading">Duration</p>
+        <p class="title is-size-4">{{duration}}</p>
+      </div>
+    </div>
+    <div class="level-item has-text-centered">
+      <div>
+        <p class="heading">Tokens</p>
+        <p class="title is-size-4">+{{sumColumn 'deltaTokens'}}</p>
+      </div>
+    </div>
+    <div class="level-item has-text-centered">
+      <div>
+        <p class="heading">Followers</p>
+        <p class="title is-size-4">+{{sumColumn 'deltaFollowers'}}</p>
+      </div>
+    </div>
+    <div class="level-item has-text-centered">
+      <div>
+        <p class="heading">Viewers</p>
+        <p class="title is-size-4">{{viewers}}</p>
+      </div>
+    </div>
+  </nav>
+
+  {{> dateChartView session=session}}
+
+</template>

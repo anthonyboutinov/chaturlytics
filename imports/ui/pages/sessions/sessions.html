@@ -27,10 +27,9 @@
       </div>
       <div class="column" style="min-height: calc(100vh - 3.25rem); border-left: 1px solid rgb(233, 233, 233);">
         <div class="section">
-          {{#with currentlyViewedSession}}
-            <h4 class="title is-size-2">{{timeframe}}</h4>
-            {{> dateChartView}}
-          {{/with}}
+          {{#if currentlyViewedSession}}
+            {{> sessionInfoView session=currentlyViewedSession}}
+          {{/if}}
         </div>
       </div>
     </div>

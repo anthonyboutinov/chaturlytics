@@ -5,6 +5,7 @@ import { UserProfiles } from '/imports/api/userprofiles/userprofiles.js';
 import { Meteor } from 'meteor/meteor';
 import { ReactiveVar } from 'meteor/reactive-var';
 
+
 function isActive(value) {
   return value === true ? "is-active" : null;
 }
@@ -53,7 +54,7 @@ Template.Layout_body.helpers({
     });
     if (liveSession) {
       return moment(liveSession.startTime).fromNow(true);
-    } 
+    }
   },
 
   timeOffline() {

@@ -51,21 +51,17 @@ Template.Page_logs.helpers({
   },
   duration() {
     Template.instance().seconds.get();
+
     if (!this.startTime) {
       return null;
     }
+
     if (!this.endTime) {
       return moment(this.startTime).fromNow(true);
     }
     const endTime = this.endTime || new Date();
-    const isMoreThanAnHourLong = moment(endTime).diff(this.startTime, 'minutes') > 59;
-    let diffMeasure = 'minutes';
-    let label = 'min';
-    if (isMoreThanAnHourLong) {
-      diffMeasure = 'hours';
-      label = 'h';
-    }
-    return moment(endTime).diff(this.startTime, diffMeasure) + ' ' + label;
+    const duration = moment.duration(moment(endTime).diff(this.startTime));
+    return duration.format("h [hrs] m [min]");
   },
 });
 
