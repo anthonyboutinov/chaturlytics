@@ -1,0 +1,75 @@
+<template name="Page_profiles">
+  <h2 class="title">Manage Profiles</h2>
+
+  <nav class="panel">
+    <p class="panel-heading">
+      Add user profile to track
+    </p>
+    <div class="panel-block">
+
+      <div class="columns">
+        <div class="column is-one-half">
+
+          <form name="addUserProfile">
+            <label class="label">Chaturbate Token URL</label>
+            <div class="field has-addons">
+              <div class="control is-expanded">
+                <input class="input" type="text" placeholder="URL" name="url">
+              </div>
+              <div class="control">
+                <button type="submit" class="button is-primary">Submit</button>
+              </div>
+            </div>
+          </form>
+
+        </div>
+        <div class="column is-size-7 has-text-dark">
+          <p>On Chaturbate, go to <a href="https://chaturbate.com/statsapi/authtoken/" target="_blank">Authorize your 3rd party stats</a> (the link can also be found in Settings & Privacy page, in Statistics section). Create a new token, copy and paste Token URL to this field here and click Submit. From this moment, we will start tracking your statistics. </p><p>You can track multiple accounts at once.</p>
+        </div>
+
+      </div>
+
+    </div>
+  </nav>
+
+  <table class="table is-fullwidth">
+    <thead>
+      <tr>
+        {{#if hasMultipleUserProfiles}}<td>Display Stats</td>{{/if}}
+        <td>Collect Data</td>
+        <td>Username</td>
+        <td colspan="2">Token</td>
+        <td>Next Sync</td>
+      </tr>
+    </thead>
+    {{#if hasMultipleUserProfiles}}
+      <tfoot>
+        <tr>
+          <td colspan="6">Total: {{userProfiles.count}} items</td>
+        </tr>
+      </tfoot>
+    {{/if}}
+    <tbody>
+      {{#each userProfiles}}
+        <tr>
+          {{#if hasMultipleUserProfiles}}
+            <td class="has-text-centered">
+              <a class="set-current-userprofile" title="Switch to {{username}}">
+                <i class="fas fa-fw {{#if isCurrent}}fa-dot-circle has-text-success{{else}}fa-circle has-text-gray{{/if}} is-size-4"></i>
+              </a>
+            </td>
+          {{/if}}
+          <td class="has-text-centered">
+            <a class="toggle-data-collection" title="{{#if isActive}}Disable data collection{{else}}Enable data collection{{/if}}">
+              <i class="fas fa-fw {{#if isActive}}fa-toggle-on has-text-success{{else}}fa-toggle-off has-text-gray{{/if}} is-size-4"></i>
+            </a>
+          </td>
+          <td>{{username}}</td>
+          <td class="has-text-right"> <i class="fas fa-fw {{#if urlTokenHasExpired}}fa-exclamation-circle has-text-danger{{else}}fa-circle has-text-success{{/if}} is-size-5" title="{{#if urlTokenHasExpired}}Token has expired{{else}}Token is active{{/if}}"></i> </td>
+          <td>{{url}}</td>
+          <td>{{nextSync}}</td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</template>

@@ -158,3 +158,24 @@ body, #content-wrapper {
 .chart-wrapper {
   margin-bottom: 1.5rem;
 }
+
+.do-open {
+  display: block;
+}
+
+.section.is-small {
+  padding-top: 0;
+}
+
+.contenteditable {
+  border-radius: 4px;
+  padding: 0.5em 1em;
+  margin: -0.5em -1em;
+
+  &:hover {
+    background-color: #fcfcfc;
+  }
+  &:focus {
+    background-color: #fefefe;
+  }
+}

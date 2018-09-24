@@ -22,7 +22,7 @@ UserProfiles.schema = new SimpleSchema({
     regEx: SimpleSchema.RegEx.Url
   },
 
-  nextCheck: {
+  nextSync: {
     type: Date,
     optional: true,
     defaultValue: null

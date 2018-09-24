@@ -8,18 +8,31 @@
 
         <h3 class="title">Broadcasts List</h3>
         <p class="subtitle">Select a broadcast to view the details on it.</p>
-        <table class="table is-fullwidth is-hoverable is-size-7">
-          {{#each sessions}}
-            <tr act-select-session="">
-              <td>
-                <a class="do-open {{isActive}}" href="#">
-                  {{timeframe}}<br>
-                  {{duration}}
-                </a>
-              </td>
-            </tr>
-          {{/each}}
-        </table>
+        {{#if sessions.count}}
+          <table class="table is-fullwidth is-hoverable is-size-6">
+            <tfoot>
+              <tr>
+                <td>Total: {{sessions.count}} items</td>
+              </tr>
+            </tfoot>
+            <tbody>
+              {{#each sessions}}
+                <tr act-select-session="" class="{{isActive}}">
+                  <td>
+                    <a class="do-open" href="#">
+                      {{timeframe}}<br>
+                      <span class="is-size-7">{{duration}}</span>
+                    </a>
+                  </td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        {{else}}
+          <div class="chart-loading-screen is-size-7">
+            <i class="fas fa-fw fa-spinner fa-pulse"></i> Loading data...
+          </div>
+        {{/if}}
 
         </div>
 

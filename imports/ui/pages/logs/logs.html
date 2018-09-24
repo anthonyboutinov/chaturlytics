@@ -3,7 +3,7 @@
 
   <div class="section">
     <h3 class="is-size-4 title">Data Points</h3>
-    <table class="table is-fullwidth is-hoverable is-size-7">
+    <table class="table is-fullwidth is-striped is-size-7">
       <thead>
         <tr>
           <td></td>
@@ -17,41 +17,45 @@
           <td></td>
         </tr>
       </thead>
-      {{#each dataPoints}}
-        <tr>
-          <td>
-            {{#if sessionId}}<i class="fas fa-video has-text-success" title="Broadcasting"></i>{{/if}}
-          </td>
-          <td>{{timeframe}}</td>
-          <td>{{duration}}</td>
-          <td class="has-text-right">{{deltaTokens}} TKN</td>
-          <td class="has-text-right">{{deltaFollowers}}</td>
-          <td class="has-text-right">{{numViewers}}</td>
-          <td class="has-text-right">{{numRegisteredViewers}}</td>
-          <td class="has-text-right">{{numTokenedViewers}}</td>
-          <td class="has-text-right"><a class="delete-dataPoint delete has-background-danger"></a></td>
-        </tr>
-      {{/each}}
+      <tbody>
+        {{#each dataPoints}}
+          <tr>
+            <td>
+              {{#if sessionId}}<i class="fas fa-video has-text-success" title="Broadcasting"></i>{{/if}}
+            </td>
+            <td>{{timeframe}}</td>
+            <td>{{duration}}</td>
+            <td class="has-text-right">{{deltaTokens}} TKN</td>
+            <td class="has-text-right">{{deltaFollowers}}</td>
+            <td class="has-text-right">{{numViewers}}</td>
+            <td class="has-text-right">{{numRegisteredViewers}}</td>
+            <td class="has-text-right">{{numTokenedViewers}}</td>
+            <td class="has-text-right"><a class="delete-dataPoint delete has-background-danger"></a></td>
+          </tr>
+        {{/each}}
+      </tbody>
     </table>
   </div>
 
   <div class="section">
     <h3 class="is-size-4 title">Broadcasts</h3>
-    <table class="table is-fullwidth is-hoverable is-size-7">
+    <table class="table is-fullwidth is-striped is-size-7">
       <thead>
-      <tr>
-        <td>SessionId</td>
-        <td>From-To</td>
-        <td>Duration</td>
-        <td></td>
-      </tr>
-      </thead>
-      {{#each sessions}}
         <tr>
-          <td>{{_id}}</td><td>{{timeframe}}</td><td>{{duration}}</td>
-          <td class="has-text-right"><a class="delete delete-session has-background-danger"></a></td>
+          <td>SessionId</td>
+          <td>From-To</td>
+          <td>Duration</td>
+          <td></td>
         </tr>
-      {{/each}}
+      </thead>
+      <tbody>
+        {{#each sessions}}
+          <tr>
+            <td>{{_id}}</td><td>{{timeframe}}</td><td>{{duration}}</td>
+            <td class="has-text-right"><a class="delete delete-session has-background-danger"></a></td>
+          </tr>
+        {{/each}}
+      </tbody>
     </table>
   </div>
 </template>

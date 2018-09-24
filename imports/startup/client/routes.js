@@ -7,6 +7,7 @@ import '../../ui/pages/home/home.js';
 import '../../ui/pages/logs/logs.js';
 import '../../ui/pages/calendarViews/calendarViews.js';
 import '../../ui/pages/settings/settings.js';
+import '../../ui/pages/profiles/profiles.js';
 import '../../ui/pages/sessions/sessions.js';
 import '../../ui/pages/not-found/not-found.js';
 
@@ -19,12 +20,20 @@ FlowRouter.route('/', {
 });
 
 
+FlowRouter.route('/profiles', {
+  name: 'profiles',
+  action() {
+    BlazeLayout.render('Layout_body', { content: 'Page_profiles' });
+  },
+});
+
 FlowRouter.route('/settings', {
   name: 'settings',
   action() {
     BlazeLayout.render('Layout_body', { content: 'Page_settings' });
   },
 });
+
 
 
 

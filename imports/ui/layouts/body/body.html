@@ -85,13 +85,13 @@
             <li><a>List View</a></li>
           </ul>
         </li> -->
-        <li><a href="/view/sessions"><i class="fas fa-fw fa-video"></i> Broadcasts List</a></li>
+        <li><a class="{{isActiveAsCurrentRouteNamed 'view.sessions'}}" href="/view/sessions"><i class="fas fa-fw fa-video"></i> Broadcasts List</a></li>
         <li><a><i class="fas fa-fw fa-chart-line"></i> Metrics</a>
           <ul>
-            <li><a href="view/metrics/sessions"><i class="fas fa-fw fa-video"></i> Broadcasts</a></li>
-            <li><a href="view/metrics/earnings"><i class="fas fa-fw fa-dollar-sign"></i> Earnings</a></li>
-            <li><a href="view/metrics/followers"><i class="fas fa-fw fa-heart"></i> Followers</a></li>
-            <li><a href="view/metrics/viewers"><i class="fas fa-fw fa-eye"></i> Viewers</a></li>
+            <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics.sessions'}}" href="view/metrics/sessions"><i class="fas fa-fw fa-video"></i> Broadcasts</a></li>
+            <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics.earnings'}}" href="view/metrics/earnings"><i class="fas fa-fw fa-dollar-sign"></i> Earnings</a></li>
+            <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics.followers'}}" href="view/metrics/followers"><i class="fas fa-fw fa-heart"></i> Followers</a></li>
+            <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics.viewers'}}" href="view/metrics/viewers"><i class="fas fa-fw fa-eye"></i> Viewers</a></li>
           </ul>
         </li>
         <li><a class="{{isActiveAsCurrentRouteNamed 'view.logs'}}" href="/view/logs"><i class="fas fa-fw fa-stream"></i> Logs</a></li>
@@ -100,7 +100,7 @@
         <i class="fas fa-fw fa-cog"></i> Administration
       </p>
       <ul class="menu-list">
-        <li> <a><i class="fas fa-fw fa-users"></i> Manage Profiles</a> </li>
+        <li><a class="{{isActiveAsCurrentRouteNamed 'profiles'}}" href="/profiles"><i class="fas fa-fw fa-users"></i> Manage Profiles</a></li>
         <li><a><i class="fas fa-fw fa-money-check-alt"></i> Membership</a></li>
         <li><a class="{{isActiveAsCurrentRouteNamed 'settings'}}" href="/settings"><i class="fas fa-fw fa-cog"></i> Settings</a></li>
       </ul>

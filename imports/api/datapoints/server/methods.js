@@ -32,8 +32,8 @@ Meteor.methods({
     UserProfiles.find({
       isActive: true,
       $or: [
-        {nextCheck: {$lte: now}},
-        {nextCheck: null}
+        {nextSync: {$lte: now}},
+        {nextSync: null}
       ]
     }, {
       fields: {url: 1, username: 1},
@@ -87,7 +87,7 @@ Meteor.methods({
       if (rawDataPoint === 'Unauthorized') {
         UserProfiles.update({username}, {
           urlTokenHasExpired: new Date(),
-          nextCheck: null,
+          nextSync: null,
           isActive: false,
         });
         throw "Got 'Unauthorized' error from Chaturbate. Marking "+username+"'s URL token as expired.";
@@ -116,9 +116,9 @@ Meteor.methods({
 
       // We need to understand if the session has just started, is ongoing, finished, or we're not checking this thing during or around a session
 
-      const nextCheckOptionSoon = 15;
-      const nextCheckOptionLater = 45;
-      let nextCheckOption = nextCheckOptionSoon;
+      const nextSyncOptionSoon = 9;
+      const nextSyncOptionLater = 30;
+      let nextSyncOption = nextSyncOptionSoon;
       let startTime, sessionId = null, endTime;
       let deltaTokens;
       let updateInsteadOfCreatingANewDataPoint = false;
@@ -156,7 +156,7 @@ Meteor.methods({
         if (lastSession.endTime) {
           startTime = lastDataPoint.endTime;
           console.log("session finished, now off-time", {startTime});
-          nextCheckOption = nextCheckOptionLater;
+          nextSyncOption = nextSyncOptionLater;
         } else
           // else if session finished and we're entering off-time
         {
@@ -185,7 +185,7 @@ Meteor.methods({
           && lastDataPoint.rawFollowers === rawDataPoint.num_followers
           && lastDataPoint.votesUp === rawDataPoint.votes_up
           && lastDataPoint.votesDown === rawDataPoint.votes_down;
-        nextCheckOption = nextCheckOptionLater;
+        nextSyncOption = nextSyncOptionLater;
       } else // else if the session is ongoing
       {
         // write data point, assigining it to the session
@@ -201,6 +201,13 @@ Meteor.methods({
             $set: { endTime: new Date() }
           }
         );
+
+        UserProfiles.update({username: rawDataPoint.username}, {
+          $set: {
+            nextSync: (new Date()).subMinutes(-nextSyncOption)
+          }
+        });
+
         console.log("updated last data point instead of creating a new one");
 
       } else {
@@ -252,7 +259,9 @@ Meteor.methods({
         DataPoints.insert(dataPoint);
 
         UserProfiles.update({username: rawDataPoint.username}, {
-          nextCheck: (new Date()).subMinutes(-nextCheckOption)
+          $set: {
+            nextSync: (new Date()).subMinutes(-nextSyncOption)
+          }
         });
       }
     }
