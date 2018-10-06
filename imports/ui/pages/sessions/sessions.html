@@ -1,7 +1,6 @@
 <template name="Page_sessions">
 
   <div class="container is-fluid">
-
     <div class="columns">
       <div class="column is-one-third">
         <div class="section">
@@ -16,6 +15,13 @@
               </tr>
             </tfoot>
             <tbody>
+              {{#if hasOngoingSession}}
+                <tr class="has-background-white-ter has-text-grey is-size-7">
+                  <td class="has-text-centered" style="padding-top:1.5rem;padding-bottom:1.5rem;">
+                    <i class="fas fa-fw fa-hourglass-half"></i> In progress
+                  </td>
+                </tr>
+              {{/if}}
               {{#each sessions}}
                 <tr act-select-session="" class="{{isActive}}">
                   <td>
@@ -75,7 +81,6 @@
         </div>
       </div>
     </div>
-
   </div>
 
 

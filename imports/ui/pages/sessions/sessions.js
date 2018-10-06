@@ -27,8 +27,16 @@ Template.Page_sessions.onCreated(function () {
 Template.Page_sessions.helpers({
 
   sessions() {
-    return Sessions.find({}, {
+    return Sessions.find({
+      endTime: {$ne: null}
+    }, {
       sort: {endTime: -1}
+    });
+  },
+
+  hasOngoingSession() {
+    return Sessions.findOne({
+      endTime: null,
     });
   },
 
@@ -41,8 +49,8 @@ Template.Page_sessions.helpers({
     let end = '';
     let format = 'lll';
     if (this.endTime) {
-      const isLessThanHourLong = moment(this.endTime).date() === moment(this.startTime).date();
-      if (this.startTime && isLessThanHourLong) {
+      const isTheSameDay = moment(this.endTime).date() === moment(this.startTime).date();
+      if (this.startTime && isTheSameDay) {
         format = 'LT';
       }
       end = moment(this.endTime).format(format);

@@ -18,6 +18,8 @@ Template.Layout_body.onCreated(function() {
   instance.subscribe('sessions.last');
   instance.tokensPerHour = new ReactiveVar('…');
 
+  instance.subscribe('dataPoints.last');
+
   Meteor.call('dataPoints.getAvgTokensPerHourDuringOnlineTime', function(error, result) {
     instance.tokensPerHour.set(result);
   });
@@ -30,6 +32,13 @@ Template.Layout_body.helpers({
     return isActive(name ? FlowRouter.current().route.name === name : false);
   },
 
+  lastDataPoint() {
+    return DataPoints.findOne({}, {
+      sort: {endTime: -1},
+      limit: 1,
+    });
+  },
+
   isBroadcasting() {
     const liveSession = Sessions.findOne({
       endTime: null
@@ -40,7 +49,6 @@ Template.Layout_body.helpers({
     const lastSession = Sessions.findOne({}, {
       sort: {endTime: -1}
     });
-    console.log({lastSession});
     if (!lastSession || lastSession.endTime && lastSession.endTime < new Date()) {
       return false;
     } else {
@@ -86,6 +94,12 @@ Template.Layout_body.events({
     event.preventDefault();
     Meteor.call('dataPoints.getDataPointsForAll');
     console.log("called dataPoints.getDataPointsForAll from client");
+  },
+
+  'click .update-db'(event) {
+    event.preventDefault();
+    Meteor.call('dataPoints.updateSchema');
+    console.log("called dataPoints.updateSchema from client");
   },
 
 

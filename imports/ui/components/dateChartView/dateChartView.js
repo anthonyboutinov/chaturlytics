@@ -44,15 +44,19 @@ Template.dateChartView.onRendered(function () {
         }).fetch();
 
         const extraDataPointOnTheLeft = DataPoints.findOne({endTime: dataPoints[0].startTime});
-        if (extraDataPointOnTheLeft.startTime) {
-          // only add extra data point if it's not the initial one
-          dataPoints.unshift(extraDataPointOnTheLeft);
+        if (!extraDataPointOnTheLeft) {
+          console.warn("Warning: Data inconsistency: when drawing a chart, extraDataPointOnTheLeft was not found by querying for a point with endTime that equals to a dataPoint that begins this broadcast. Check non-aligning dataPionts' endTime and startTime.");
         } else {
-          // else add a hollow data point
-          dataPoints.unshift({
-            startTime: extraDataPointOnTheLeft.endTime,
-            endTime: extraDataPointOnTheLeft.endTime
-          });
+          if (extraDataPointOnTheLeft.startTime) {
+            // only add extra data point if it's not the initial one
+            dataPoints.unshift(extraDataPointOnTheLeft);
+          } else {
+            // else add a hollow data point
+            dataPoints.unshift({
+              startTime: extraDataPointOnTheLeft.endTime,
+              endTime: extraDataPointOnTheLeft.endTime
+            });
+          }
         }
 
         const chartConfig = dataContext.chartConfig;

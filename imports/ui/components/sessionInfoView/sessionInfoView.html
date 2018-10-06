@@ -1,6 +1,6 @@
 <template name="sessionInfoView">
 
-  <h4 class="title is-size-3">{{timeframe session}}</h4>
+  <h4 class="title is-size-3">{{timeframe session}}{{#if session.isOneOnOne}},<br>One-on-One Session{{/if}}</h4>
 
   <hr>
 
@@ -14,19 +14,31 @@
     <div class="level-item has-text-centered">
       <div>
         <p class="heading">Tokens</p>
-        <p class="title is-size-4">+{{sumColumn 'deltaTokens'}}</p>
+        <p class="title is-size-4 {{greenRed session.deltaTokens}}">{{plusMinus session.deltaTokens}}</p>
       </div>
     </div>
     <div class="level-item has-text-centered">
       <div>
         <p class="heading">Followers <i class="fas fa-fw fa-info-circle has-text-grey-light"></i></p>
-        <p class="title is-size-4">+{{sumColumn 'deltaFollowers'}}</p>
+        <p class="title is-size-4 {{greenRed session.deltaFollowers}}">{{plusMinus session.deltaFollowers}}</p>
       </div>
     </div>
     <div class="level-item has-text-centered">
       <div>
         <p class="heading">Viewers <i class="fas fa-fw fa-info-circle has-text-grey-light" title="Median Value"></i></p>
-        <p class="title is-size-4">{{viewers}}</p>
+        <p class="title is-size-4">{{session.numViewers}}</p>
+      </div>
+    </div>
+    <div class="level-item has-text-centered">
+      <div>
+        <p class="heading">Votes Up</p>
+        <p class="title is-size-4 {{greenRed session.deltaVotesUp}}">{{session.deltaVotesUp}} <i class="fas fa-fw fa-thumbs-up fa-xs has-text-grey-light"></i></p>
+      </div>
+    </div>
+    <div class="level-item has-text-centered">
+      <div>
+        <p class="heading">Votes Down</p>
+        <p class="title is-size-4 {{greenRed session.deltaVotesDown 'isNegative'}}">{{session.deltaVotesDown}} <i class="fas fa-fw fa-thumbs-down fa-xs has-text-grey-light"></i></p>
       </div>
     </div>
   </nav>
@@ -34,23 +46,14 @@
   <hr>
 
   <div class="section is-small">
-    {{#unless note}}
       <form name="noteForm">
         <div class="field">
-          <label class="label">Notes</label>
+          <h5 class="title is-size-4">Notes</h5>
           <div class="control">
-            <p contenteditable="true" class="contenteditable has-text-grey-light">Add a note</p>
+            <p contenteditable="true" class="contenteditable {{isPlaceholderClass}}">{{noteOrPlaceholder}}</p>
           </div>
         </div>
       </form>
-    {{else}}
-      <div class="field">
-        <label class="label">Notes</label>
-        <div class="control">
-          <p contenteditable="true" class="contenteditable">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-        </div>
-      </div>
-    {{/unless}}
   </div>
 
   <!-- <div class="section is-small">
@@ -80,32 +83,59 @@
     </form>
   </div> -->
 
+  {{#unless session.isOneOnOne}}
+    <div class="section is-small">
+      <h5 class="title is-size-4">Combined Chart</h5>
+      {{#with combinedChartConfig}}
+        {{> dateChartView session=session chartConfig=chartConfig}}
+      {{/with}}
+    </div>
+  {{/unless}}
+
+
   <div class="section is-small">
-    <h5 class="title is-size-4">Combined Chart</h5>
-    {{#with combinedChartConfig}}
-      {{> dateChartView session=session chartConfig=chartConfig}}
-    {{/with}}
+    <h5 class="title is-size-4">Tokens</h5>
+    {{#if session.deltaTokens}}
+      {{#with tokensChartConfig}}
+        {{> dateChartView session=session chartConfig=chartConfig}}
+      {{/with}}
+    {{else}}
+      <div class="notification is-warning">
+        No tokens were earned.
+      </div>
+    {{/if}}
   </div>
 
-<div class="section is-small">
-  <h5 class="title is-size-4">Tokens</h5>
-  {{#with tokensChartConfig}}
-    {{> dateChartView session=session chartConfig=chartConfig}}
-  {{/with}}
+  <div class="section is-small">
+    <h5 class="title is-size-4">Followers</h5>
+    {{#unless session.isOneOnOne}}
+        {{#with followersChartConfig}}
+          {{> dateChartView session=session chartConfig=chartConfig}}
+        {{/with}}
+      {{#unless session.deltaFollowers}}
+        <div class="notification is-warning">
+          The net change of number of followers is zero.
+        </div>
+      {{/unless}}
+    {{else}}
+      <div class="notification">
+        This was a one-on-one session. The increase or decrease of the number of followers has no relation to the session itself.
+      </div>
+    {{/unless}}
   </div>
 
-<div class="section is-small">
-  <h5 class="title is-size-4">Followers</h5>
-  {{#with followersChartConfig}}
-    {{> dateChartView session=session chartConfig=chartConfig}}
-  {{/with}}
+  <div class="section is-small">
+    <h5 class="title is-size-4">Viewers</h5>
+    {{#unless session.isOneOnOne}}
+      {{#with viewersChartConfig}}
+        {{> dateChartView session=session chartConfig=chartConfig}}
+      {{/with}}
+    {{else}}
+    <div class="notification">
+      This was a one-on-one session. Only one viewer.
+    </div>
+    {{/unless}}
   </div>
 
-<div class="section is-small">
-  <h5 class="title is-size-4">Viewers</h5>
-  {{#with viewersChartConfig}}
-    {{> dateChartView session=session chartConfig=chartConfig}}
-  {{/with}}
-  </div>
 
 </template>

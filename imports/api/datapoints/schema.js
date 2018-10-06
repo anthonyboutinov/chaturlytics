@@ -39,9 +39,18 @@ DataPoints.schema = new SimpleSchema({
 
   satisfactionScore: Number,
 
-  votesUp: SimpleSchema.Integer,
+  totalVotesUp: SimpleSchema.Integer,
 
-  votesDown: SimpleSchema.Integer,
+  totalVotesDown: SimpleSchema.Integer,
+
+  deltaVotesUp: SimpleSchema.Integer,
+
+  deltaVotesDown: SimpleSchema.Integer,
+
+  broadcastHasDropped: {
+    optional: true,
+    type: Boolean,
+  },
 
 });
 

@@ -38,13 +38,28 @@ Meteor.publish('dataPoints.forSession', function (sessionId) {
   const firstDataPointForTheSession = DataPoints.findOne({
     userId: this.userId,
     sessionId
+  }, {
+    fields: {startTime: 1}
   });
-  console.log({firstDataPointForTheSession});
   return DataPoints.find({
     userId: this.userId,
     $or: [
       {sessionId},
       {endTime: firstDataPointForTheSession.startTime}
     ]
+  });
+});
+
+Meteor.publish('dataPoints.last', function() {
+  if (!this.userId) {
+    return this.ready();
+  }
+
+  Meteor._sleepForMs(1000);
+  return DataPoints.find({
+    userId: this.userId
+  }, {
+    sort: {endTime: -1},
+    limit: 1,
   });
 });

@@ -83,6 +83,10 @@ Meteor.methods({
 
   'dataPoints.insertIndepenentlyFromRawData'(rawDataPoint, username) {
 
+    const __timer = new Date();
+
+    //TODO: create one now date and use it throughout the method:  const now = new Date();
+
     function _checkIfAuthorized(rawDataPoint) {
       if (rawDataPoint === 'Unauthorized') {
         UserProfiles.update({username}, {
@@ -121,11 +125,14 @@ Meteor.methods({
       let nextSyncOption = nextSyncOptionSoon;
       let startTime, sessionId = null, endTime;
       let deltaTokens;
-      let updateInsteadOfCreatingANewDataPoint = false;
+      let updateEndTimeInsteadOfCreatingANewDataPoint = false;
+      let overrideLastPointInsteadOfCreatingANewOne = false;
+      let broadcastHasDropped;
+      let callSessionSummarize = false;
 
       // Get info about the Last Data DataPoint
       const lastDataPoint = DataPoints.findOne({ userId: userId }, { sort: { endTime: -1 } });
-      console.log({lastDataPoint, rawDataPoint});
+      console.log({rawDataPoint});
       const lastSessionId = lastDataPoint ? lastDataPoint.sessionId : false;
       console.log({time_online: rawDataPoint.time_online, lastSessionId});
 
@@ -136,6 +143,7 @@ Meteor.methods({
       const isOnline = rawDataPoint.time_online > -1;
       let isOnlineOrJustFinishedStreaming = isOnline;
       // Check if the session has recently started
+      // --- CASE 1 ---
       if (isOnline && !lastSessionId) {
         // Create a new session
         // With start time of broadcast start time
@@ -147,54 +155,75 @@ Meteor.methods({
           startTime: startTime,
           endTime: null
         });
+        // Update endTime of the previous dataPoint
+        DataPoints.update(
+          lastDataPoint._id, {
+            $set: { endTime: startTime }
+          }
+        );
         console.log("session started", {startTime, endTime});
       } else
       // else check if session has recently finished
+      // CASE 2.1 & 2.2 wrapper
       if (!isOnline && lastSessionId) {
         const lastSession = Sessions.findOne(lastSessionId);
-        // if finished we're after last session's data point
+        // if finished and we're right after the last session's data point
+        // --- CASE 2.1 ---
         if (lastSession.endTime) {
           startTime = lastDataPoint.endTime;
           console.log("session finished, now off-time", {startTime});
           nextSyncOption = nextSyncOptionLater;
+          overrideLastPointInsteadOfCreatingANewOne = true;
         } else
-          // else if session finished and we're entering off-time
+          // else if session has finished and we're entering off-time
+          // --- CASE 2.2 ---
         {
           // End the sessions
           Sessions.update(
-            lastDataPoint.sessionId,
-            {
-              $set: {
-                endTime: rawDataPoint.last_broadcast
-              }
+            lastDataPoint.sessionId, {
+              $set: { endTime: rawDataPoint.last_broadcast }
             }
           );
           // Make this data point a part of that sessions
           endTime = rawDataPoint.last_broadcast;
           sessionId = lastDataPoint.sessionId;
           isOnlineOrJustFinishedStreaming = true;
+          callSessionSummarize = true;
           console.log("session finished, updating session", {endTime});
         }
       } else
       // else if this is during an off-time
+      // --- CASE 3 ---
       if (!isOnline && !lastSessionId) {
         // Maybe we can simply update the last data point instead of creating a new one?
         console.log("off-time");
-        updateInsteadOfCreatingANewDataPoint = lastDataPoint
+        updateEndTimeInsteadOfCreatingANewDataPoint = lastDataPoint
           && lastDataPoint.rawTokens === rawDataPoint.token_balance
           && lastDataPoint.rawFollowers === rawDataPoint.num_followers
-          && lastDataPoint.votesUp === rawDataPoint.votes_up
-          && lastDataPoint.votesDown === rawDataPoint.votes_down;
+          && lastDataPoint.totalVotesUp === rawDataPoint.votes_up
+          && lastDataPoint.totalVotesDown === rawDataPoint.votes_down;
         nextSyncOption = nextSyncOptionLater;
       } else // else if the session is ongoing
+      // --- CASE 4 ---
       {
         // write data point, assigining it to the session
         sessionId = lastSessionId;
+        try {
+          const currentTimeframeDurationInMins = moment(lastDataPoint.endTime).diff(new Date(), 'minutes', true);
+          if (rawDataPoint.ime_online < currentTimeframeDurationInMins) {
+            broadcastHasDropped = true;
+          }
+        } catch(e) {
+          console.log({
+            error: e,
+            lastDataPointEndTime: lastDataPoint.endTime
+          });
+        }
         console.log("session is ongoing", {sessionId});
       }
 
 
-      if (updateInsteadOfCreatingANewDataPoint) {
+      if (updateEndTimeInsteadOfCreatingANewDataPoint) {
 
         DataPoints.update(
           lastDataPoint._id, {
@@ -235,11 +264,11 @@ Meteor.methods({
         }
 
 
-        const dataPoint = {
+        let dataPoint = {
           userId,
           username: rawDataPoint.username,
           sessionId,
-          startTime: startTime || lastDataPoint ? lastDataPoint.endTime : null,
+          startTime: startTime ? startTime : (lastDataPoint ? lastDataPoint.endTime : null),
           endTime: endTime || new Date(),
           rawFollowers: rawDataPoint.num_followers,
           rawTokens: rawDataPoint.token_balance,
@@ -249,20 +278,32 @@ Meteor.methods({
           numRegisteredViewers: isOnlineOrJustFinishedStreaming ? rawDataPoint.num_registered_viewers : 0,
           numTokenedViewers: isOnlineOrJustFinishedStreaming ? rawDataPoint.num_tokened_viewers : 0,
           satisfactionScore: rawDataPoint.satisfaction_score,
-          votesUp: rawDataPoint.votes_up,
-          votesDown: rawDataPoint.votes_down
+          totalVotesUp: rawDataPoint.votes_up,
+          totalVotesDown: rawDataPoint.votes_down,
+          deltaVotesUp:   lastDataPoint ? rawDataPoint.votes_up   - lastDataPoint.totalVotesUp   : rawDataPoint.votes_up,
+          deltaVotesDown: lastDataPoint ? rawDataPoint.votes_down - lastDataPoint.totalVotesDown : rawDataPoint.votes_down,
+          broadcastHasDropped,
         };
 
-        // console.log({dataPoint});
-
         // Write Data Point
-        DataPoints.insert(dataPoint);
+        if (!overrideLastPointInsteadOfCreatingANewOne) {
+          DataPoints.insert(dataPoint);
+        } else {
+          dataPoint.startTime = lastDataPoint.startTime;
+          DataPoints.update(lastDataPoint._id, {
+            $set: dataPoint
+          });
+        }
 
         UserProfiles.update({username: rawDataPoint.username}, {
           $set: {
             nextSync: (new Date()).subMinutes(-nextSyncOption)
           }
         });
+
+        if (callSessionSummarize) {
+          Meteor.call("sessions.summarize", lastDataPoint.sessionId);
+        }
       }
     }
 
@@ -276,7 +317,8 @@ Meteor.methods({
       rawDataPoint = JSON.parse(rawDataPoint);
       _checkIfDataAndUsernameMatch(rawDataPoint, username);
       const userId = _getUserId(username);
-      return _a(rawDataPoint, userId);
+      const result = _a(rawDataPoint, userId);
+      console.log('dataPoints.getDataPointFromChaturbate execution time is ', new Date() - __timer);
     } catch (error) {
       console.log({error, username, rawDataPoint});
       return false;
@@ -305,5 +347,26 @@ Meteor.methods({
       hours += moment(doc.endTime).diff(doc.startTime, 'hours', true); // If you want a floating point number, pass true as the third argument;
     });
     return Math.round(sum / hours);
-  }
+  },
+
+  'dataPoints.updateSchema'() {
+    console.log("Nothing to force-update");
+    // const allDataPoints = DataPoints.find({}, {
+    //   sort: {endTime: 1}
+    // }).fetch();
+    // for (let i = 0; i < allDataPoints.length; i++) {
+    //   const thisDataPoint = allDataPoints[i];
+    //   const prevDataPoint = i > 0 ? allDataPoints[i-1] : null;
+    //   DataPoints.update(thisDataPoint._id, {
+    //     $set: {
+    //       totalVotesUp:   thisDataPoint.votesUp,
+    //       totalVotesDown: thisDataPoint.votesDown,
+    //       deltaVotesUp:   prevDataPoint ? thisDataPoint.votesUp   - prevDataPoint.votesUp   : thisDataPoint.votesUp,
+    //       deltaVotesDown: prevDataPoint ? thisDataPoint.votesDown - prevDataPoint.votesDown : thisDataPoint.votesDown,
+    //     },
+    //     // $unset: ['votesUp', 'votesDown'],
+    //   });
+    // }
+  },
+
 });

@@ -40,24 +40,102 @@
             </div> -->
 
             <div class="navbar-item">
-              <div class="tags has-addons">
-                <span class="tag is-dark has-text-white"><i class="fas fa-fw fa-donate"></i></span>
-                <span class="tag is-dark has-text-white">{{tokensPerHour}}</span>
-                <span class="tag">TKN / hour</span>
+              <div class="dropdown is-hoverable">
+                <div class="dropdown-trigger">
+                  <a class="tags has-addons" aria-haspopup="true" aria-controls="dropdown-menu-tokens">
+                    <span class="tag is-italic has-text-weight-semibold has-background-grey-lighter">
+                      A
+                      <i class="fas fa-fw fa-donate"></i>
+                    </span>
+                    <span class="tag">{{tokensPerHour}} TKN/h</span>
+                  </a>
+                </div>
+                <div class="dropdown-menu" role="menu" id="dropdown-menu-tokens">
+                  <div class="dropdown-content">
+                    <div class="dropdown-item"><p class="menu-label">Tokens per hour</p></div>
+                    <hr class="dropdown-divider">
+                    <a class="dropdown-item" href="#">Last 30 days <span class="has-text-grey">(D)</span></a>
+                    <a class="dropdown-item" href="#">Last 3 months <span class="has-text-grey">(3M)</span></a>
+                    <a class="dropdown-item" href="#">Last 6 months <span class="has-text-grey">(6M)</span></a>
+                    <a class="dropdown-item" href="#">Last year <span class="has-text-grey">(Y)</span></a>
+                    <a class="dropdown-item is-active" href="#">All time <span class="has-text-white">(A)</span></a>
+                  </div>
+                </div>
               </div>
             </div>
 
             <div class="navbar-item">
-              <a class="tags has-addons force-sync">
-                <span class="tag is-dark has-text-white"><i class="fas fa-fw fa-sync"></i></span>
-                <span class="tag is-link">Force sync</span>
-              </a>
+              <div class="dropdown is-hoverable">
+                <div class="dropdown-trigger">
+                  <a class="tags has-addons" aria-haspopup="true" aria-controls="dropdown-menu-tokens">
+                    <span class="tag is-italic has-text-weight-semibold has-background-grey-lighter">
+                      C
+                      <i class="fas fa-fw fa-dollar-sign"></i>
+                    </span>
+                    <span class="tag">{{lastDataPoint.rawTokens}} TKN</span>
+                  </a>
+                </div>
+                <div class="dropdown-menu" role="menu" id="dropdown-menu-tokens">
+                  <div class="dropdown-content">
+                    <div class="dropdown-item"><p class="menu-label">Tokens</p></div>
+                    <hr class="dropdown-divider">
+                    <a class="dropdown-item is-active" href="#">Current value <span class="has-text-white">(C)</span></a>
+                    <a class="dropdown-item" href="#">This period <span class="has-text-grey">(P)</span></a>
+                    <a class="dropdown-item" href="#">Last 30 days <span class="has-text-grey">(M)</span></a>
+                    <a class="dropdown-item" href="#">Last 3 months <span class="has-text-grey">(3M)</span></a>
+                    <a class="dropdown-item" href="#">Last 6 months <span class="has-text-grey">(6M)</span></a>
+                    <a class="dropdown-item" href="#">Last year <span class="has-text-grey">(Y)</span></a>
+                    <a class="dropdown-item" href="#">All time <span class="has-text-grey">(A)</span></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="navbar-item">
+              <div class="tags has-addons">
+                <span class="tag has-background-grey-lighter"><i class="fas fa-fw fa-heart"></i></span>
+                <span class="tag">{{lastDataPoint.rawFollowers}}</span>
+              </div>
             </div>
 
           </div>
           <div class="navbar-end">
-            {{#if currentUser}}<div class="navbar-item"> {{currentUserProfile.username}} </div>{{/if}}
-            <div class="navbar-item"> <i class="fas fa-user-circle"></i>&nbsp;{{> loginButtons align='right'}} </div>
+
+            <div class="navbar-item">
+              <div class="dropdown is-right is-hoverable">
+                <div class="dropdown-trigger">
+                  <button class="button is-white" aria-haspopup="true" aria-controls="dropdown-menu-account">
+                    <span class="icon is-small">
+                      <i class="fas fa-user-circle"></i>
+                    </span>
+                    <span>
+                      {{#if currentUser}}
+                        {{currentUserProfile.username}}
+                      {{else}}
+                        Account
+                      {{/if}}
+                    </span>
+                    <span class="icon is-small">
+                      <i class="fas fa-angle-down" aria-hidden="true"></i>
+                    </span>
+                  </button>
+                </div>
+                <div class="dropdown-menu is-wide" role="menu" id="dropdown-menu-account">
+                  <div class="dropdown-content">
+                    <div class="dropdown-item">
+                      {{> loginButtons align='right'}}
+                    </div>
+
+                    <hr class="dropdown-divider">
+                    <div class="dropdown-item"><p class="menu-label">Development features</p></div>
+                    <a class="force-sync dropdown-item" href="#">Force sync</a>
+                    <a class="update-db dropdown-item" href="#">Update DB</a>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
 
         </div>
@@ -88,12 +166,13 @@
         <li><a class="{{isActiveAsCurrentRouteNamed 'view.sessions'}}" href="/view/sessions"><i class="fas fa-fw fa-video"></i> Broadcasts List</a></li>
         <li><a><i class="fas fa-fw fa-chart-line"></i> Metrics</a>
           <ul>
-            <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics.sessions'}}" href="view/metrics/sessions"><i class="fas fa-fw fa-video"></i> Broadcasts</a></li>
-            <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics.earnings'}}" href="view/metrics/earnings"><i class="fas fa-fw fa-dollar-sign"></i> Earnings</a></li>
-            <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics.followers'}}" href="view/metrics/followers"><i class="fas fa-fw fa-heart"></i> Followers</a></li>
-            <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics.viewers'}}" href="view/metrics/viewers"><i class="fas fa-fw fa-eye"></i> Viewers</a></li>
+            <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics.sessions'}}" href="/view/metrics/sessions"><i class="fas fa-fw fa-video"></i> Broadcasts</a></li>
+            <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics.earnings'}}" href="/view/metrics/earnings"><i class="fas fa-fw fa-dollar-sign"></i> Earnings</a></li>
+            <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics.followers'}}" href="/view/metrics/followers"><i class="fas fa-fw fa-heart"></i> Followers</a></li>
+            <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics.viewers'}}" href="/view/metrics/viewers"><i class="fas fa-fw fa-eye"></i> Viewers</a></li>
           </ul>
         </li>
+        <li><a class="{{isActiveAsCurrentRouteNamed 'view.historicaldata'}}" href="/view/historicaldata"><i class="fas fa-fw fa-history"></i> Historical Data</a></li>
         <li><a class="{{isActiveAsCurrentRouteNamed 'view.logs'}}" href="/view/logs"><i class="fas fa-fw fa-stream"></i> Logs</a></li>
       </ul>
       <p class="menu-label">

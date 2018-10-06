@@ -9,6 +9,7 @@ import '../../ui/pages/calendarViews/calendarViews.js';
 import '../../ui/pages/settings/settings.js';
 import '../../ui/pages/profiles/profiles.js';
 import '../../ui/pages/sessions/sessions.js';
+import '../../ui/pages/metrics/metrics.js';
 import '../../ui/pages/not-found/not-found.js';
 
 // Set up all routes in the app
@@ -63,6 +64,16 @@ viewRouts.route('/sessions/:_id?', {
   },
   triggersEnter: [function(context, redirect) {
     console.log('running /sessions trigger');
+  }]
+});
+
+viewRouts.route('/metrics/:metricType?', {
+  name: 'view.metrics',
+  action() {
+    BlazeLayout.render('Layout_body', { content: 'Page_metrics' });
+  },
+  triggersEnter: [function(context, redirect) {
+    console.log('running /metrics trigger');
   }]
 });
 

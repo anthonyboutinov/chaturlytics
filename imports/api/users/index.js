@@ -5,7 +5,9 @@ if (Meteor.isServer) {
   Accounts.onCreateUser(function(options, user) {
    // user.usernames = options.usernames;
 
-   Meteor.call('userProfiles.insert', options.url);
+   if (options.url) {
+     Meteor.call('userProfiles.insert', options.url);
+   }
 
    return user;
   });

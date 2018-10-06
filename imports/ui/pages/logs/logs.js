@@ -45,8 +45,8 @@ Template.Page_logs.helpers({
     let end = '';
     let format = 'lll';
     if (this.endTime) {
-      const isLessThanHourLong = moment(this.endTime).date() === moment(this.startTime).date(); //moment(this.endTime).diff(this.startTime, 'minutes') < 59;
-      if (this.startTime && isLessThanHourLong) {
+      const isTheSameDay = moment(this.endTime).date() === moment(this.startTime).date(); //moment(this.endTime).diff(this.startTime, 'minutes') < 59;
+      if (this.startTime && isTheSameDay) {
         format = 'LT';
       }
       end = moment(this.endTime).format(format);
@@ -88,6 +88,8 @@ Template.Page_logs.events({
 
   'click .delete-dataPoint'(event) {
     event.preventDefault();
+    alert("Warning: This action is currently disabled.");
+    return;
     Meteor.call('dataPoints.remove', this._id, (error) => {
       if (error) {
         alert(error.error);
@@ -97,7 +99,17 @@ Template.Page_logs.events({
 
   'click .delete-session'(event) {
     event.preventDefault();
+    alert("Warning: This action is currently disabled.");
+    return;
     Meteor.call('sessions.remove', this._id, (error) => {
+      if (error) {
+        alert(error.error);
+      }
+    });
+  },
+  'click .summarize-session'(event) {
+    event.preventDefault();
+    Meteor.call('sessions.summarize', this._id, (error) => {
       if (error) {
         alert(error.error);
       }
