@@ -34,6 +34,7 @@ Template.Page_metrics.helpers({
     };
 
     let groupingInterval = instance.grouping.get();
+    const __groupingInterval = groupingInterval;
     const skipOffDays = instance.skipOffDays.get();
 
     const isPrimitiveGrouping = groupingInterval === 'days' || groupingInterval === 'weeks' || groupingInterval === 'months' || groupingInterval === 'years';
@@ -46,9 +47,8 @@ Template.Page_metrics.helpers({
       throw 'This Grouping is not covered';
     }
 
-    const firstOne = DataPoints.findOne({
-      startTime: {$exists: true}
-    }, {
+    const edgeDataPointQuery = { startTime: {$exists: true} };
+    const firstOne = DataPoints.findOne(edgeDataPointQuery, {
       sort: {endTime: 1},
       limit: 1,
       fields: {endTime: 1}
@@ -56,9 +56,7 @@ Template.Page_metrics.helpers({
     if (!firstOne) {
       return;
     }
-    const lastOne = DataPoints.findOne({
-      startTime: {$exists: true}
-    }, {
+    const lastOne = DataPoints.findOne(edgeDataPointQuery, {
       sort: {endTime: -1},
       limit: 1,
       fields: {endTime: 1}
@@ -75,6 +73,14 @@ Template.Page_metrics.helpers({
       .set('second', 0)
       .set('millisecond', 0)
       .add(1, 'days');
+
+    if (__groupingInterval === 'months' || __groupingInterval === 'halvesOfMonth') {
+      fromRounded = fromRounded.startOf('month');
+    } else if (__groupingInterval === 'years') {
+      fromRounded = fromRounded.startOf('year');
+    } else if (__groupingInterval === 'weeks') {
+      fromRounded = fromRounded.startOf('week');
+    }
 
     let metrics = [];
 
@@ -100,7 +106,7 @@ Template.Page_metrics.helpers({
 
       const deltaTokensDuringSessions = dataPointsInRange.reduce((sum, dataPoint) => sum + (!_.isNull(dataPoint.sessionId) ? dataPoint.deltaTokens : 0), 0);
       const deltaTokens = dataPointsInRange.reduce((sum, dataPoint) => sum + dataPoint.deltaTokens, 0);
-      const deltaFollowers = dataPointsInRange.reduce((sum, dataPoint) => sum + dataPoint.deltaFollowers, 0);
+      const deltaFollowers = dataPointsInRange.reduce((sum, dataPoint) => sum + (dataPoint.deltaFollowers ? dataPoint.deltaFollowers : 0), 0);
       const endTime = moment(toRounded).subtract(1, 'second');
 
       if (deltaTokens > coloration.tokens.max) {
@@ -234,7 +240,7 @@ Template.Page_metrics.helpers({
     if (this.endTime) {
       const isTheSameDay = moment(this.endTime).date() === moment(this.startTime).date(); //moment(this.endTime).diff(this.startTime, 'minutes') < 59;
       if (isTheSameDay) {
-        return moment(this.startTime).format('dddd, MMM D, YYYY');
+        return moment(this.startTime).format('ddd, MMM D, YYYY');
       }
       end = moment(this.endTime).format(format);
     }
@@ -281,7 +287,7 @@ Template.Page_metrics.helpers({
   ////
 
   moreThanOneSession() {
-    return this.sessions.length > 1;
+    return this.sessions ? this.sessions.length > 1 : null;
   },
 
 });

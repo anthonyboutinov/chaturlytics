@@ -20,9 +20,18 @@ Template.Layout_body.onCreated(function() {
 
   instance.subscribe('dataPoints.last');
 
-  Meteor.call('dataPoints.getAvgTokensPerHourDuringOnlineTime', function(error, result) {
-    instance.tokensPerHour.set(result);
-  });
+  instance.seconds = new ReactiveVar(0);
+  instance.handle = Meteor.setInterval((function() {
+    instance.seconds.set(instance.seconds.get() + 1);
+
+    Meteor.call('dataPoints.getAvgTokensPerHourDuringOnlineTime', function(error, result) {
+      instance.tokensPerHour.set(result);
+    });
+  }), 1000 * 60 * 10);
+});
+
+Template.Layout_body.onDestroyed(function() {
+  Meteor.clearInterval(this.handle);
 });
 
 Template.Layout_body.helpers({
@@ -57,11 +66,13 @@ Template.Layout_body.helpers({
   },
 
   timeOnline() {
+    Template.instance().seconds.get();
     const liveSession = Sessions.findOne({
       endTime: null
     });
     if (liveSession) {
-      return moment(liveSession.startTime).fromNow(true);
+      // return moment(liveSession.startTime).fromNow(true);
+      return moment.duration(moment(new Date()).diff(moment(liveSession.startTime), 'minutes'), 'minutes').format("h [hrs] m [min]");
     }
   },
 
@@ -92,7 +103,9 @@ Template.Layout_body.events({
 
   'click .force-sync'(event) {
     event.preventDefault();
-    Meteor.call('dataPoints.getDataPointsForAll');
+    Meteor.call('dataPoints.getDataPointsForAll', (error, result) => {
+      console.log({error, result});
+    });
     console.log("called dataPoints.getDataPointsForAll from client");
   },
 

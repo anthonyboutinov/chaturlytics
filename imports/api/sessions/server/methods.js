@@ -2,9 +2,11 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { Sessions } from '../sessions.js';
 import { DataPoints } from '../../datapoints/datapoints.js';
+import { UserProfiles } from '../../userprofiles/userprofiles.js';
 
 Meteor.methods({
-  'sessions.insert'(startTime, endTime) {
+  'sessions.insert'(username, startTime, endTime) {
+    check(username, String);
     check(startTime, Date);
     check(endTime, Date);
     if (!this.userId) {
@@ -13,8 +15,9 @@ Meteor.methods({
 
     return Sessions.insert({
       userId: this.userId,
-      startTime: startTime,
-      endTime: endTime,
+      username,
+      startTime,
+      endTime,
     });
   },
 
@@ -32,6 +35,7 @@ Meteor.methods({
     const userDashboardSessionsCountDateRange = 30; //days
     return Sessions.find({
       userId: this.userId,
+      username: UserProfiles.getCurrentUsername(this.userId),
       startTime: {$gte: moment().subtract(userDashboardSessionsCountDateRange, 'days').toDate()}
     }).count();
   },
@@ -47,12 +51,14 @@ Meteor.methods({
     }
 
     function _medianFromDataPointArrtibute(dataPoints, attr) {
-      return Math.floor(
-        _median(
-          _.map(dataPoints, (item) => { return item[attr]; })
-        )
-      )
+      return Math.floor( _median( _.map(dataPoints, (item) => item[attr] ) ) )
     }
+
+    const session = Sessions.findOne(_id, {fields: {isHistorical: 1}});
+    if (session.isHistorical) {
+      console.log("Trying to summarize a historical record. Aborting.");
+      return null;
+    };
 
     const dataPoints = DataPoints.find({sessionId: _id}).fetch();
     let properties = {
@@ -67,8 +73,8 @@ Meteor.methods({
     let isOneOnOne = true;
 
     _.each(dataPoints, (dataPoint) => {
-      properties.deltaTokens += dataPoint.deltaTokens;
-      properties.deltaFollowers += dataPoint.deltaFollowers;
+      properties.deltaTokens      += dataPoint.deltaTokens;
+      properties.deltaFollowers   += dataPoint.deltaFollowers;
       properties.deltaVotesUp     += dataPoint.deltaVotesUp;
       properties.deltaVotesDown   += dataPoint.deltaVotesDown;
       if (dataPoint.broadcastHasDropped) {
@@ -99,5 +105,41 @@ Meteor.methods({
     return Sessions.update(sessionId, {
       $set: {note}
     });
-  }
+  },
+
+  'sessions.insertHistorical'(startTime, endTime, deltaTokens, note) {
+    check(startTime, Date);
+    check(endTime, Date);
+    check(deltaTokens, Number);
+    check(note, String);
+    if (!this.userId) {
+      return false;
+    }
+
+    // TODO: how to insert while tracking is already on?
+
+    const username = UserProfiles.getCurrentUsername(this.userId);
+
+    const sessionId = Sessions.insert({
+      isHistorical: true,
+      userId: this.userId,
+      username,
+      startTime,
+      endTime,
+      deltaTokens,
+      note,
+    });
+
+    DataPoints.insert({
+      userId: this.userId,
+      sessionId,
+      username,
+      startTime,
+      endTime,
+      deltaTokens,
+    });
+
+    return sessionId;
+
+  },
 });

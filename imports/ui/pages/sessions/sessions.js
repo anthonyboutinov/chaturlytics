@@ -84,7 +84,7 @@ Template.Page_sessions.helpers({
   isActive() {
     const session = Template.instance().currentlyViewedSession.get();
     return session && this._id === session._id ? "is-selected" : null;
-  }
+  },
 
 });
 

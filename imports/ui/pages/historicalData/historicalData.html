@@ -1,0 +1,66 @@
+<template name="Page_historicalData">
+
+  <div style="max-width:45rem;">
+
+    <h2 class="title">Historical Data</h2>
+
+    <p class="subtitle has-text-grey has-text-7">Here you can add data about older broadcasts that took place before you joined&nbsp;Chaturlytics.</p>
+
+    <nav class="panel">
+      <p class="panel-heading">
+        Add An Older Broadcast
+      </p>
+      <div class="panel-block">
+        <form name="add-session">
+          <div class="columns">
+            <div class="column">
+              <div class="field">
+                <label class="label">Starting Datetime</label>
+                <div class="control">
+                  <input class="input" type="text" placeholder="Jan 1 2018 8:30" name="startTime">
+                </div>
+                <p class="help">Enter a datetime in format MMM D YYYY H:m (hours go from 0 to 23)</p>
+              </div>
+            </div>
+            <div class="column">
+              <div class="field">
+                <label class="label">Finishing Datetime</label>
+                <div class="control">
+                  <input class="input" type="text" placeholder="Jan 1 2018 10:00 or simply 10:00" name="endTime">
+                </div>
+                <p class="help">Enter a datetime in format [MMM D YYYY] H:m (hours go from 0 to 23)</p>
+              </div>
+            </div>
+          </div>
+          <div class="columns">
+            <div class="column is-half">
+              <div class="field">
+                <label class="label">Tokens Earned</label>
+                <div class="control">
+                  <input class="input" type="number" placeholder="0" name="deltaTokens">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label">Note</label>
+            <div class="control">
+              <textarea class="textarea" name="note" placeholder="Add a note..."></textarea>
+            </div>
+          </div>
+          <div class="control">
+            <button type="submit" class="button is-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+    </nav>
+
+    {{#if itemAdded}}
+      <div class="notification is-success">
+        Item added.
+      </div>
+    {{/if}}
+
+  </div>
+
+</template>

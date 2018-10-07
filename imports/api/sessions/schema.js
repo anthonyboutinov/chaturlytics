@@ -8,9 +8,9 @@ Sessions.schema = new SimpleSchema({
     regEx: SimpleSchema.RegEx.Id
   },
 
-  startTime: {
-    type: Date
-  },
+  username: String,
+
+  startTime: Date,
 
   endTime: {
     type: Date,
@@ -63,6 +63,11 @@ Sessions.schema = new SimpleSchema({
   },
 
   isOneOnOne: {
+    optional: true,
+    type: Boolean,
+  },
+
+  isHistorical: {
     optional: true,
     type: Boolean,
   },

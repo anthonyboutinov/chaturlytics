@@ -69,11 +69,11 @@
     Charts: 1.1) Broadcasts count / density, 1.2) time online dnesity, 2) income dneisty, 3.1) followers density, 3.2) viewers density
     </div>
 
-  <table class="table is-fullwidth is-size-7">
+  <table class="table is-fullwidth is-size-7" style="margin-bottom:300px;">
     <thead>
       <tr>
         <th>Timeframe</th>
-        <th>Broadcasts</th>
+        {{#unless isActiveByEquals grouping 'years'}}<th>Broadcasts</th>{{/unless}}
         <th>Number of<br>Broadcasts</th>
         <th>Time<br>Online</th>
         <th>Followers</th>
@@ -90,7 +90,7 @@
       {{#each metrics}}
         <tr class="{{rowClasses}}">
           <th class="{{rowClasses}}">{{timeframe}}</th>
-          <td>
+          {{#unless isActiveByEquals grouping 'years'}}<td>
             {{#if moreThanOneSession}}
               {{#each sessions}}
                 <div class="dropdown is-hoverable">
@@ -130,7 +130,7 @@
                 </a>
               {{/each}}
             {{/if}}
-          </td>
+          </td>{{/unless}}
           <td class="has-text-right">{{numBroadcasts}}</td>
           <td class="has-text-right">{{timeOnline}}</td>
           <td class="has-text-right">{{deltaFollowers}}</td>

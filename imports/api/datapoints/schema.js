@@ -14,38 +14,73 @@ DataPoints.schema = new SimpleSchema({
     optional: true,
   },
 
+  username: String,
+
   startTime: {
     type: Date,
     optional: true
   },
 
-  endTime: {
-    type: Date,
+  endTime: Date,
+
+  rawFollowers: {
+    type: SimpleSchema.Integer,
+    optional: true,
   },
 
-  rawFollowers: SimpleSchema.Integer,
+  rawTokens: {
+    type: SimpleSchema.Integer,
+    optional: true,
+  },
 
-  rawTokens: SimpleSchema.Integer,
+  deltaFollowers: {
+    type: SimpleSchema.Integer,
+    optional: true,
+  },
 
-  deltaFollowers: SimpleSchema.Integer,
+  deltaTokens: {
+    type: SimpleSchema.Integer,
+  },
 
-  deltaTokens: SimpleSchema.Integer,
+  numViewers: {
+    type: SimpleSchema.Integer,
+    optional: true,
+  },
 
-  numViewers: SimpleSchema.Integer,
+  numRegisteredViewers: {
+    type: SimpleSchema.Integer,
+    optional: true,
+  },
 
-  numRegisteredViewers: SimpleSchema.Integer,
+  numTokenedViewers: {
+    type: SimpleSchema.Integer,
+    optional: true,
+  },
 
-  numTokenedViewers: SimpleSchema.Integer,
+  satisfactionScore: {
+    type: Number,
+    optional: true,
+  },
 
-  satisfactionScore: Number,
+  totalVotesUp: {
+    type: SimpleSchema.Integer,
+    optional: true,
+  },
 
-  totalVotesUp: SimpleSchema.Integer,
+  totalVotesDown: {
+    type: SimpleSchema.Integer,
+    optional: true,
+  },
 
-  totalVotesDown: SimpleSchema.Integer,
+  deltaVotesUp: {
+    type: SimpleSchema.Integer,
+    optional: true,
+  },
 
-  deltaVotesUp: SimpleSchema.Integer,
-
-  deltaVotesDown: SimpleSchema.Integer,
+  deltaVotesDown: {
+    type: SimpleSchema.Integer,
+    optional: true,
+  },
 
   broadcastHasDropped: {
     optional: true,

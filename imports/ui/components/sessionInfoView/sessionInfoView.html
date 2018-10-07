@@ -20,25 +20,41 @@
     <div class="level-item has-text-centered">
       <div>
         <p class="heading">Followers <i class="fas fa-fw fa-info-circle has-text-grey-light"></i></p>
-        <p class="title is-size-4 {{greenRed session.deltaFollowers}}">{{plusMinus session.deltaFollowers}}</p>
+        {{#unless session.isHistorical}}
+          <p class="title is-size-4 {{greenRed session.deltaFollowers}}">{{plusMinus session.deltaFollowers}}</p>
+        {{else}}
+          {{> Element_briefIsHistorical}}
+        {{/unless}}
       </div>
     </div>
     <div class="level-item has-text-centered">
       <div>
         <p class="heading">Viewers <i class="fas fa-fw fa-info-circle has-text-grey-light" title="Median Value"></i></p>
-        <p class="title is-size-4">{{session.numViewers}}</p>
+        {{#unless session.isHistorical}}
+          <p class="title is-size-4">{{session.numViewers}}</p>
+        {{else}}
+          {{> Element_briefIsHistorical}}
+        {{/unless}}
       </div>
     </div>
     <div class="level-item has-text-centered">
       <div>
         <p class="heading">Votes Up</p>
-        <p class="title is-size-4 {{greenRed session.deltaVotesUp}}">{{session.deltaVotesUp}} <i class="fas fa-fw fa-thumbs-up fa-xs has-text-grey-light"></i></p>
+        {{#unless session.isHistorical}}
+          <p class="title is-size-4 {{greenRed session.deltaVotesUp}}">{{session.deltaVotesUp}} <i class="fas fa-fw fa-thumbs-up fa-xs has-text-grey-light"></i></p>
+        {{else}}
+          {{> Element_briefIsHistorical}}
+        {{/unless}}
       </div>
     </div>
     <div class="level-item has-text-centered">
       <div>
         <p class="heading">Votes Down</p>
-        <p class="title is-size-4 {{greenRed session.deltaVotesDown 'isNegative'}}">{{session.deltaVotesDown}} <i class="fas fa-fw fa-thumbs-down fa-xs has-text-grey-light"></i></p>
+        {{#unless session.isHistorical}}
+          <p class="title is-size-4 {{greenRed session.deltaVotesDown 'isNegative'}}">{{session.deltaVotesDown}} <i class="fas fa-fw fa-thumbs-down fa-xs has-text-grey-light"></i></p>
+        {{else}}
+          {{> Element_briefIsHistorical}}
+        {{/unless}}
       </div>
     </div>
   </nav>
@@ -83,59 +99,72 @@
     </form>
   </div> -->
 
-  {{#unless session.isOneOnOne}}
-    <div class="section is-small">
-      <h5 class="title is-size-4">Combined Chart</h5>
-      {{#with combinedChartConfig}}
-        {{> dateChartView session=session chartConfig=chartConfig}}
-      {{/with}}
-    </div>
-  {{/unless}}
+  {{#unless session.isHistorical}}
 
-
-  <div class="section is-small">
-    <h5 class="title is-size-4">Tokens</h5>
-    {{#if session.deltaTokens}}
-      {{#with tokensChartConfig}}
-        {{> dateChartView session=session chartConfig=chartConfig}}
-      {{/with}}
-    {{else}}
-      <div class="notification is-warning">
-        No tokens were earned.
-      </div>
-    {{/if}}
-  </div>
-
-  <div class="section is-small">
-    <h5 class="title is-size-4">Followers</h5>
     {{#unless session.isOneOnOne}}
-        {{#with followersChartConfig}}
+      <div class="section is-small">
+        <h5 class="title is-size-4">Combined Chart</h5>
+        {{#with combinedChartConfig}}
           {{> dateChartView session=session chartConfig=chartConfig}}
         {{/with}}
-      {{#unless session.deltaFollowers}}
-        <div class="notification is-warning">
-          The net change of number of followers is zero.
-        </div>
-      {{/unless}}
-    {{else}}
-      <div class="notification">
-        This was a one-on-one session. The increase or decrease of the number of followers has no relation to the session itself.
       </div>
     {{/unless}}
-  </div>
 
-  <div class="section is-small">
-    <h5 class="title is-size-4">Viewers</h5>
-    {{#unless session.isOneOnOne}}
-      {{#with viewersChartConfig}}
-        {{> dateChartView session=session chartConfig=chartConfig}}
-      {{/with}}
-    {{else}}
-    <div class="notification">
-      This was a one-on-one session. Only one viewer.
+
+    <div class="section is-small">
+      <h5 class="title is-size-4">Tokens</h5>
+      {{#if session.deltaTokens}}
+        {{#with tokensChartConfig}}
+          {{> dateChartView session=session chartConfig=chartConfig}}
+        {{/with}}
+      {{else}}
+        <div class="notification is-warning">
+          No tokens were earned.
+        </div>
+      {{/if}}
     </div>
-    {{/unless}}
-  </div>
+
+    <div class="section is-small">
+      <h5 class="title is-size-4">Followers</h5>
+      {{#unless session.isOneOnOne}}
+          {{#with followersChartConfig}}
+            {{> dateChartView session=session chartConfig=chartConfig}}
+          {{/with}}
+        {{#unless session.deltaFollowers}}
+          <div class="notification is-warning">
+            The net change of number of followers is zero.
+          </div>
+        {{/unless}}
+      {{else}}
+        <div class="notification">
+          This was a one-on-one session. The increase or decrease of the number of followers has no relation to the session itself.
+        </div>
+      {{/unless}}
+    </div>
+
+    <div class="section is-small">
+      <h5 class="title is-size-4">Viewers</h5>
+      {{#unless session.isOneOnOne}}
+        {{#with viewersChartConfig}}
+          {{> dateChartView session=session chartConfig=chartConfig}}
+        {{/with}}
+      {{else}}
+      <div class="notification">
+        This was a one-on-one session. Only one viewer.
+      </div>
+      {{/unless}}
+    </div>
+
+  {{else}}
+
+    <div class="section is-small">
+      <h5 class="title is-size-4">Historical Record</h5>
+      <div class="notification">
+        This is a historical record. Nothing to visualize here.
+      </div>
+    </div>
+
+  {{/unless}}
 
 
 </template>

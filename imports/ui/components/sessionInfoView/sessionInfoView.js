@@ -1,4 +1,5 @@
 import './sessionInfoView.html';
+import './briefIsHistorical.html';
 import '../../components/dateChartView/dateChartView.js';
 
 // import { DataPoints } from '/imports/api/datapoints/datapoints.js';

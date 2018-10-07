@@ -88,24 +88,24 @@ Template.Page_logs.events({
 
   'click .delete-dataPoint'(event) {
     event.preventDefault();
-    alert("Warning: This action is currently disabled.");
-    return;
-    Meteor.call('dataPoints.remove', this._id, (error) => {
-      if (error) {
-        alert(error.error);
-      }
-    });
+    if (confirm("Delete item? This cannot be undone.")) {
+      Meteor.call('dataPoints.remove', this._id, (error) => {
+        if (error) {
+          alert(error.error);
+        }
+      });
+    }
   },
 
   'click .delete-session'(event) {
     event.preventDefault();
-    alert("Warning: This action is currently disabled.");
-    return;
-    Meteor.call('sessions.remove', this._id, (error) => {
-      if (error) {
-        alert(error.error);
-      }
-    });
+    if (confirm("Delete item? This cannot be undone.")) {
+      Meteor.call('sessions.remove', this._id, (error) => {
+        if (error) {
+          alert(error.error);
+        }
+      });
+    }
   },
   'click .summarize-session'(event) {
     event.preventDefault();

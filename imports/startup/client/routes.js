@@ -10,6 +10,7 @@ import '../../ui/pages/settings/settings.js';
 import '../../ui/pages/profiles/profiles.js';
 import '../../ui/pages/sessions/sessions.js';
 import '../../ui/pages/metrics/metrics.js';
+import '../../ui/pages/historicalData/historicalData.js';
 import '../../ui/pages/not-found/not-found.js';
 
 // Set up all routes in the app
@@ -35,6 +36,12 @@ FlowRouter.route('/settings', {
   },
 });
 
+FlowRouter.route('/historicaldata', {
+  name: 'historicalData',
+  action() {
+    BlazeLayout.render('Layout_body', { content: 'Page_historicalData' });
+  },
+});
 
 
 

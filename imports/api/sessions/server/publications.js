@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { Sessions } from '../sessions.js';
-
+import { UserProfiles } from '../../userprofiles/userprofiles.js';
 
 Meteor.publish('sessions.all', function () {
   if (!this.userId) {
@@ -11,7 +11,10 @@ Meteor.publish('sessions.all', function () {
   // return this.ready();
 
   // Meteor._sleepForMs(2000);
-  return Sessions.find( { userId: this.userId } );
+  return Sessions.find( {
+    userId: this.userId,
+    username: UserProfiles.getCurrentUsername(this.userId)
+  } );
 });
 
 Meteor.publish('sessions.forDates', function (startTime, endTime) {
@@ -28,6 +31,7 @@ Meteor.publish('sessions.forDates', function (startTime, endTime) {
   return Sessions.find(
     {
       userId: this.userId,
+      username: UserProfiles.getCurrentUsername(this.userId),
       startTime: { $gte: startTime },
       $or: [
         endTime : null,
@@ -44,7 +48,10 @@ Meteor.publish('sessions.last', function() {
   }
 
   Meteor._sleepForMs(2000);
-  return Sessions.find({userId: this.userId}, {
+  return Sessions.find({
+    userId: this.userId,
+    username: UserProfiles.getCurrentUsername(this.userId)
+  }, {
     sort: {endTime: -1},
     limit: 1
   });

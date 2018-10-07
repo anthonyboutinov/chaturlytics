@@ -42,6 +42,7 @@ Meteor.methods({
       console.log("Calling dataPoints.getDataPointFromChaturbate for " + item.username);
       Meteor.call('dataPoints.getDataPointFromChaturbate', item.url, item.username);
     });
+    return true;
   },
 
   'dataPoints.getDataPointFromChaturbate'(url, username) {
@@ -87,7 +88,7 @@ Meteor.methods({
 
     //TODO: create one now date and use it throughout the method:  const now = new Date();
 
-    function _checkIfAuthorized(rawDataPoint) {
+    function _checkIfAuthorized(rawDataPoint, username) {
       if (rawDataPoint === 'Unauthorized') {
         UserProfiles.update({username}, {
           urlTokenHasExpired: new Date(),
@@ -116,7 +117,7 @@ Meteor.methods({
     };
 
     function _a(rawDataPoint, userId) {
-      rawDataPoint.last_broadcast = _correctTimezone(new Date(rawDataPoint.last_broadcast));
+      rawDataPoint.last_broadcast = _correctTimezone(new Date(rawDataPoint.last_broadcast)); // FIXME: use moment with timezone constructor to automatically adjust this instead
 
       // We need to understand if the session has just started, is ongoing, finished, or we're not checking this thing during or around a session
 
@@ -131,7 +132,7 @@ Meteor.methods({
       let callSessionSummarize = false;
 
       // Get info about the Last Data DataPoint
-      const lastDataPoint = DataPoints.findOne({ userId: userId }, { sort: { endTime: -1 } });
+      const lastDataPoint = DataPoints.findOne({ userId, username: rawDataPoint.username }, { sort: { endTime: -1 } });
       console.log({rawDataPoint});
       const lastSessionId = lastDataPoint ? lastDataPoint.sessionId : false;
       console.log({time_online: rawDataPoint.time_online, lastSessionId});
@@ -152,6 +153,7 @@ Meteor.methods({
         console.log({endTime, startTime, timeOnline: rawDataPoint.time_online});
         sessionId = Sessions.insert({
           userId: userId,
+          username: rawDataPoint.username,
           startTime: startTime,
           endTime: null
         });
@@ -213,9 +215,10 @@ Meteor.methods({
           if (rawDataPoint.ime_online < currentTimeframeDurationInMins) {
             broadcastHasDropped = true;
           }
-        } catch(e) {
+        } catch(error) {
+          // TODO: Check if try catch is needed / resolved already
           console.log({
-            error: e,
+            error,
             lastDataPointEndTime: lastDataPoint.endTime
           });
         }
@@ -253,7 +256,8 @@ Meteor.methods({
         {
           // TODO: add a warning output if there were no Data Point entries in the last hour so that the user could be prompted to check if the values are correct
           const lastHourDataPoints = DataPoints.find({
-            userId: userId,
+            userId,
+            username: rawDataPoint.username,
             startTime: {$gte: (new Date()).subMinutes(60)},
             endTime: {$lte: new Date()}
           }, {
@@ -264,7 +268,7 @@ Meteor.methods({
         }
 
 
-        let dataPoint = {
+        const dataPointContent = {
           userId,
           username: rawDataPoint.username,
           sessionId,
@@ -286,12 +290,13 @@ Meteor.methods({
         };
 
         // Write Data Point
+        console.log({overrideLastPointInsteadOfCreatingANewOne});
         if (!overrideLastPointInsteadOfCreatingANewOne) {
-          DataPoints.insert(dataPoint);
+          DataPoints.insert(dataPointContent);
         } else {
-          dataPoint.startTime = lastDataPoint.startTime;
+          dataPointContent.startTime = lastDataPoint.startTime;
           DataPoints.update(lastDataPoint._id, {
-            $set: dataPoint
+            $set: dataPointContent
           });
         }
 
@@ -313,7 +318,7 @@ Meteor.methods({
     check(username, String);
 
     try {
-      _checkIfAuthorized(rawDataPoint);
+      _checkIfAuthorized(rawDataPoint, username);
       rawDataPoint = JSON.parse(rawDataPoint);
       _checkIfDataAndUsernameMatch(rawDataPoint, username);
       const userId = _getUserId(username);
@@ -330,10 +335,14 @@ Meteor.methods({
     if (!this.userId) {
       return false;
     }
+
+    const username = UserProfiles.getCurrentUsername(this.userId);
+
     let sum = 0;
     let hours = 0;
     DataPoints.find({
       userId: this.userId,
+      username,
       sessionId: {$ne: null},
       startTime: {$ne: null},
     }, {
@@ -350,7 +359,31 @@ Meteor.methods({
   },
 
   'dataPoints.updateSchema'() {
+    if (!this.userId) {
+      return false;
+    }
+
     console.log("Nothing to force-update");
+
+    //
+    // const dataPoints = DataPoints.find({userId: this.userId}, {fields: {_id: 1}}).fetch();
+    //
+    // dataPoints.map(dataPoint => DataPoints.update({_id: dataPoint._id}, {
+    //   $set: {
+    //     username: UserProfiles.getCurrentUsername(this.userId)
+    //   },
+    // }) );
+    //
+    // const sessions = Sessions.find({userId: this.userId}, {fields: {_id: 1}}).fetch();
+    //
+    // sessions.map(session => Sessions.update({_id: session._id}, {
+    //   $set: {
+    //     username: UserProfiles.getCurrentUsername(this.userId)
+    //   },
+    // }) );
+
+
+
     // const allDataPoints = DataPoints.find({}, {
     //   sort: {endTime: 1}
     // }).fetch();
