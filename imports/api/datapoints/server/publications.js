@@ -15,6 +15,21 @@ Meteor.publish('dataPoints.all', function () {
   });
 });
 
+Meteor.publish('dataPoints.lastOnes', function (limit) {
+  if (!this.userId) {
+    return this.ready();
+  }
+
+  Meteor._sleepForMs(2000);
+  return DataPoints.find({
+    userId: this.userId,
+    username: UserProfiles.getCurrentUsername(this.userId),
+  }, {
+    sort: { endTime: -1 },
+    limit
+  });
+});
+
 
 Meteor.publish('dataPoints.forDates', function (startTime, endTime) {
   if (!this.userId) {

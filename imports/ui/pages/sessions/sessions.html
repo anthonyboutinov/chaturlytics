@@ -2,76 +2,82 @@
 
   <div class="container is-fluid">
     <div class="columns">
-      <div class="column is-one-third">
+      <div class="column is-one-third" style="overflow-y:scroll;height:calc(100vh - 3.25em);">
         <div class="section">
 
           <h3 class="title">Broadcasts List</h3>
           <p class="subtitle has-text-grey">Select a broadcast to view the details on it.</p>
           <table class="table is-fullwidth is-hoverable is-size-6">
+            {{#if Template.subscriptionsReady}}
             <tfoot>
               <tr>
-                <td>Total: {{sessions.count}} items</td>
+                <td>Total: {{formatNumber sessions.count}} items</td>
               </tr>
             </tfoot>
+            {{/if}}
             <tbody>
               {{#if hasOngoingSession}}
                 <tr class="has-background-white-ter has-text-grey is-size-7">
                   <td class="has-text-centered" style="padding-top:1.5rem;padding-bottom:1.5rem;">
-                    <i class="fas fa-fw fa-hourglass-half"></i> In progress
+                    <i class="fas fa-fw fa-hourglass-half"></i> Broadcast live
                   </td>
                 </tr>
               {{/if}}
-              {{#each sessions}}
-                <tr act-select-session="" class="{{isActive}}">
-                  <td>
-                    <a class="do-open" href="#">
-                      {{timeframe}}
-                      <div class="is-size-7 level" style="line-height:1.5rem;">
-                        <div class="level-left">
+              {{#if Template.subscriptionsReady}}
+                {{#each sessions}}
+                  <tr act-select-session="" class="{{isActive}}">
+                    <td>
+                      <a class="do-open" href="#">
+                        {{timeframe}}
+                        <div class="is-size-7 level" style="line-height:1.5rem;">
+                          <div class="level-left">
 
-                          <div class="level-item">
-                            {{duration}}
-                          </div>
-
-                          {{#if isOneOnOne}}
                             <div class="level-item">
-                              <i class="fas fa-fw fa-door-closed {{#unless isActive}}has-text-grey-light{{/unless}}" title="This was a one-on-one session"></i>
+                              {{duration}}
                             </div>
-                          {{/if}}
-                          {{#if sessionHasDropped}}
+
+                            {{#if isOneOnOne}}
+                              <div class="level-item">
+                                <i class="fas fa-fw fa-door-closed {{#unless isActive}}has-text-grey-light{{/unless}}" title="This was a one-on-one session"></i>
+                              </div>
+                            {{/if}}
+                            {{#if sessionHasDropped}}
+                              <div class="level-item">
+                                <i class="fas fa-fw fa-video has-text-warning" title="Warning: Broadcast has dropped for a few minutes during session"></i>
+                              </div>
+                            {{/if}}
+
+                          </div>
+                          <div class="level-right {{#unless isActive}}has-text-grey{{/unless}}">
+
                             <div class="level-item">
-                              <i class="fas fa-fw fa-video has-text-warning" title="Warning: Broadcast has dropped for a few minutes during session"></i>
+                              {{formatNumber deltaTokens}} TKN
                             </div>
-                          {{/if}}
 
-                        </div>
-                        <div class="level-right {{#unless isActive}}has-text-grey{{/unless}}">
+                            <div class="level-item">
+                            {{#unless isHistorical}}
+                              {{formatNumber numViewers}}&nbsp;<i class="fas fa-fw fa-eye"></i>
+                            {{else}}
+                              Historical Record&nbsp;<i class="fas fa-fw fa-history"></i>
+                            {{/unless}}
+                            </div>
 
-                          <div class="level-item">
-                            {{deltaTokens}} TKN
                           </div>
-
-                          <div class="level-item">
-                          {{#unless isHistorical}}
-                            {{numViewers}}&nbsp;<i class="fas fa-fw fa-eye"></i>
-                          {{else}}
-                            Historical Record&nbsp;<i class="fas fa-fw fa-history"></i>
-                          {{/unless}}
-                          </div>
-
                         </div>
-                      </div>
-                    </a>
-                  </td>
-                </tr>
-              {{/each}}
+                      </a>
+                    </td>
+                  </tr>
+                {{/each}}
+              {{else}}
+                <tr><td colspan="11" class="has-text-grey has-text-centered" style="padding:2rem 1rem;">Loading...</td></tr>
+              {{/if}}
             </tbody>
           </table>
 
         </div>
 
       </div>
-      <div class="column is-two-thirds" style="min-height: calc(100vh - 3.25rem); border-left: 1px solid rgb(233, 233, 233);">
+      <div class="column is-two-thirds" style="border-left: 1px solid rgb(233, 233, 233);overflow-y:scroll;height:calc(100vh - 3.25em);">
         <div class="section">
           {{#if currentlyViewedSession}}
             {{> sessionInfoView session=currentlyViewedSession}}

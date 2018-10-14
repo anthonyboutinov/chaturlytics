@@ -107,6 +107,59 @@ Meteor.methods({
     });
   },
 
+  'sessions.insertExtraIncome'(sessionId, currency, value) {
+    if (!this.userId) {
+      return false;
+    }
+    check(sessionId, String);
+    check(currency, String);
+    check(value, Number);
+
+    const session = Sessions.findOne(sessionId, {
+      fields: { extraIncome: 1 },
+    });
+    if (!session) {
+      throw "No such session";
+    }
+
+    const extraIncomeInstance = {
+      currency,
+      value
+    };
+
+    if (!session.extraIncome) {
+      return Sessions.update(sessionId, {
+        $set: {
+          extraIncome: [ extraIncomeInstance ]
+        }
+      });
+    } else {
+      return Sessions.update(sessionId, {
+        $push: {
+          extraIncome: extraIncomeInstance
+        }
+      });
+    }
+  },
+
+  'sessions.deleteExtraIncome'(sessionId, currency, value) {
+    if (!this.userId) {
+      return false;
+    }
+    check(sessionId, String);
+    check(currency, String);
+    check(value, Number);
+
+    return Sessions.update(sessionId, {
+      $pull: {
+        extraIncome: {
+          currency,
+          value
+        }
+      }
+    });
+  },
+
   'sessions.insertHistorical'(startTime, endTime, deltaTokens, note) {
     check(startTime, Date);
     check(endTime, Date);

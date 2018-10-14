@@ -5,6 +5,10 @@ body, #content-wrapper {
   min-height: 100vh;
 }
 
+body {
+  cursor: default;
+}
+
 .section .section {
   padding-left: 0;
   padding-right: 0;
@@ -216,4 +220,62 @@ body, #content-wrapper {
 
 .dropdown.is-hoverable:hover .dropdown-trigger .button {
   background-color: #f9f9f9;
+}
+
+
+
+
+.panel {
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.panel-block, .panel-tabs {
+  border-bottom: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  padding: 1.25rem 2rem !important;
+}
+
+ .panel-heading {
+   border-bottom: none !important;
+   border-left: none !important;
+   border-right: none !important;
+   padding: 1rem 2rem !important;
+}
+
+.panel-block:first-child, .panel-heading:first-child, .panel-tabs:first-child {
+  border-top: none !important;
+}
+
+.panel-heading {
+  font-weight: 600 !important;
+}
+
+.notification {
+  box-shadow: 0px 5px 25px rgba(0, 0, 0, 0.24);
+}
+
+
+
+.menu-list>li>a>.fa-fw, .menu-label>.fa-fw {
+  margin-right: 1rem;
+}
+
+#menu-wrapper .menu-list a.is-active:hover {
+  background: rgba(50, 115, 220, 0.8);
+}
+
+
+.table .button.is-small {
+  border-radius: 2px;
+  font-size: .75rem;
+  border: none;
+  padding-bottom: 0;
+  padding-top: 0;
+  background: none;
+  height: auto;
+  &:hover, &:focus, &:active {
+    background-color: rgba(0,0,0,0.08);
+  }
 }

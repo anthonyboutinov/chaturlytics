@@ -10,16 +10,16 @@ Date.prototype.subMinutes = function(m){
 }
 
 Template.Page_logs.onCreated(function () {
+  const instance = this;
   // Meteor.subscribe('dataPoints.forDates', (new Date()).subMinutes(60*24), new Date());
-  Meteor.subscribe('dataPoints.all');
+  instance.subscribe('dataPoints.lastOnes', 30);
 
   // const d = new Date();
   // d.setMonth(d.getMonth() - 1);
   // Meteor.subscribe('sessions.forDates', d, new Date());
-  Meteor.subscribe('sessions.all');
+  instance.subscribe('sessions.all');
 
 
-  var instance = this;
   instance.seconds = new ReactiveVar(0);
   instance.handle = Meteor.setInterval((function() {
     instance.seconds.set(instance.seconds.get() + 30);
@@ -114,6 +114,21 @@ Template.Page_logs.events({
         alert(error.error);
       }
     });
+  },
+
+  'click .update-dataPoint'(event, template) {
+    try {
+      const deltaTokens = parseInt(prompt("Update token amount:"), 10);
+      Meteor.call('dataPoints.update', this._id, {
+        deltaTokens: deltaTokens,
+      }, (error) => {
+        if (error) {
+          alert(error.error);
+        }
+      });
+    } catch(e) {
+      console.log(e);
+    }
   },
 
   // 'submit .get'(event) {

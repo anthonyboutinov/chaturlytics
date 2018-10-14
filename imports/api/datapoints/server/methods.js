@@ -51,7 +51,6 @@ Meteor.methods({
 
     HTTP.get(url, null, (error, result) => {
       if (!error) {
-        console.log({resultContent: result.content, username});
         Meteor.call('dataPoints.insertIndepenentlyFromRawData', result.content, username);
       } else {
         console.log('dataPoints.getDataPointFromChaturbate', {error, url, username});
@@ -121,8 +120,8 @@ Meteor.methods({
 
       // We need to understand if the session has just started, is ongoing, finished, or we're not checking this thing during or around a session
 
-      const nextSyncOptionSoon = 9;
-      const nextSyncOptionLater = 30;
+      const nextSyncOptionSoon = 14;
+      const nextSyncOptionLater = 29;
       let nextSyncOption = nextSyncOptionSoon;
       let startTime, sessionId = null, endTime;
       let deltaTokens;
@@ -158,11 +157,13 @@ Meteor.methods({
           endTime: null
         });
         // Update endTime of the previous dataPoint
-        DataPoints.update(
-          lastDataPoint._id, {
-            $set: { endTime: startTime }
-          }
-        );
+        if (lastDataPoint) {
+          DataPoints.update(
+            lastDataPoint._id, {
+              $set: { endTime: startTime }
+            }
+          );
+        }
         console.log("session started", {startTime, endTime});
       } else
       // else check if session has recently finished
@@ -175,7 +176,7 @@ Meteor.methods({
           startTime = lastDataPoint.endTime;
           console.log("session finished, now off-time", {startTime});
           nextSyncOption = nextSyncOptionLater;
-          overrideLastPointInsteadOfCreatingANewOne = true;
+          // overrideLastPointInsteadOfCreatingANewOne = true; // CREATED A PROBLEM of overriding lastSession's last dataPoint!
         } else
           // else if session has finished and we're entering off-time
           // --- CASE 2.2 ---
@@ -331,7 +332,7 @@ Meteor.methods({
 
   },
 
-  'dataPoints.getAvgTokensPerHourDuringOnlineTime'() {
+  'dataPoints.getAvgTokensPerHourDuringOnlineTime'(oldestDataPoint = moment("2000-01-01").toDate()) {
     if (!this.userId) {
       return false;
     }
@@ -345,6 +346,7 @@ Meteor.methods({
       username,
       sessionId: {$ne: null},
       startTime: {$ne: null},
+      endTime: { $gte: oldestDataPoint },
     }, {
       fields: {
         deltaTokens: 1,
@@ -353,9 +355,23 @@ Meteor.methods({
       }
     }).map(function(doc) {
       sum += doc.deltaTokens;
-      hours += moment(doc.endTime).diff(doc.startTime, 'hours', true); // If you want a floating point number, pass true as the third argument;
+      // Explanation for the next line: If you want a floating point number, pass true as the third argument;
+      hours += moment(doc.endTime).diff(doc.startTime, 'hours', true);
     });
     return Math.round(sum / hours);
+  },
+
+  'dataPoints.update'(_id, setOptions) {
+    if (!this.userId) {
+      return false;
+    }
+    check(_id, String);
+    return DataPoints.update({
+      _id,
+      userId: this.userId,
+    }, {
+      $set: setOptions
+    });
   },
 
   'dataPoints.updateSchema'() {

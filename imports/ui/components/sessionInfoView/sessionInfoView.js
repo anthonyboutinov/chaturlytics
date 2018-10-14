@@ -1,6 +1,6 @@
 import './sessionInfoView.html';
 import './briefIsHistorical.html';
-import '../../components/dateChartView/dateChartView.js';
+import '/imports/ui/components/dateChartView/dateChartView.js';
 
 // import { DataPoints } from '/imports/api/datapoints/datapoints.js';
 import { Sessions } from '/imports/api/sessions/sessions.js';
@@ -229,7 +229,7 @@ Template.sessionInfoView.helpers({
   },
 
   plusMinus(number) {
-    return (number > 0 ? '+' : '') + number;
+    return (number > 0 ? '+' : '') + number.toLocaleString('en');
   },
 
   greenRed(number, isNegative = false) {

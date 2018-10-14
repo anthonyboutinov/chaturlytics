@@ -10,24 +10,34 @@ function isActive(value) {
   return value === true ? "is-active" : null;
 }
 
+function _getTokensPerHour(instance) {
+  const oldestDate = moment().subtract(30, 'days').toDate();
+  Meteor.call('dataPoints.getAvgTokensPerHourDuringOnlineTime', oldestDate, function(error, result) {
+    if (!error) {
+      instance.tokensPerHour.set(result);
+    } else {
+      console.warn("Server error in dataPoints.getAvgTokensPerHourDuringOnlineTime Meteor call");
+    }
+  });
+}
+
 Template.Layout_body.onCreated(function() {
-  var instance = this;
+  const instance = this;
 
+  // GLOBAL SUBSCRIPTIONS
+  instance.subscribe('userRates.all'); // not used in this template, but in other ones
   instance.subscribe('userProfiles.all');
-
   instance.subscribe('sessions.last');
-  instance.tokensPerHour = new ReactiveVar('…');
-
   instance.subscribe('dataPoints.last');
 
-  instance.seconds = new ReactiveVar(0);
-  instance.handle = Meteor.setInterval((function() {
-    instance.seconds.set(instance.seconds.get() + 1);
+  instance.tokensPerHour = new ReactiveVar('…');
+  instance.recomputationTrigger = new ReactiveVar(0);
 
-    Meteor.call('dataPoints.getAvgTokensPerHourDuringOnlineTime', function(error, result) {
-      instance.tokensPerHour.set(result);
-    });
+  instance.handle = Meteor.setInterval((function() {
+    instance.recomputationTrigger.set(instance.recomputationTrigger.get() + 1);
+    _getTokensPerHour(instance);
   }), 1000 * 60 * 10);
+  _getTokensPerHour(instance);
 });
 
 Template.Layout_body.onDestroyed(function() {
@@ -49,15 +59,13 @@ Template.Layout_body.helpers({
   },
 
   isBroadcasting() {
-    const liveSession = Sessions.findOne({
-      endTime: null
+    const lastSession = Sessions.findOne({}, {
+      sort: {startTime: -1}
     });
-    if (liveSession) {
+    console.log({lastSession});
+    if (lastSession && !lastSession.endTime) {
       return true;
     }
-    const lastSession = Sessions.findOne({}, {
-      sort: {endTime: -1}
-    });
     if (!lastSession || lastSession.endTime && lastSession.endTime < new Date()) {
       return false;
     } else {
@@ -66,26 +74,30 @@ Template.Layout_body.helpers({
   },
 
   timeOnline() {
-    Template.instance().seconds.get();
+    Template.instance().recomputationTrigger.get();
     const liveSession = Sessions.findOne({
       endTime: null
     });
     if (liveSession) {
-      // return moment(liveSession.startTime).fromNow(true);
-      return moment.duration(moment(new Date()).diff(moment(liveSession.startTime), 'minutes'), 'minutes').format("h [hrs] m [min]");
+      return moment
+        .duration(moment(new Date())
+        .diff(moment(liveSession.startTime), 'minutes'), 'minutes')
+        .format("h [hrs] m [min]");
     }
+    return "…";
   },
 
   timeOffline() {
     const lastSession = Sessions.findOne({}, {
       sort: {endTime: -1}
     });
+    const offlineLabel = 'Offline';
     if (!lastSession) {
-      return "Offline";
+      return offlineLabel;
     } else if (lastSession.endTime > moment().subtract(1, 'days')) {
-      return "Offline";
+      return offlineLabel;
     } else {
-      return "Offline " + moment(lastSession.endTime).fromNow(true);
+      return offlineLabel + ' ' + moment(lastSession.endTime).fromNow(true);
     }
   },
 
@@ -103,16 +115,17 @@ Template.Layout_body.events({
 
   'click .force-sync'(event) {
     event.preventDefault();
-    Meteor.call('dataPoints.getDataPointsForAll', (error, result) => {
-      console.log({error, result});
-    });
-    console.log("called dataPoints.getDataPointsForAll from client");
+    Meteor.call('dataPoints.getDataPointsForAll');
   },
 
   'click .update-db'(event) {
     event.preventDefault();
     Meteor.call('dataPoints.updateSchema');
-    console.log("called dataPoints.updateSchema from client");
+  },
+
+  'click .update-exchange-rates'(event) {
+    event.preventDefault();
+    Meteor.call('currencies.updateExchangeRate');
   },
 
 

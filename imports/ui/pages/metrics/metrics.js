@@ -1,18 +1,41 @@
 import './metrics.html';
+// import '/imports/ui/components/dateChartView/dateChartView.js';
 
 import { DataPoints } from '/imports/api/datapoints/datapoints.js';
 import { Sessions } from '/imports/api/sessions/sessions.js';
+import { Currencies } from '/imports/api/currencies/currencies.js';
+import { UserRates } from '/imports/api/userRates/userRates.js';
 import { Meteor } from 'meteor/meteor';
 import { ReactiveVar } from 'meteor/reactive-var';
 
+// const _chartConfigs = {
+//   deltaTokens: {
+//     data: [
+//       {
+//         label: "Delta Tokens",
+//         fill: true,
+//         borderColor: 'rgba(140, 206, 140, 1)',
+//         backgroundColor: 'rgba(140, 206, 140, 1)',
+//         dataAlias: 'deltaTokens',
+//         yAxisID: 'generic',
+//       },
+//     ],
+//   },
+// };
+
 Template.Page_metrics.onCreated(function() {
-  Meteor.subscribe('sessions.all');
-  Meteor.subscribe('dataPoints.all');
+  const instance = this;
+  instance.subscribe('sessions.all');
+  instance.subscribe('dataPoints.all');
+  instance.subscribe('userData');
+  instance.subscribe('currencies.latest');
 
   this.grouping = new ReactiveVar('weeks');
   this.skipOffDays = new ReactiveVar(false);
   this.displayNotes = new ReactiveVar(false);
   this.coloration = new ReactiveVar();
+
+
 });
 
 Template.Page_metrics.helpers({
@@ -20,6 +43,81 @@ Template.Page_metrics.helpers({
   metrics() {
     const __timer = new Date();
 
+    // function _getConversionMultiplier(usersTokenToUSDRate) {
+    //   const user = Meteor.user();
+    //   if (!user) {
+    //     return "ND";
+    //   }
+    //   const primaryCurrency = user.primaryCurrency;
+    //   const currencies = Currencies.findOne();
+    //   if (!currencies) {
+    //     return "ND";
+    //   }
+    //   const rates = currencies.rates;
+    //   const rate = rates['USD']; // TODO: get what primary currency is from user collection
+    //   return usersTokenToUSDRate * rate;
+    // }
+
+    function _adjustMinMax(value, minMaxContainer) {
+      if (value > minMaxContainer.max) {
+        minMaxContainer.max = value;
+      }
+      if (value < minMaxContainer.min) {
+        minMaxContainer.min = value;
+      }
+    }
+
+    function _getFromToRounded(descriptiveGroupingInterval) {
+      const edgeDataPointQuery = { startTime: {$exists: true} };
+      const firstOne = DataPoints.findOne(edgeDataPointQuery, {
+        sort: {endTime: 1},
+        limit: 1,
+        fields: {endTime: 1}
+      });
+      if (!firstOne) {
+        return;
+      }
+      const lastOne = DataPoints.findOne(edgeDataPointQuery, {
+        sort: {endTime: -1},
+        limit: 1,
+        fields: {endTime: 1}
+      });
+
+      let fromRounded = moment(firstOne.endTime)
+        .set('hour', 0)
+        .set('minute', 0)
+        .set('second', 0)
+        .set('millisecond', 0);
+      const lastDatetimeRounded = moment(lastOne.endTime)
+        .set('hour', 0)
+        .set('minute', 0)
+        .set('second', 0)
+        .set('millisecond', 0)
+        .add(1, 'days');
+
+      if (descriptiveGroupingInterval === 'months' || descriptiveGroupingInterval === 'halvesOfMonth') {
+        fromRounded = fromRounded.startOf('month');
+      } else if (descriptiveGroupingInterval === 'years') {
+        fromRounded = fromRounded.startOf('year');
+      } else if (descriptiveGroupingInterval === 'weeks') {
+        fromRounded = fromRounded.startOf('week');
+      }
+      return {fromRounded, lastDatetimeRounded};
+    }
+
+    function _defineStyle(value, minMax, numBroadcasts) {
+      const percentage = (value - minMax.min) / minMax.delta;
+      const hueAngle = Math.round(percentage * 300); // use colors only from 0º to 300º
+      const colorLightness = numBroadcasts > 0 ? 30 : 60; // just some on-the-top-of-my-head color lighness values of 30 & 60
+      const backgroundLightness = numBroadcasts > 0 ? 93 : 99; // just some on-the-top-of-my-head color lighness values of 30 & 60
+      return [
+        'background-color:hsl('+hueAngle+', 100%, '+backgroundLightness+'%)',
+        'color:hsl('+hueAngle+', 20%, '+colorLightness+'%)',
+      ].join(';') + ';';
+    }
+
+    const userRate = UserRates.findOne({});
+    const conversionMultiplier = userRate ? userRate.rate : 1;
     const instance = Template.instance();
 
     let coloration = {
@@ -31,10 +129,18 @@ Template.Page_metrics.helpers({
         min: 100,
         max: 300,
       },
+      totalDeltaPrimaryCurrency : {
+        min: 1000 * conversionMultiplier,
+        max: 1000 * conversionMultiplier,
+      },
+      avgPrimaryCurrency: {
+        min: 100 * conversionMultiplier,
+        max: 300 * conversionMultiplier,
+      },
     };
 
     let groupingInterval = instance.grouping.get();
-    const __groupingInterval = groupingInterval;
+    const descriptiveGroupingInterval = groupingInterval;
     const skipOffDays = instance.skipOffDays.get();
 
     const isPrimitiveGrouping = groupingInterval === 'days' || groupingInterval === 'weeks' || groupingInterval === 'months' || groupingInterval === 'years';
@@ -47,50 +153,17 @@ Template.Page_metrics.helpers({
       throw 'This Grouping is not covered';
     }
 
-    const edgeDataPointQuery = { startTime: {$exists: true} };
-    const firstOne = DataPoints.findOne(edgeDataPointQuery, {
-      sort: {endTime: 1},
-      limit: 1,
-      fields: {endTime: 1}
-    });
-    if (!firstOne) {
-      return;
-    }
-    const lastOne = DataPoints.findOne(edgeDataPointQuery, {
-      sort: {endTime: -1},
-      limit: 1,
-      fields: {endTime: 1}
-    });
-
-    let fromRounded = moment(firstOne.endTime)
-      .set('hour', 0)
-      .set('minute', 0)
-      .set('second', 0)
-      .set('millisecond', 0);
-    const lastDatetimeRounded = moment(lastOne.endTime)
-      .set('hour', 0)
-      .set('minute', 0)
-      .set('second', 0)
-      .set('millisecond', 0)
-      .add(1, 'days');
-
-    if (__groupingInterval === 'months' || __groupingInterval === 'halvesOfMonth') {
-      fromRounded = fromRounded.startOf('month');
-    } else if (__groupingInterval === 'years') {
-      fromRounded = fromRounded.startOf('year');
-    } else if (__groupingInterval === 'weeks') {
-      fromRounded = fromRounded.startOf('week');
-    }
+    const fromToRounded = _getFromToRounded(descriptiveGroupingInterval);
 
     let metrics = [];
 
-    // while fromRounded is before lastDatetimeRounded
-    while (moment.max(fromRounded, lastDatetimeRounded) === lastDatetimeRounded) {
-      const toRounded = moment(fromRounded).add(groupingStep, groupingInterval);
+    // while fromToRounded.fromRounded is before fromToRounded.lastDatetimeRounded
+    while (moment.max(fromToRounded.fromRounded, fromToRounded.lastDatetimeRounded) === fromToRounded.lastDatetimeRounded) {
+      const toRounded = moment(fromToRounded.fromRounded).add(groupingStep, groupingInterval);
       const query = {
         startTime: {$exists: true},
         endTime: {
-          $gte: fromRounded.toDate(),
+          $gte: fromToRounded.fromRounded.toDate(),
           $lt: toRounded.toDate(),
         },
       };
@@ -109,12 +182,10 @@ Template.Page_metrics.helpers({
       const deltaFollowers = dataPointsInRange.reduce((sum, dataPoint) => sum + (dataPoint.deltaFollowers ? dataPoint.deltaFollowers : 0), 0);
       const endTime = moment(toRounded).subtract(1, 'second');
 
-      if (deltaTokens > coloration.tokens.max) {
-        coloration.tokens.max = deltaTokens;
-      }
-      if (deltaTokens < coloration.tokens.min) {
-        coloration.tokens.min = deltaTokens;
-      }
+      _adjustMinMax(deltaTokens, coloration.tokens);
+
+      const totalDeltaPrimaryCurrency = Math.round(deltaTokens * conversionMultiplier);
+      _adjustMinMax(totalDeltaPrimaryCurrency, coloration.totalDeltaPrimaryCurrency);
 
       if (sessionsInRange.length) {
         const totalMinutesOnline = sessionsInRange.reduce(
@@ -124,16 +195,14 @@ Template.Page_metrics.helpers({
         const timeOnline = moment.duration(totalMinutesOnline, 'minutes');
 
         const timeOnlineAsHours = timeOnline.as('hours', true);
-        const avgTokens = Math.round(deltaTokensDuringSessions / timeOnlineAsHours, -1);
-        if (avgTokens > coloration.avgTokens.max) {
-          coloration.avgTokens.max = avgTokens;
-        }
-        if (avgTokens < coloration.avgTokens.min) {
-          coloration.avgTokens.min = avgTokens;
-        }
+        const avgTokens = Math.round(deltaTokensDuringSessions / timeOnlineAsHours);
+        _adjustMinMax(avgTokens, coloration.avgTokens);
+
+        const avgPrimaryCurrency = Math.round(avgTokens * conversionMultiplier);
+        _adjustMinMax(avgPrimaryCurrency, coloration.avgPrimaryCurrency);
 
         metrics.unshift({
-          startTime: fromRounded,
+          startTime: fromToRounded.fromRounded,
           endTime,
           numBroadcasts: sessionsInRange ? sessionsInRange.length : '–',
           timeOnline: timeOnline.format("h [hrs] m [min]"),
@@ -145,10 +214,12 @@ Template.Page_metrics.helpers({
           notes: sessionsInRange.reduce((sum, session) =>
             session.note ? sum + session.note + " ❡ " : sum,
             ''),
+          totalDeltaPrimaryCurrency,
+          avgPrimaryCurrency,
         });
       } else if (!skipOffDays) {
         metrics.unshift({
-          startTime: fromRounded,
+          startTime: fromToRounded.fromRounded,
           endTime,
           numBroadcasts: '–',
           timeOnline: '–',
@@ -156,32 +227,34 @@ Template.Page_metrics.helpers({
           deltaTokensDuringSessions: '–',
           deltaFollowers,
           deltaTokens,
+          avgTokens: '–',
+          totalDeltaPrimaryCurrency,
+          avgPrimaryCurrency: '–',
         });
       }
 
-      fromRounded = toRounded;
+      fromToRounded.fromRounded = toRounded;
     } // eof while
 
-    coloration.tokens.delta = coloration.tokens.max - coloration.tokens.min;
-    coloration.avgTokens.delta = coloration.avgTokens.max - coloration.avgTokens.min;
+    function _setColorationDelta(colorationIntance) {
+      colorationIntance.delta = colorationIntance.max - colorationIntance.min;
+    }
+
+    _setColorationDelta(coloration.tokens);
+    _setColorationDelta(coloration.avgTokens)
+    _setColorationDelta(coloration.totalDeltaPrimaryCurrency);
+    _setColorationDelta(coloration.avgPrimaryCurrency);
+
     instance.coloration.set(coloration);
 
     console.log({coloration, metrics});
 
     if (coloration.tokens.delta) {
-      function _defineStyle(value, minMax, numBroadcasts) {
-        const percentage = (value - minMax.min) / minMax.delta;
-        const hueAngle = Math.round(percentage * 300, 0); // use colors only from 0º to 300º
-        const colorLightness = numBroadcasts > 0 ? 30 : 60; // just some on-the-top-of-my-head color lighness values of 30 & 60
-        const backgroundLightness = numBroadcasts > 0 ? 93 : 99; // just some on-the-top-of-my-head color lighness values of 30 & 60
-        return [
-          'background-color:hsl('+hueAngle+', 100%, '+backgroundLightness+'%)',
-          'color:hsl('+hueAngle+', 20%, '+colorLightness+'%)',
-        ].join(';');
-      }
       _.each(metrics, (metric) => {
         metric.deltaTokensStyle = _defineStyle(metric.deltaTokens, coloration.tokens, metric.numBroadcasts);
         metric.avgTokensStyle   = _defineStyle(metric.avgTokens,   coloration.avgTokens, metric.numBroadcasts);
+        metric.totalDeltaPrimaryCurrencyStyle = _defineStyle(metric.totalDeltaPrimaryCurrency, coloration.totalDeltaPrimaryCurrency, metric.numBroadcasts);
+        metric.avgPrimaryCurrencyStyle = _defineStyle(metric.avgPrimaryCurrency, coloration.avgPrimaryCurrency, metric.numBroadcasts);
       });
     }
 
@@ -234,16 +307,15 @@ Template.Page_metrics.helpers({
   skipOffDaysToggleApplicable: () => Template.instance().grouping.get() === 'days',
 
   timeframe() {
-    const start = this.startTime ? moment(this.startTime).format('ll') : '-∞ to ';
+    const isTheSameDay = moment(this.endTime).date() === moment(this.startTime).date();
+    const isTheSameMonth = moment(this.endTime).month() === moment(this.startTime).month();
+    const isTheSameYear = moment(this.endTime).year() === moment(this.startTime).year();
+    const start = this.startTime ? moment(this.startTime).format(isTheSameYear ? 'MMM D' : 'll') : '-∞ to ';
     let end = '';
-    let format = 'll';
-    if (this.endTime) {
-      const isTheSameDay = moment(this.endTime).date() === moment(this.startTime).date(); //moment(this.endTime).diff(this.startTime, 'minutes') < 59;
-      if (isTheSameDay) {
-        return moment(this.startTime).format('ddd, MMM D, YYYY');
-      }
-      end = moment(this.endTime).format(format);
+    if (isTheSameDay) {
+      return moment(this.startTime).format('ddd, MMM D, YYYY');
     }
+    end = moment(this.endTime).format(isTheSameMonth ? 'D, YYYY' : 'll');
     return start + ' - ' + end;
   },
 
@@ -288,6 +360,11 @@ Template.Page_metrics.helpers({
 
   moreThanOneSession() {
     return this.sessions ? this.sessions.length > 1 : null;
+  },
+
+  userCurrencyLabel() {
+    const userRate = UserRates.findOne({});
+    return userRate ? userRate.currency : null;
   },
 
 });

@@ -5,8 +5,8 @@ import { Sessions } from '/imports/api/sessions/sessions.js';
 import Calendar from 'tui-calendar';
 
 Template.calendarView.onCreated(function() {
-  Meteor.subscribe('sessions.all');
-  Meteor.subscribe('dataPoints.all');
+  this.subscribe('sessions.all');
+  this.subscribe('dataPoints.all');
 });
 
 Template.calendarView.onRendered(function() {

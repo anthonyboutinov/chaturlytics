@@ -12,9 +12,8 @@ Date.prototype.subMinutes = function(m){
 }
 
 Template.Page_sessions.onCreated(function () {
-  Meteor.subscribe('sessions.all');
-
-  var instance = this;
+  const instance = this;
+  instance.subscribe('sessions.all');
   instance.seconds = new ReactiveVar(0);
   instance.handle = Meteor.setInterval((function() {
     instance.seconds.set(instance.seconds.get() + 30);

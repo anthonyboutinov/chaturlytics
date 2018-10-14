@@ -20,7 +20,7 @@ Template.dateChartView.onRendered(function () {
       instance.chart.destroy();
     }
 
-    Meteor.subscribe('dataPoints.forSession', Template.currentData().session._id, () => {
+    instance.subscribe('dataPoints.forSession', Template.currentData().session._id, () => {
       console.log("subscriptionReady");
 
       const drawingContext = instance.find('.thisChart').getContext('2d');

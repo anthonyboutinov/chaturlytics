@@ -31,7 +31,7 @@
       <div>
         <p class="heading">Viewers <i class="fas fa-fw fa-info-circle has-text-grey-light" title="Median Value"></i></p>
         {{#unless session.isHistorical}}
-          <p class="title is-size-4">{{session.numViewers}}</p>
+          <p class="title is-size-4">{{formatNumber session.numViewers}}</p>
         {{else}}
           {{> Element_briefIsHistorical}}
         {{/unless}}

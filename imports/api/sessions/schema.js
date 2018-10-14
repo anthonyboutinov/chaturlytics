@@ -1,6 +1,11 @@
 import { Sessions } from './sessions.js';
 import SimpleSchema from 'simpl-schema';
 
+extraIncomeSchema = new SimpleSchema({
+  currency: String,
+  value: Number,
+});
+
 Sessions.schema = new SimpleSchema({
 
   userId: {
@@ -72,6 +77,13 @@ Sessions.schema = new SimpleSchema({
     type: Boolean,
   },
 
+  extraIncome: {
+    optional: true,
+    type: Array,
+  },
+
+  'extraIncome.$': extraIncomeSchema,
+
 });
 
-// Sessions.attachSchema(Sessions.Sessions);
+Sessions.attachSchema(Sessions.schema);

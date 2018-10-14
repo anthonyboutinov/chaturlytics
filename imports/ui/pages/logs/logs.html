@@ -21,25 +21,49 @@
         </tr>
       </thead>
       <tbody>
-        {{#each dataPoints}}
-          <tr>
-            <th>
-              {{#if sessionId}}<i class="fas fa-video {{#if broadcastHasDropped}} has-text-warning {{else}} has-text-success {{/if}} "
-              title="Broadcasting{{#if broadcastHasDropped}}, broadcast has dropped for a few minutes{{/if}}"></i>{{/if}}
-            </th>
-            <th>{{timeframe}}</th>
-            <td>{{duration}}</td>
-            <td class="has-text-right">{{deltaTokens}} TKN</td>
-            <td class="has-text-right">{{deltaFollowers}}</td>
-            <!-- <td class="has-text-right">{{rawFollowers}}</td> -->
-            <td class="has-text-right">{{numViewers}}</td>
-            <td class="has-text-right">{{numRegisteredViewers}}</td>
-            <td class="has-text-right">{{numTokenedViewers}}</td>
-            <td class="has-text-right">{{deltaVotesUp}}</td>
-            <td class="has-text-right">{{deltaVotesDown}}</td>
-            <td class="has-text-right"><a class="delete-dataPoint delete has-background-danger"></a></td>
-          </tr>
-        {{/each}}
+        {{#if Template.subscriptionsReady}}
+          {{#each dataPoints}}
+            <tr>
+              <th>
+                {{#if sessionId}}
+                  <a href="/view/sessions/{{sessionId}}">
+                    <i class="fas fa-video {{#if broadcastHasDropped}} has-text-warning {{else}} has-text-success {{/if}}"
+                    title="Broadcasting{{#if broadcastHasDropped}}, broadcast has dropped for a few minutes{{/if}}"></i>
+                  </a>
+                {{/if}}
+              </th>
+              <th>{{timeframe}}</th>
+              <td>{{duration}}</td>
+              <td class="has-text-right">{{formatNumber deltaTokens}} TKN ({{formatNumber rawTokens}})</td>
+              <td class="has-text-right">{{formatNumber deltaFollowers}} ({{formatNumber rawFollowers}})</td>
+              <!-- <td class="has-text-right">{{rawFollowers}}</td> -->
+              <td class="has-text-right">{{formatNumber numViewers}}</td>
+              <td class="has-text-right">{{formatNumber numRegisteredViewers}}</td>
+              <td class="has-text-right">{{formatNumber numTokenedViewers}}</td>
+              <td class="has-text-right">{{formatNumber deltaVotesUp}} ({{formatNumber totalVotesUp}})</td>
+              <td class="has-text-right">{{formatNumber deltaVotesDown}} ({{formatNumber totalVotesDown}})</td>
+              <td>
+                <div class="dropdown is-hoverable is-right">
+                  <div class="dropdown-trigger">
+                    <button class="button is-small" aria-haspopup="true" aria-controls="dropdown-menu-datapoint-{{_id}}">
+                      <span class="icon is-small">
+                        <i class="fas fa-angle-down" aria-hidden="true"></i>
+                      </span>
+                    </button>
+                  </div>
+                  <div class="dropdown-menu" id="dropdown-menu-datapoint-{{_id}}" role="menu">
+                    <div class="dropdown-content">
+                      <a class="dropdown-item update-dataPoint"> Update </a>
+                      <a class="dropdown-item delete-dataPoint has-text-danger"> Delete </a>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          {{/each}}
+        {{else}}
+          <tr><td colspan="11" class="has-text-grey has-text-centered" style="padding:2rem 1rem;">Loading...</td></tr>
+        {{/if}}
       </tbody>
     </table>
   </div>
@@ -63,26 +87,31 @@
         </tr>
       </thead>
       <tbody>
-        {{#each sessions}}
-          <tr>
-            <th>{{#if broadcastHasDropped}}<i class="fas fa-video has-text-warning"
-            title="Broadcasting, broadcast has dropped for a few minutes, see details"></i>{{/if}}</th>
-            <th>{{timeframe}}</th>
-            <td>{{duration}}</td>
-            <td class="has-text-right">{{deltaTokens}} TKN</td>
-            <td class="has-text-right">{{deltaFollowers}}</td>
-            <td class="has-text-right">{{numViewers}}</td>
-            <td class="has-text-right">{{numRegisteredViewers}}</td>
-            <td class="has-text-right">{{numTokenedViewers}}</td>
-            <td class="has-text-right">{{deltaVotesUp}}</td>
-            <td class="has-text-right">{{deltaVotesDown}}</td>
+        {{#if Template.subscriptionsReady}}
+          {{#each sessions}}
+            <tr>
+              <th>{{#if broadcastHasDropped}}<i class="fas fa-video has-text-warning"
+              title="Broadcasting, broadcast has dropped for a few minutes, see details"></i>{{/if}}</th>
+              <th><a href="/view/sessions/{{_id}}" class="has-text-black">{{timeframe}}</a></th>
+              <td>{{duration}}</td>
+              <td class="has-text-right">{{formatNumber deltaTokens}} TKN</td>
+              <td class="has-text-right">{{formatNumber deltaFollowers}}</td>
+              <td class="has-text-right">{{formatNumber numViewers}}</td>
+              <td class="has-text-right">{{formatNumber numRegisteredViewers}}</td>
+              <td class="has-text-right">{{formatNumber numTokenedViewers}}</td>
+              <td class="has-text-right">{{formatNumber deltaVotesUp}}</td>
+              <td class="has-text-right">{{formatNumber deltaVotesDown}}</td>
 
-            <td class="has-text-right">
-              <a class="delete delete-session has-background-danger"></a>
-              <i class="fas fa-calculator has-text-info summarize-session"></i>
-            </td>
-          </tr>
-        {{/each}}
+              <td class="has-text-right">
+
+                <a class="delete delete-session has-background-danger"></a>
+                <i class="fas fa-calculator has-text-info summarize-session"></i>
+              </td>
+            </tr>
+          {{/each}}
+        {{else}}
+          <tr><td colspan="11" class="has-text-grey has-text-centered" style="padding:2rem 1rem;">Loading...</td></tr>
+        {{/if}}
       </tbody>
     </table>
   </div>
