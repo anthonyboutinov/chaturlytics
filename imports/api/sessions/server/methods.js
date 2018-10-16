@@ -41,6 +41,7 @@ Meteor.methods({
   },
 
   'sessions.summarize'(_id) {
+    console.log("session.summarize called for session ", _id);
 
     function _median(values) {
       values.sort((a, b) => a - b);
@@ -102,12 +103,16 @@ Meteor.methods({
     check(sessionId, String);
     check(note, String);
 
-    return Sessions.update(sessionId, {
+    return Sessions.update({
+      _id:sessionId,
+      userId: this.userId,
+    }, {
       $set: {note}
     });
   },
 
   'sessions.insertExtraIncome'(sessionId, currency, value) {
+    const __timer = new Date();
     if (!this.userId) {
       return false;
     }
@@ -127,19 +132,28 @@ Meteor.methods({
       value
     };
 
+    let result;
     if (!session.extraIncome) {
-      return Sessions.update(sessionId, {
+      result = Sessions.update({
+        _id:sessionId,
+        userId: this.userId,
+      }, {
         $set: {
           extraIncome: [ extraIncomeInstance ]
         }
       });
     } else {
-      return Sessions.update(sessionId, {
+      result = Sessions.update({
+        _id:sessionId,
+        userId: this.userId,
+      }, {
         $push: {
           extraIncome: extraIncomeInstance
         }
       });
     }
+    console.log('Execution time for sessions.insertExtraIncome: ', new Date() - __timer);
+    return result;
   },
 
   'sessions.deleteExtraIncome'(sessionId, currency, value) {
@@ -150,7 +164,10 @@ Meteor.methods({
     check(currency, String);
     check(value, Number);
 
-    return Sessions.update(sessionId, {
+    return Sessions.update({
+      _id:sessionId,
+      userId: this.userId,
+    }, {
       $pull: {
         extraIncome: {
           currency,

@@ -85,6 +85,13 @@ Template.Page_sessions.helpers({
     return session && this._id === session._id ? "is-selected" : null;
   },
 
+  totalExtraIncome() {
+    if (this.extraIncome && this.extraIncome.length) {
+      return this.extraIncome.reduce((sum, item) => sum + item.value, 0).toLocaleString('en')
+        + ' ' + this.extraIncome[0].currency;
+    }
+  },
+
 });
 
 Template.Page_sessions.onDestroyed(function() {

@@ -1,6 +1,8 @@
 <template name="sessionInfoView">
 
-  <h4 class="title is-size-3">{{timeframe session}}{{#if session.isOneOnOne}},<br>One-on-One Session{{/if}}</h4>
+  <h4 class="title is-size-3">
+    {{timeframe session}}{{#if session.isOneOnOne}},<br>One-on-One Session{{/if}}
+  </h4>
 
   <hr>
 
@@ -72,99 +74,175 @@
       </form>
   </div>
 
-  <!-- <div class="section is-small">
+  <div class="section is-small">
     <form name="extraIncomeForm">
-      <div class="field">
-        <label class="label">Additional Income</label>
-        <div class="field has-addons">
-          <p class="control">
-            <span class="select">
-              <select>
-                <option>USD</option>
-                <option>RUB</option>
-              </select>
-            </span>
-          </p>
-          <p class="control">
-            <input class="input" type="text" placeholder="0" name="extraIncomeValueAdd">
-          </p>
-          <p class="control">
-            <a class="button is-primary">
-              Add
-            </a>
-          </p>
-        </div>
-        <p class="help">Input extra income during the session from sources like gift cards. You can change currency in <a href="/settings">Settings</a>.</p>
-      </div>
-    </form>
-  </div> -->
+      <h5 class="title is-size-4">Extra Income</h5>
 
-  {{#unless session.isHistorical}}
+      {{#if dynamicSession.extraIncome}}
+        <table class="table is-bordered is-narrow rows-aligned-middle">
+          {{#each dynamicSession.extraIncome}}
+            <tr>
+              <td style="min-width: 15.6em;" class="has-text-right">
+                <span class="has-text-grey">{{currency}}</span>
+                <span class="has-text-semibold">{{formatNumber value}}</span>
+              </td>
+              <td>
+                <button class="button is-small is-danger is-inverted delete-extraIncome">Delete</button>
+              </td>
+            </tr>
+          {{/each}}
+        </table>
 
-    {{#unless session.isOneOnOne}}
-      <div class="section is-small">
-        <h5 class="title is-size-4">Combined Chart</h5>
-        {{#with combinedChartConfig}}
-          {{> dateChartView session=session chartConfig=chartConfig}}
-        {{/with}}
-      </div>
-    {{/unless}}
-
-
-    <div class="section is-small">
-      <h5 class="title is-size-4">Tokens</h5>
-      {{#if session.deltaTokens}}
-        {{#with tokensChartConfig}}
-          {{> dateChartView session=session chartConfig=chartConfig}}
-        {{/with}}
-      {{else}}
-        <div class="notification is-warning">
-          No tokens were earned.
-        </div>
+        <label class="label">Add more</label>
       {{/if}}
-    </div>
 
-    <div class="section is-small">
-      <h5 class="title is-size-4">Followers</h5>
+      <div class="level">
+        <div class="level-left">
+          <div class="level-item">
+            <div class="field has-addons">
+              <div class="control">
+                <input class="input has-text-right" type="number" placeholder="{{#if processingNewExtraIncomeWaitLonger}}Please, wait...{{else}}0{{/if}}" id="extraIncomeValueAdd" {{extraIncomeValueAddDisabled}}>
+              </div>
+              <div class="control">
+                <div class="button is-static">{{userCurrencyLabel}}</div>
+              </div>
+            </div>
+          </div>
+          <div class="level-item">
+            <div class="dropdown is-right {{calculatorDropdownIsActive}}">
+              <div class="dropdown-trigger">
+                <div class="button {{calculatorDropdownIsActive}}" aria-haspopup="true" aria-controls="dropdown-menu-calculator">
+                  <i class="fas fa-calculator"></i>
+                </div>
+              </div>
+              <div class="dropdown-menu is-wide" role="menu" id="dropdown-menu-calculator">
+                <div class="dropdown-content">
+                  <div class="dropdown-item"><p class="menu-label">Quick currency converter</p></div>
+                  <hr class="dropdown-divider">
+                  <div class="dropdown-item">
+                    <div class="level">
+                      <div class="level-left">
+                        <div class="level-item">
+                          <div class="field has-addons" style="width: 19.4em;">
+                            <div class="control">
+                              <div class="select {{#unless userCurrencies}}is-loading{{/unless}}">
+                                <select id="calculator-select-currency" {{disabledAttr}}>
+                                  <option>[Select]</option>
+                                  {{#each currencyKeys}}
+                                    <option value="{{this}}">{{this}}</option>
+                                  {{/each}}
+                                </select>
+                              </div>
+                            </div>
+                            <div class="control">
+                              <input class="input has-text-right" type="number" placeholder="0" id="calculator-number">
+                            </div>
+                          </div>
+                        </div><!--eof .level-item -->
+                      </div>
+                    </div><!-- eof .level -->
+                  </div><!-- eof .dropdown-item -->
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="level-item">
+            <div class="field">
+              <span class="control">
+                {{#unless processingNewExtraIncome}}
+                  <button type="submit" class="button is-primary">Add</button>
+                {{else}}
+                  <button disabled class="button is-primary">
+                    <i class="fas fa-fw fa-spinner fa-pulse"></i>
+                  </button>
+                {{/unless}}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="help">Input extra income during the session from sources like gift cards. You can change currency in <a href="/settings">Settings</a>.</p>
+    </form>
+  </div>
+
+  {{#if Template.subscriptionsReady}}
+
+    {{#unless session.isHistorical}}
+
       {{#unless session.isOneOnOne}}
-          {{#with followersChartConfig}}
+        <div class="section is-small">
+          <h5 class="title is-size-4">Combined Chart</h5>
+          {{#with combinedChartConfig}}
             {{> dateChartView session=session chartConfig=chartConfig}}
           {{/with}}
-        {{#unless session.deltaFollowers}}
-          <div class="notification is-warning">
-            The net change of number of followers is zero.
-          </div>
-        {{/unless}}
-      {{else}}
-        <div class="notification">
-          This was a one-on-one session. The increase or decrease of the number of followers has no relation to the session itself.
         </div>
       {{/unless}}
-    </div>
 
-    <div class="section is-small">
-      <h5 class="title is-size-4">Viewers</h5>
-      {{#unless session.isOneOnOne}}
-        {{#with viewersChartConfig}}
-          {{> dateChartView session=session chartConfig=chartConfig}}
-        {{/with}}
-      {{else}}
-      <div class="notification">
-        This was a one-on-one session. Only one viewer.
+
+      <div class="section is-small">
+        <h5 class="title is-size-4">Tokens</h5>
+        {{#if session.deltaTokens}}
+          {{#with tokensChartConfig}}
+            {{> dateChartView session=session chartConfig=chartConfig}}
+          {{/with}}
+        {{else}}
+          <div class="notification is-warning is-bold">
+            No tokens were earned.
+          </div>
+        {{/if}}
       </div>
-      {{/unless}}
-    </div>
+
+      <div class="section is-small">
+        <h5 class="title is-size-4">Followers</h5>
+        {{#unless session.isOneOnOne}}
+            {{#with followersChartConfig}}
+              {{> dateChartView session=session chartConfig=chartConfig}}
+            {{/with}}
+          {{#unless session.deltaFollowers}}
+            <div class="notification is-warning is-bold">
+              The net change of number of followers is zero.
+            </div>
+          {{/unless}}
+        {{else}}
+          <div class="notification is-bold is-light">
+            This was a one-on-one session. The increase or decrease of the number of followers has no relation to the session itself.
+          </div>
+        {{/unless}}
+      </div>
+
+      <div class="section is-small">
+        <h5 class="title is-size-4">Viewers</h5>
+        {{#unless session.isOneOnOne}}
+          {{#with viewersChartConfig}}
+            {{> dateChartView session=session chartConfig=chartConfig}}
+          {{/with}}
+        {{else}}
+        <div class="notification is-bold is-light">
+          This was a one-on-one session. Only one viewer.
+        </div>
+        {{/unless}}
+      </div>
+
+    {{else}}
+
+      <div class="section is-small">
+        <h5 class="title is-size-4">Historical Record</h5>
+        <div class="notification is-bold is-light">
+          This is a historical record. Nothing to visualize here.
+        </div>
+      </div>
+
+      <hr>
+      <div class="section is-small">
+        <a class="button delete-session has-text-danger">Delete</a>
+      </div>
+
+    {{/unless}}
 
   {{else}}
-
-    <div class="section is-small">
-      <h5 class="title is-size-4">Historical Record</h5>
-      <div class="notification">
-        This is a historical record. Nothing to visualize here.
-      </div>
+    <div class="chart-loading-screen is-size-7">
+      <i class="fas fa-fw fa-spinner fa-pulse"></i> Loading...
     </div>
-
-  {{/unless}}
-
+  {{/if}}
 
 </template>

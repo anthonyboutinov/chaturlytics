@@ -2,10 +2,12 @@ import './sessionInfoView.html';
 import './briefIsHistorical.html';
 import '/imports/ui/components/dateChartView/dateChartView.js';
 
-// import { DataPoints } from '/imports/api/datapoints/datapoints.js';
-import { Sessions } from '/imports/api/sessions/sessions.js';
 import { Meteor } from 'meteor/meteor';
+import { ReactiveVar } from 'meteor/reactive-var';
+import { Sessions } from '/imports/api/sessions/sessions.js';
 import { DataPoints } from '/imports/api/datapoints/datapoints.js';
+import { UserRates } from '/imports/api/userRates/userRates.js';
+import { Currencies } from '/imports/api/currencies/currencies.js';
 
 Date.prototype.subMinutes = function(m){
   this.setMinutes(this.getMinutes()-m);
@@ -14,11 +16,17 @@ Date.prototype.subMinutes = function(m){
 
 const notePlaceholder = 'Add a note';
 
-Template.sessionInfoView.onCreated(() => {
+Template.sessionInfoView.onCreated(function(){
 
   const currentData = Template.currentData();
+  const instance = this;
 
-  Meteor.subscribe('dataPoints.forSession', currentData.session._id);
+  instance.subscribe('userData');
+  instance.subscribe('dataPoints.forSession', currentData.session._id);
+  instance.subscribe("currencies.latest");
+
+  instance.processingNewExtraIncome = new ReactiveVar(false);
+  instance.calculatorDropdownIsActive = new ReactiveVar(false);
 
   currentData.combinedChartConfig = {};
   currentData.combinedChartConfig.session = currentData.session;
@@ -139,6 +147,12 @@ Template.sessionInfoView.onCreated(() => {
 
 });
 
+Template.sessionInfoView.onDestroyed(function() {
+  if (this.timerHandle) {
+    Meteor.clearInterval(this.timerHandle);
+  }
+});
+
 Template.sessionInfoView.helpers({
 
   timeframe(session) {
@@ -237,22 +251,122 @@ Template.sessionInfoView.helpers({
           : (number < 0 && isNegative) || (number > 0 && !isNegative) ? 'has-text-danger' : '');
   },
 
+  userCurrencyLabel() {
+    const userRate = UserRates.findOne({});
+    return userRate ? userRate.currency : null;
+  },
+
+  dynamicSession() {
+    return Sessions.findOne(this.session._id);
+  },
+
+  processingNewExtraIncome: () => Template.instance().processingNewExtraIncome.get(),
+
+  extraIncomeValueAddDisabled: () => Template.instance().processingNewExtraIncome.get() ? "disabled" : null,
+
+  processingNewExtraIncomeWaitLonger: () => Template.instance().processingNewExtraIncome.get() === 2,
+
+  calculatorDropdownIsActive: () => Template.instance().calculatorDropdownIsActive.get() ? "is-active" : null,
+
+  userCurrencies() {
+    const user = Meteor.user();
+    return user ? user.currencies : false;
+  },
+
+  currencyKeys() {
+    const currencies = Currencies.findOne();
+    if (!currencies) {
+      return;
+    }
+    console.log({currencies});
+    return _.keys(currencies.rates).sort()
+  },
+
+  disabledAttr() {
+    return Currencies.findOne() ? null : "disabled";
+  },
+
 });
 
 const _debouncedNoteSubmit = _.debounce((sessionId, noteContent) => {
   Meteor.call('sessions.setNote', sessionId, noteContent);
-}, 500, {
-  maxWait: 2000,
-});
+}, 900);
 
 Template.sessionInfoView.events({
-  'blur form[name="noteForm"] .contenteditable'(event) {
-    event.preventDefault();
+
+  'blur form[name="noteForm"] .contenteditable, keyup form[name="noteForm"] .contenteditable'(event) {
     _debouncedNoteSubmit(this.session._id, event.currentTarget.innerText);
   },
+
   'focus form[name="noteForm"] .contenteditable'(event) {
     if (event.currentTarget.innerText === notePlaceholder) {
       event.currentTarget.innerText = "";
     }
-  }
+  },
+
+  'click .delete-session'(event) {
+    event.preventDefault();
+    if (confirm("Delete item? This cannot be undone.")) {
+      Meteor.call('sessions.remove', this.session._id, (error) => {
+        if (error) {
+          alert(error.error);
+        }
+      });
+    }
+  },
+
+  'submit form[name="extraIncomeForm"]'(event, template) {
+    event.preventDefault();
+    const userRate = UserRates.findOne({});
+    if (!userRate) {
+      alert("Error: Currency not set");
+    }
+
+    template.calculatorDropdownIsActive.set(false);
+
+    const valueField = template.find('#extraIncomeValueAdd');
+    const value = parseFloat(valueField.value);
+    const currency = userRate.currency;
+    valueField.value = "";
+
+    template.timerHandle = Meteor.setInterval((function() {
+      template.processingNewExtraIncome.set(2); // 2 for state "Please wait a bit longer..."
+    }), 1000 * 2); // 2 sec
+    template.processingNewExtraIncome.set(true);
+
+    Meteor.call('sessions.insertExtraIncome', this.session._id, currency, value, function(error, result) {
+      Meteor.clearInterval(template.timerHandle);
+      template.processingNewExtraIncome.set(false);
+    });
+  },
+
+  'click .delete-extraIncome'(event, template) {
+    event.preventDefault();
+    console.log("click .delete-extraIncome happened");
+    const sessionId = Template.currentData().session._id;
+    const value = parseFloat(this.value);
+    const currency = this.currency;
+    // console.log({sessionId, currency, value});
+    Meteor.call('sessions.deleteExtraIncome', sessionId, currency, value);
+  },
+
+  'click [aria-controls="dropdown-menu-calculator"]'(event, template) {
+    event.preventDefault();
+    template.calculatorDropdownIsActive.set(!template.calculatorDropdownIsActive.get());
+  },
+
+  'change #calculator-select-currency, change #calculator-number, keyup #calculator-number'(event, template) {
+    const currency = template.find("#calculator-select-currency").value;
+    const foreignValue = parseFloat(template.find("#calculator-number").value);
+    const rates = Currencies.findOne().rates;
+    const userRate = UserRates.findOne({});
+    if (!userRate) {
+      alert("Display Currency not set");
+      return;
+    }
+    const expectedFees = 0.96;
+    const value = Math.round(foreignValue / rates[currency] * rates[userRate.currency] * expectedFees * 10) / 10;
+    template.find("#extraIncomeValueAdd").value = value;
+  },
+
 });

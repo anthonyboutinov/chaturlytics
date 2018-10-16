@@ -109,9 +109,11 @@ Template.Page_logs.events({
   },
   'click .summarize-session'(event) {
     event.preventDefault();
-    Meteor.call('sessions.summarize', this._id, (error) => {
+    Meteor.call('sessions.summarize', this._id, (error, result) => {
       if (error) {
         alert(error.error);
+      } else {
+        console.log({result});
       }
     });
   },

@@ -20,8 +20,8 @@ Template.dateChartView.onRendered(function () {
       instance.chart.destroy();
     }
 
-    instance.subscribe('dataPoints.forSession', Template.currentData().session._id, () => {
-      console.log("subscriptionReady");
+    // instance.subscribe('dataPoints.forSession', Template.currentData().session._id, () => {
+      // console.log("subscriptionReady");
 
       const drawingContext = instance.find('.thisChart').getContext('2d');
 
@@ -132,7 +132,7 @@ Template.dateChartView.onRendered(function () {
         });
 
       // }, 0);
-    }); // eof Meteor.subscribe
+    // }); // eof Meteor.subscribe
 
   }); // eof autorun
 

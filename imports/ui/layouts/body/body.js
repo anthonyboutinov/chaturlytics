@@ -128,5 +128,10 @@ Template.Layout_body.events({
     Meteor.call('currencies.updateExchangeRate');
   },
 
+  'click .clear-next-sync-field'(event) {
+    event.preventDefault();
+    Meteor.call('userProfiles.clearNextSyncField');
+  },
+
 
 });

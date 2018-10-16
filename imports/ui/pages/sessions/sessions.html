@@ -36,31 +36,35 @@
                               {{duration}}
                             </div>
 
-                            {{#if isOneOnOne}}
-                              <div class="level-item">
-                                <i class="fas fa-fw fa-door-closed {{#unless isActive}}has-text-grey-light{{/unless}}" title="This was a one-on-one session"></i>
-                              </div>
-                            {{/if}}
-                            {{#if sessionHasDropped}}
-                              <div class="level-item">
-                                <i class="fas fa-fw fa-video has-text-warning" title="Warning: Broadcast has dropped for a few minutes during session"></i>
-                              </div>
-                            {{/if}}
-
                           </div>
                           <div class="level-right {{#unless isActive}}has-text-grey{{/unless}}">
 
                             <div class="level-item">
                               {{formatNumber deltaTokens}} TKN
+                              {{#if extraIncome}}+ {{totalExtraIncome}}{{/if}}
                             </div>
 
-                            <div class="level-item">
-                            {{#unless isHistorical}}
-                              {{formatNumber numViewers}}&nbsp;<i class="fas fa-fw fa-eye"></i>
-                            {{else}}
-                              Historical Record&nbsp;<i class="fas fa-fw fa-history"></i>
-                            {{/unless}}
-                            </div>
+                            {{#if sessionHasDropped}}
+                              <div class="level-item">
+                                <i class="fas fa-fw fa-video {{#unless isActive}}has-text-warning{{/unless}}" title="Warning: Broadcast has dropped for a few minutes during session"></i>
+                              </div>
+                            {{/if}}
+
+                            {{#if isOneOnOne}}
+                              <div class="level-item">
+                                {{#if isActive}}
+                                  <span><i class="fas fa-fw fa-door-closed" title="This was a one-on-one session"></i></span>
+                                {{else}}
+                                  <span><i class="fas fa-fw fa-door-closed has-text-grey-light" title="This was a one-on-one session"></i></span>
+                                {{/if}}
+                              </div>
+                            {{/if}}
+
+                            {{#if isHistorical}}
+                              <div class="level-item">
+                                <i class="fas fa-fw fa-history" title="Historical Record"></i>
+                              </div>
+                            {{/if}}
 
                           </div>
                         </div>

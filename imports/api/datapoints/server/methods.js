@@ -132,19 +132,18 @@ Meteor.methods({
 
       // Get info about the Last Data DataPoint
       const lastDataPoint = DataPoints.findOne({ userId, username: rawDataPoint.username }, { sort: { endTime: -1 } });
-      console.log({rawDataPoint});
       const lastSessionId = lastDataPoint ? lastDataPoint.sessionId : false;
-      console.log({time_online: rawDataPoint.time_online, lastSessionId});
 
       // Options to wait until next check, in minutes
       // Check sooner in and around a session, check less ofter during the off-time
 
-
       const isOnline = rawDataPoint.time_online > -1;
       let isOnlineOrJustFinishedStreaming = isOnline;
+      console.log({rawDataPoint, isOnline, lastSessionId});
       // Check if the session has recently started
       // --- CASE 1 ---
       if (isOnline && !lastSessionId) {
+        console.log("CASE 1");
         // Create a new session
         // With start time of broadcast start time
         endTime = new Date();
@@ -170,11 +169,12 @@ Meteor.methods({
       // CASE 2.1 & 2.2 wrapper
       if (!isOnline && lastSessionId) {
         const lastSession = Sessions.findOne(lastSessionId);
+        console.log("CASE 2.1 & 2.2 wrapper", {lastSession});
         // if finished and we're right after the last session's data point
         // --- CASE 2.1 ---
         if (lastSession.endTime) {
           startTime = lastDataPoint.endTime;
-          console.log("session finished, now off-time", {startTime});
+          console.log("CASE 2.1: session finished, now off-time", {startTime});
           nextSyncOption = nextSyncOptionLater;
           // overrideLastPointInsteadOfCreatingANewOne = true; // CREATED A PROBLEM of overriding lastSession's last dataPoint!
         } else
@@ -182,24 +182,22 @@ Meteor.methods({
           // --- CASE 2.2 ---
         {
           // End the sessions
-          Sessions.update(
-            lastDataPoint.sessionId, {
-              $set: { endTime: rawDataPoint.last_broadcast }
-            }
-          );
+          Sessions.update(lastDataPoint.sessionId, {
+            $set: { endTime: rawDataPoint.last_broadcast }
+          });
           // Make this data point a part of that sessions
           endTime = rawDataPoint.last_broadcast;
           sessionId = lastDataPoint.sessionId;
           isOnlineOrJustFinishedStreaming = true;
           callSessionSummarize = true;
-          console.log("session finished, updating session", {endTime});
+          console.log("CASE 2.2: session finished, updating session", {endTime});
         }
       } else
       // else if this is during an off-time
       // --- CASE 3 ---
       if (!isOnline && !lastSessionId) {
         // Maybe we can simply update the last data point instead of creating a new one?
-        console.log("off-time");
+        console.log("CASE 3: off-time");
         updateEndTimeInsteadOfCreatingANewDataPoint = lastDataPoint
           && lastDataPoint.rawTokens === rawDataPoint.token_balance
           && lastDataPoint.rawFollowers === rawDataPoint.num_followers
@@ -223,27 +221,22 @@ Meteor.methods({
             lastDataPointEndTime: lastDataPoint.endTime
           });
         }
-        console.log("session is ongoing", {sessionId});
+        console.log("CASE 4: session is ongoing", {sessionId});
       }
 
 
       if (updateEndTimeInsteadOfCreatingANewDataPoint) {
-
-        DataPoints.update(
-          lastDataPoint._id, {
-            $set: { endTime: new Date() }
-          }
-        );
-
-        UserProfiles.update({username: rawDataPoint.username}, {
-          $set: {
-            nextSync: (new Date()).subMinutes(-nextSyncOption)
-          }
+        DataPoints.update( lastDataPoint._id, {
+          $set: { endTime: new Date() }
         });
 
-        console.log("updated last data point instead of creating a new one");
+        UserProfiles.update({username: rawDataPoint.username}, { $set: {
+          nextSync: (new Date()).subMinutes(-nextSyncOption)
+        } });
 
+        console.log("updateEndTimeInsteadOfCreatingANewDataPoint: updated last data point instead of creating a new one, userProfile's nextSync set");
       } else {
+        console.log("Not updateEndTimeInsteadOfCreatingANewDataPoint");
 
         // Calculate some data for the data point
         if (!lastDataPoint) {
@@ -291,10 +284,11 @@ Meteor.methods({
         };
 
         // Write Data Point
-        console.log({overrideLastPointInsteadOfCreatingANewOne});
         if (!overrideLastPointInsteadOfCreatingANewOne) {
+          console.log("Not overrideLastPointInsteadOfCreatingANewOne, inserting new dataPoint");
           DataPoints.insert(dataPointContent);
         } else {
+          console.log("overrideLastPointInsteadOfCreatingANewOne, updating last dataPoint");
           dataPointContent.startTime = lastDataPoint.startTime;
           DataPoints.update(lastDataPoint._id, {
             $set: dataPointContent

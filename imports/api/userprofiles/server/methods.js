@@ -11,7 +11,6 @@ Meteor.methods({
     }
 
     const username = url.match(/username=(.*)&/)[1];
-
     const profile = UserProfiles.insert({
       userId: this.userId,
       username,
@@ -20,7 +19,6 @@ Meteor.methods({
     });
 
     Meteor.call('usersProfiles.setCurrent', username);
-
     return profile;
   },
 
@@ -54,6 +52,22 @@ Meteor.methods({
       username
     }, {
       $set: { isActive: toggleToValue }
+    });
+  },
+
+  'userProfiles.clearNextSyncField'() {
+    if (!this.userId) {
+      return false;
+    }
+    const username = UserProfiles.getCurrentUsername(this.userId);
+    if (!username) {
+      return false;
+    }
+    return UserProfiles.update({
+      userId: this.userId,
+      username
+    }, {
+      $set: { nextSync: null }
     });
   },
 

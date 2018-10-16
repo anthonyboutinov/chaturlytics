@@ -252,10 +252,35 @@ body {
   font-weight: 600 !important;
 }
 
-.notification {
-  box-shadow: 0px 5px 25px rgba(0, 0, 0, 0.24);
+.m-b-0 {
+  margin-bottom: 0 !important;
 }
 
+// .notification {
+//   box-shadow: 0px 5px 25px rgba(0, 0, 0, 0.16);
+// }
+
+
+// .mock-input {
+//   background-color: #fff;
+//   border-color: #dbdbdb;
+//   color: #363636;
+//   border-radius: 0;
+//   border-width: 1px;
+//   border-style: solid;
+//   align-items: center;
+//   display: inline-flex;
+//   font-size: 1rem;
+//   height: 2.25em;
+//   justify-content: flex-start;
+//   line-height: 1.5;
+//   padding-bottom: calc(.375em - 1px);
+//   padding-left: calc(.625em - 1px);
+//   padding-right: calc(.625em - 1px);
+//   padding-top: calc(.375em - 1px);
+//   position: relative;
+//   vertical-align: top;
+// }
 
 
 .menu-list>li>a>.fa-fw, .menu-label>.fa-fw {
@@ -267,7 +292,7 @@ body {
 }
 
 
-.table .button.is-small {
+.button.is-tiny {
   border-radius: 2px;
   font-size: .75rem;
   border: none;
@@ -278,4 +303,50 @@ body {
   &:hover, &:focus, &:active {
     background-color: rgba(0,0,0,0.08);
   }
+}
+
+.table.rows-aligned-middle {
+  tbody td, tbody th {
+    vertical-align: middle;
+  }
+}
+
+.p-b-0 {
+  padding-bottom: 0 !important;
+}
+
+.no-wrap {
+  white-space: nowrap;
+}
+
+.notification.is-light.is-bold {
+  background-image: linear-gradient(141deg, #dfd8d9 0, #f5f5f5 71%, #fff 100%);
+}
+
+.notification.is-warning.is-bold {
+  background-image: linear-gradient(141deg, #ffaf24 0, #ffdd57 71%, #fffa70 100%);
+}
+
+.notification.is-success.is-bold {
+  background-image: linear-gradient(141deg, #12af2f 0, #23d160 71%, #2ce28a 100%);
+}
+
+.notification.is-danger.is-bold {
+  background-image: linear-gradient(141deg, #ff0561 0, #ff3860 71%, #ff5257 100%);
+}
+
+.notification.is-info.is-bold {
+  background-image: linear-gradient(141deg, #04a6d7 0, #209cee 71%, #3287f5 100%);
+}
+
+.dropdown-content {
+  @supports ((backdrop-filter: blur(20px) saturate(100%) hue-rotate(-15deg)) or (-webkit-backdrop-filter: blur(20px) saturate(100%) hue-rotate(-15deg))) {
+    backdrop-filter: blur(20px) saturate(100%) hue-rotate(-15deg);
+    -webkit-backdrop-filter: blur(20px) saturate(100%) hue-rotate(-15deg);
+    background-color: rgba(255, 255, 255, 0.8) !important;
+  }
+}
+
+a.dropdown-item:hover:not(.is-active) {
+  background-color: rgba(0, 0, 0, 0.05);
 }

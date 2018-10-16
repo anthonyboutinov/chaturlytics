@@ -3,6 +3,7 @@
 
   <div class="section">
     <h3 class="is-size-4 title">Data Points</h3>
+    <p class="subtitle has-text-grey">You can edit token amount if there are tokens that you would like to omit from statistics.</p>
     <table class="table is-fullwidth is-striped is-size-7">
       <thead>
         <tr>
@@ -11,7 +12,6 @@
           <th>Duration</th>
           <th>Tokens<br>Earned</th>
           <th>Followers<br>Earned</th>
-          <!-- <th>Total<br>Followers</th> -->
           <th>Num<br>Viewers</th>
           <th>Num<br>Registered<br>Viewers</th>
           <th>Num<br>Tokened<br>Viewers</th>
@@ -36,7 +36,6 @@
               <td>{{duration}}</td>
               <td class="has-text-right">{{formatNumber deltaTokens}} TKN ({{formatNumber rawTokens}})</td>
               <td class="has-text-right">{{formatNumber deltaFollowers}} ({{formatNumber rawFollowers}})</td>
-              <!-- <td class="has-text-right">{{rawFollowers}}</td> -->
               <td class="has-text-right">{{formatNumber numViewers}}</td>
               <td class="has-text-right">{{formatNumber numRegisteredViewers}}</td>
               <td class="has-text-right">{{formatNumber numTokenedViewers}}</td>
@@ -45,7 +44,7 @@
               <td>
                 <div class="dropdown is-hoverable is-right">
                   <div class="dropdown-trigger">
-                    <button class="button is-small" aria-haspopup="true" aria-controls="dropdown-menu-datapoint-{{_id}}">
+                    <button class="button is-tiny" aria-haspopup="true" aria-controls="dropdown-menu-datapoint-{{_id}}">
                       <span class="icon is-small">
                         <i class="fas fa-angle-down" aria-hidden="true"></i>
                       </span>
@@ -101,11 +100,26 @@
               <td class="has-text-right">{{formatNumber numTokenedViewers}}</td>
               <td class="has-text-right">{{formatNumber deltaVotesUp}}</td>
               <td class="has-text-right">{{formatNumber deltaVotesDown}}</td>
-
-              <td class="has-text-right">
-
-                <a class="delete delete-session has-background-danger"></a>
-                <i class="fas fa-calculator has-text-info summarize-session"></i>
+              <td>
+                <div class="dropdown is-hoverable is-right">
+                  <div class="dropdown-trigger">
+                    <button class="button is-tiny" aria-haspopup="true" aria-controls="dropdown-menu-session-{{_id}}">
+                      <span class="icon is-small">
+                        <i class="fas fa-angle-down" aria-hidden="true"></i>
+                      </span>
+                    </button>
+                  </div>
+                  <div class="dropdown-menu" id="dropdown-menu-session-{{_id}}" role="menu">
+                    <div class="dropdown-content">
+                      {{#unless isHistorical}}
+                        <a class="dropdown-item summarize-session">Summarize</a>
+                      {{else}}
+                        <div class="dropdown-item has-text-grey-light">Summarize</div>
+                      {{/unless}}
+                      <a class="dropdown-item delete-session has-text-danger">Delete</a>
+                    </div>
+                  </div>
+                </div>
               </td>
             </tr>
           {{/each}}

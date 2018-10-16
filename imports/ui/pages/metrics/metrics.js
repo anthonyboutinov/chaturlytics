@@ -35,7 +35,6 @@ Template.Page_metrics.onCreated(function() {
   this.displayNotes = new ReactiveVar(false);
   this.coloration = new ReactiveVar();
 
-
 });
 
 Template.Page_metrics.helpers({
@@ -157,9 +156,27 @@ Template.Page_metrics.helpers({
 
     let metrics = [];
 
+    let doSwap = descriptiveGroupingInterval === 'halvesOfMonth';
+    let swapHandle = fromToRounded.fromRounded.date() >= 15;
+
     // while fromToRounded.fromRounded is before fromToRounded.lastDatetimeRounded
     while (moment.max(fromToRounded.fromRounded, fromToRounded.lastDatetimeRounded) === fromToRounded.lastDatetimeRounded) {
-      const toRounded = moment(fromToRounded.fromRounded).add(groupingStep, groupingInterval);
+      let toRounded;
+      if (doSwap) {
+        if (swapHandle) {
+          toRounded = moment(fromToRounded.fromRounded).date(1).add(1, 'month');
+        } else {
+          // mimic default behaviour
+          toRounded = moment(fromToRounded.fromRounded).add(groupingStep, groupingInterval);
+          if (toRounded.date() >= 28) {
+            toRounded = moment(fromToRounded.fromRounded).date(1).add(1, 'month');
+          }
+        }
+        swapHandle != swapHandle;
+      } else {
+        // defalut behaviour
+        toRounded = moment(fromToRounded.fromRounded).add(groupingStep, groupingInterval);
+      }
       const query = {
         startTime: {$exists: true},
         endTime: {
@@ -184,7 +201,7 @@ Template.Page_metrics.helpers({
 
       _adjustMinMax(deltaTokens, coloration.tokens);
 
-      const totalDeltaPrimaryCurrency = Math.round(deltaTokens * conversionMultiplier);
+      let totalDeltaPrimaryCurrency = Math.round(deltaTokens * conversionMultiplier);
       _adjustMinMax(totalDeltaPrimaryCurrency, coloration.totalDeltaPrimaryCurrency);
 
       if (sessionsInRange.length) {
@@ -195,19 +212,46 @@ Template.Page_metrics.helpers({
         const timeOnline = moment.duration(totalMinutesOnline, 'minutes');
 
         const timeOnlineAsHours = timeOnline.as('hours', true);
+
+        const extraCurrencyInTokens = Math.round(sessionsInRange.reduce((sum, session) => {
+          if (session.extraIncome) {
+            return sum +
+              session.extraIncome.reduce((subsum, item) => subsum + item.value / userRate.rate, 0); // FIXME: currency and conversion rate!!!
+          }
+          return sum;
+        }, 0));
+
+        const extraCurrency = sessionsInRange.reduce((sum, session) => {
+          if (session.extraIncome) {
+            return sum +
+              session.extraIncome.reduce((subsum, item) => subsum + item.value, 0);
+          }
+          return sum;
+        }, 0);
+
+        const avgExtraCurrencyInTokens = Math.round(extraCurrencyInTokens / timeOnlineAsHours);
+
         const avgTokens = Math.round(deltaTokensDuringSessions / timeOnlineAsHours);
         _adjustMinMax(avgTokens, coloration.avgTokens);
 
-        const avgPrimaryCurrency = Math.round(avgTokens * conversionMultiplier);
+        const avgPrimaryCurrency = Math.round((avgTokens + avgExtraCurrencyInTokens) * conversionMultiplier);
         _adjustMinMax(avgPrimaryCurrency, coloration.avgPrimaryCurrency);
+
+        // console.log({extraCurrencyInTokens, avgExtraCurrencyInTokens, extraCurrency});
+        if (extraCurrencyInTokens) {
+          totalDeltaPrimaryCurrency += extraCurrencyInTokens * conversionMultiplier;
+          _adjustMinMax(totalDeltaPrimaryCurrency, coloration.totalDeltaPrimaryCurrency);
+        }
+
+
 
         metrics.unshift({
           startTime: fromToRounded.fromRounded,
           endTime,
           numBroadcasts: sessionsInRange ? sessionsInRange.length : '–',
-          timeOnline: timeOnline.format("h [hrs] m [min]"),
+          timeOnline: timeOnline.format("h [h] m [m]"),
           deltaTokens,
-          deltaTokensDuringSessions, // TODO: add to interface
+          // deltaTokensDuringSessions, // TODO: add to interface
           deltaFollowers,
           avgTokens,
           sessions: sessionsInRange,
@@ -216,6 +260,7 @@ Template.Page_metrics.helpers({
             ''),
           totalDeltaPrimaryCurrency,
           avgPrimaryCurrency,
+          extraCurrency: extraCurrency ? extraCurrency : '–',
         });
       } else if (!skipOffDays) {
         metrics.unshift({
@@ -224,12 +269,13 @@ Template.Page_metrics.helpers({
           numBroadcasts: '–',
           timeOnline: '–',
           deltaTokens,
-          deltaTokensDuringSessions: '–',
+          // deltaTokensDuringSessions: '–',
           deltaFollowers,
           deltaTokens,
           avgTokens: '–',
           totalDeltaPrimaryCurrency,
           avgPrimaryCurrency: '–',
+          extraCurrency: '–',
         });
       }
 
@@ -258,7 +304,7 @@ Template.Page_metrics.helpers({
       });
     }
 
-    console.log('Execution time: ', new Date() - __timer);
+    console.log('Execution time for metrics helper: ', new Date() - __timer);
 
     return metrics;
   },
@@ -365,6 +411,13 @@ Template.Page_metrics.helpers({
   userCurrencyLabel() {
     const userRate = UserRates.findOne({});
     return userRate ? userRate.currency : null;
+  },
+
+  totalExtraIncome() {
+    if (this.extraIncome && this.extraIncome.length) {
+      return this.extraIncome.reduce((sum, item) => sum + item.value, 0).toLocaleString('en')
+        + ' ' + this.extraIncome[0].currency;
+    }
   },
 
 });
