@@ -41,7 +41,6 @@ Meteor.publish('sessions.forDates', function (startTime, endTime) {
   );
 });
 
-
 Meteor.publish('sessions.last', function() {
   if (!this.userId) {
     return this.ready();
@@ -54,5 +53,21 @@ Meteor.publish('sessions.last', function() {
   }, {
     sort: {endTime: -1},
     limit: 1
+  });
+});
+
+Meteor.publish('sessions.lastOnes', function(limit) {
+  if (!this.userId) {
+    return this.ready();
+  }
+  check(limit, Number);
+
+  Meteor._sleepForMs(2000);
+  return Sessions.find({
+    userId: this.userId,
+    username: UserProfiles.getCurrentUsername(this.userId)
+  }, {
+    sort: {endTime: -1},
+    limit,
   });
 });

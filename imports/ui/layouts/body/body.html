@@ -32,14 +32,6 @@
               </div>
             </div>
 
-            <!-- <div class="navbar-item">
-              <div class="tags has-addons">
-                <span class="tag is-success has-text-white"><i class="fas fa-fw fa-video"></i></span>
-                <span class="tag is-success has-text-white">3</span>
-                <span class="tag">Multiple broadcasts live</span>
-              </div>
-            </div> -->
-
             <div class="navbar-item">
               <div class="dropdown is-hoverable">
                 <div class="dropdown-trigger">
@@ -127,15 +119,15 @@
                 <div class="dropdown-menu is-wide" role="menu" id="dropdown-menu-account">
                   <div class="dropdown-content">
                     <div class="dropdown-item">
-                      {{> loginButtons align='right'}}
+                      {{>loginButtons align='right'}}
                     </div>
 
                     <hr class="dropdown-divider">
                     <div class="dropdown-item"><p class="menu-label">Development features</p></div>
-                    <!-- <a class="force-sync dropdown-item" href="#">Force sync</a> -->
+                    <!-- <a class="force-sync dropdown-item" href="#">Force sync</a>-->
                     <a class="update-db dropdown-item" href="#">Update DB</a>
                     <a class="clear-next-sync-field dropdown-item" href="#">Clear Next Sync Timer</a>
-                    <!-- <a class="update-exchange-rates dropdown-item" href="#">Update Exchange Rates</a> -->
+                    <!-- <a class="update-exchange-rates dropdown-item" href="#">Update Exchange Rates</a>-->
 
                   </div>
                 </div>
@@ -149,45 +141,45 @@
     </nav>
   </div>
 
-  <!-- <div class="container"> -->
+  <!-- <div class="container">-->
 
   <div id="menu-wrapper">
 
     <aside class="menu">
       <ul class="menu-list">
-        <li><a class="{{isActiveAsCurrentRouteNamed 'home'}}" href="/"><i class="fas fa-fw fa-home"></i> Home</a></li>
+        <li><a class="{{isActiveAsCurrentRouteNamed 'home'}}" href="/"><i class="fas fa-fw fa-home"></i>Home</a></li>
       </ul>
       <p class="menu-label">
-        <i class="fas fa-fw fa-glasses"></i> Data
+        <i class="fas fa-fw fa-glasses"></i>Data
       </p>
       <ul class="menu-list">
-        <!-- <li><a href="/view/calendar/week"><i class="fas fa-fw fa-calendar"></i> Calendar</a>
+        <!-- <li><a href="/view/calendar/week"><i class="fas fa-fw fa-calendar"></i>Calendar</a>
           <ul>
             <li><a href="/view/calendar/month">Month View</a></li>
             <li><a href="/view/calendar/week">Week View</a></li>
             <li><a href="/view/calendar/day">Day View</a></li>
             <li><a>List View</a></li>
           </ul>
-        </li> -->
-        <li><a class="{{isActiveAsCurrentRouteNamed 'view.sessions'}}" href="/view/sessions"><i class="fas fa-fw fa-video"></i> Broadcasts List</a></li>
-        <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics'}}" href="/view/metrics"><i class="fas fa-fw fa-chart-line"></i> Metrics</a>
+        </li>-->
+        <li><a class="{{isActiveAsCurrentRouteNamed 'view.sessions'}}" href="/view/sessions"><i class="fas fa-fw fa-video"></i>Broadcasts List</a></li>
+        <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics'}}" href="/view/metrics"><i class="fas fa-fw fa-chart-line"></i>Metrics</a>
           <!-- <ul>
-            <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics.sessions'}}" href="/view/metrics/sessions"><i class="fas fa-fw fa-video"></i> Broadcasts</a></li>
-            <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics.earnings'}}" href="/view/metrics/earnings"><i class="fas fa-fw fa-dollar-sign"></i> Earnings</a></li>
-            <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics.followers'}}" href="/view/metrics/followers"><i class="fas fa-fw fa-heart"></i> Followers</a></li>
-            <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics.viewers'}}" href="/view/metrics/viewers"><i class="fas fa-fw fa-eye"></i> Viewers</a></li>
-          </ul> -->
+            <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics.sessions'}}" href="/view/metrics/sessions"><i class="fas fa-fw fa-video"></i>Broadcasts</a></li>
+            <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics.earnings'}}" href="/view/metrics/earnings"><i class="fas fa-fw fa-dollar-sign"></i>Earnings</a></li>
+            <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics.followers'}}" href="/view/metrics/followers"><i class="fas fa-fw fa-heart"></i>Followers</a></li>
+            <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics.viewers'}}" href="/view/metrics/viewers"><i class="fas fa-fw fa-eye"></i>Viewers</a></li>
+          </ul>-->
         </li>
-        <li><a class="{{isActiveAsCurrentRouteNamed 'view.logs'}}" href="/view/logs"><i class="fas fa-fw fa-stream"></i> Logs</a></li>
-        <li><a class="{{isActiveAsCurrentRouteNamed 'historicalData'}}" href="/historicaldata"><i class="fas fa-fw fa-history"></i> Historical Data</a></li>
+        <li><a class="{{isActiveAsCurrentRouteNamed 'view.logs'}}" href="/view/logs"><i class="fas fa-fw fa-stream"></i>Logs</a></li>
+        <li><a class="{{isActiveAsCurrentRouteNamed 'historicalData'}}" href="/historicaldata"><i class="fas fa-fw fa-history"></i>Historical Data</a></li>
       </ul>
       <p class="menu-label">
-        <i class="fas fa-fw fa-cog"></i> Administration
+        <i class="fas fa-fw fa-cog"></i>Administration
       </p>
       <ul class="menu-list">
-        <li><a class="{{isActiveAsCurrentRouteNamed 'profiles'}}" href="/profiles"><i class="fas fa-fw fa-users"></i> Manage Profiles</a></li>
-        <li><a><i class="fas fa-fw fa-money-check-alt"></i> Membership</a></li>
-        <li><a class="{{isActiveAsCurrentRouteNamed 'settings'}}" href="/settings"><i class="fas fa-fw fa-cog"></i> Settings</a></li>
+        <li><a class="{{isActiveAsCurrentRouteNamed 'profiles'}}" href="/profiles"><i class="fas fa-fw fa-users"></i>Manage Profiles</a></li>
+        <li><a><i class="fas fa-fw fa-money-check-alt"></i>Membership</a></li>
+        <li><a class="{{isActiveAsCurrentRouteNamed 'settings'}}" href="/settings"><i class="fas fa-fw fa-cog"></i>Settings</a></li>
       </ul>
     </aside>
 
@@ -196,7 +188,7 @@
   <div id="content-wrapper" class="{{#if translucentBackground}}has-effect-translucent-background{{/if}}">
     <section class="{{#unless sectionless}}section{{/unless}}">
       <div class="{{#unless sectionless}}container is-fluid{{/unless}}">
-        {{> Template.dynamic template=content}}
+        {{>Template.dynamic template=content}}
       </div>
     </section>
   </div>

@@ -9,15 +9,17 @@ Date.prototype.subMinutes = function(m){
   return this;
 }
 
+const pageSize = 30;
+
 Template.Page_logs.onCreated(function () {
   const instance = this;
-  // Meteor.subscribe('dataPoints.forDates', (new Date()).subMinutes(60*24), new Date());
-  instance.subscribe('dataPoints.lastOnes', 30);
+  instance.loadingMoreDataPostFactum = new ReactiveVar(false);
 
-  // const d = new Date();
-  // d.setMonth(d.getMonth() - 1);
-  // Meteor.subscribe('sessions.forDates', d, new Date());
-  instance.subscribe('sessions.all');
+  instance.lastDataPointsLimit = new ReactiveVar(pageSize);
+  instance.subscribe('dataPoints.lastOnes', instance.lastDataPointsLimit.get());
+
+  instance.lastSessionsLimit = new ReactiveVar(pageSize);
+  instance.subscribe('sessions.lastOnes', instance.lastSessionsLimit.get());
 
 
   instance.seconds = new ReactiveVar(0);
@@ -32,14 +34,17 @@ Template.Page_logs.helpers({
       sort: {endTime: -1}
     });
   },
+
   sessions() {
     return Sessions.find({}, {
       sort: {endTime: -1}
     });
   },
+
   timelll(date) {
     return date ? moment(date).format("lll") : "";
   },
+
   timeframe() {
     const start = this.startTime ? moment(this.startTime).format('lll') + ' - ' : '-∞ to ';
     let end = '';
@@ -53,6 +58,7 @@ Template.Page_logs.helpers({
     }
     return start + end;
   },
+
   duration() {
     Template.instance().seconds.get();
 
@@ -67,6 +73,9 @@ Template.Page_logs.helpers({
     const duration = moment.duration(moment(endTime).diff(this.startTime));
     return duration.format("h [hrs] m [min]");
   },
+
+  loadingMoreDataPostFactum: () => Template.instance().loadingMoreDataPostFactum.get(),
+
 });
 
 Template.Page_logs.onDestroyed(function() {
@@ -121,8 +130,13 @@ Template.Page_logs.events({
   'click .update-dataPoint'(event, template) {
     try {
       const deltaTokens = parseInt(prompt("Update token amount:"), 10);
+      const prevDataPoint = DataPoints.findOne({ endTime: {$lt: this.endTime} }, {
+        sort: { endTime: -1 }
+      });
+      const rawTokens = prevDataPoint.rawTokens + deltaTokens;
       Meteor.call('dataPoints.update', this._id, {
-        deltaTokens: deltaTokens,
+        deltaTokens,
+        rawTokens,
       }, (error) => {
         if (error) {
           alert(error.error);
@@ -131,6 +145,18 @@ Template.Page_logs.events({
     } catch(e) {
       console.log(e);
     }
+  },
+
+  'click .loadMore-dataPoints'(event, template) {
+    template.loadingMoreDataPostFactum.set(true);
+    template.lastDataPointsLimit.set(template.lastDataPointsLimit.get() + pageSize);
+    template.subscribe('dataPoints.lastOnes', template.lastDataPointsLimit.get());
+  },
+
+  'click .loadMore-sessions'(event, template) {
+    template.loadingMoreDataPostFactum.set(true);
+    template.lastSessionsLimit.set(template.lastSessionsLimit.get() + pageSize);
+    template.subscribe('sessions.lastOnes', template.lastSessionsLimit.get());
   },
 
   // 'submit .get'(event) {

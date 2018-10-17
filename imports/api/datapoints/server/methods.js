@@ -120,9 +120,11 @@ Meteor.methods({
 
       // We need to understand if the session has just started, is ongoing, finished, or we're not checking this thing during or around a session
 
-      const nextSyncOptionSoon = 14;
-      const nextSyncOptionLater = 29;
-      let nextSyncOption = nextSyncOptionSoon;
+      const nextSyncOptions = {
+        sooner: 14,
+        later: 29,
+      };
+      let nextSyncOption = nextSyncOptions.sooner;
       let startTime, sessionId = null, endTime;
       let deltaTokens;
       let updateEndTimeInsteadOfCreatingANewDataPoint = false;
@@ -174,8 +176,8 @@ Meteor.methods({
         // --- CASE 2.1 ---
         if (lastSession.endTime) {
           startTime = lastDataPoint.endTime;
-          console.log("CASE 2.1: session finished, now off-time", {startTime});
-          nextSyncOption = nextSyncOptionLater;
+          console.log("CASE 2.1: session finished, now off-time");
+          nextSyncOption = nextSyncOptions.later;
           // overrideLastPointInsteadOfCreatingANewOne = true; // CREATED A PROBLEM of overriding lastSession's last dataPoint!
         } else
           // else if session has finished and we're entering off-time
@@ -190,7 +192,14 @@ Meteor.methods({
           sessionId = lastDataPoint.sessionId;
           isOnlineOrJustFinishedStreaming = true;
           callSessionSummarize = true;
-          console.log("CASE 2.2: session finished, updating session", {endTime});
+          console.log("CASE 2.2: session finished, updating session");
+
+          const thisDataPointDuration = moment(endTime).diff(lastDataPoint.endTime, 'minutes');
+          // if it's less $lte 8 mim
+          if (thisDataPointDuration <= Math.ceil(nextSyncOption.sooner / 2)) {
+            console.log("CASE 2.2.a: dataPoint is too short, gluing it with the last one (overriding the last one)");
+            overrideLastPointInsteadOfCreatingANewOne = true;
+          }
         }
       } else
       // else if this is during an off-time
@@ -203,23 +212,16 @@ Meteor.methods({
           && lastDataPoint.rawFollowers === rawDataPoint.num_followers
           && lastDataPoint.totalVotesUp === rawDataPoint.votes_up
           && lastDataPoint.totalVotesDown === rawDataPoint.votes_down;
-        nextSyncOption = nextSyncOptionLater;
+        nextSyncOption = nextSyncOptions.later;
       } else // else if the session is ongoing
       // --- CASE 4 ---
       {
         // write data point, assigining it to the session
         sessionId = lastSessionId;
-        try {
-          const currentTimeframeDurationInMins = moment(lastDataPoint.endTime).diff(new Date(), 'minutes', true);
-          if (rawDataPoint.ime_online < currentTimeframeDurationInMins) {
-            broadcastHasDropped = true;
-          }
-        } catch(error) {
-          // TODO: Check if try catch is needed / resolved already
-          console.log({
-            error,
-            lastDataPointEndTime: lastDataPoint.endTime
-          });
+        const currentTimeframeDurationInMins = moment().diff(lastDataPoint.endTime, 'minutes');
+        console.log({timeOnline: rawDataPoint.time_online, currentTimeframeDurationInMins, broadcastHasDropped: rawDataPoint.time_online < currentTimeframeDurationInMins});
+        if (rawDataPoint.time_online < currentTimeframeDurationInMins) {
+          broadcastHasDropped = true;
         }
         console.log("CASE 4: session is ongoing", {sessionId});
       }
@@ -233,7 +235,6 @@ Meteor.methods({
         UserProfiles.update({username: rawDataPoint.username}, { $set: {
           nextSync: (new Date()).subMinutes(-nextSyncOption)
         } });
-
         console.log("updateEndTimeInsteadOfCreatingANewDataPoint: updated last data point instead of creating a new one, userProfile's nextSync set");
       } else {
         console.log("Not updateEndTimeInsteadOfCreatingANewDataPoint");
@@ -312,18 +313,18 @@ Meteor.methods({
     // RawDataPointSchema.validate(rawDataPoint);
     check(username, String);
 
+    let result;
     try {
       _checkIfAuthorized(rawDataPoint, username);
       rawDataPoint = JSON.parse(rawDataPoint);
       _checkIfDataAndUsernameMatch(rawDataPoint, username);
       const userId = _getUserId(username);
-      const result = _a(rawDataPoint, userId);
+      result = _a(rawDataPoint, userId);
       console.log('dataPoints.getDataPointFromChaturbate execution time is ', new Date() - __timer);
     } catch (error) {
       console.log({error, username, rawDataPoint});
-      return false;
     }
-
+    return result;
   },
 
   'dataPoints.getAvgTokensPerHourDuringOnlineTime'(oldestDataPoint = moment("2000-01-01").toDate()) {
