@@ -1,0 +1,79 @@
+<template name="navbarQuickStats">
+  {{#if Template.subscriptionsReady}}
+
+    <div class="navbar-item">
+      <div class="tags has-addons">
+        {{#if isBroadcasting}}
+          <span class="tag is-success has-text-white"><i class="fas fa-fw fa-video"></i></span>
+          <span class="tag is-success has-text-white">Live</span>
+          <span class="tag has-text-weight-semibold">{{timeOnline}}</span>
+        {{else}}
+        <span class="tag is-dark has-text-white"><i class="fas fa-fw fa-video-slash"></i></span>
+        <span class="tag has-text-weight-semibold">{{timeOffline}}</span>
+        {{/if}}
+      </div>
+    </div>
+
+    <div class="navbar-item">
+      <div class="dropdown is-hoverable">
+        <div class="dropdown-trigger">
+          <a class="tags has-addons" aria-haspopup="true" aria-controls="dropdown-menu-tokens">
+            <span class="tag is-italic has-text-weight-semibold has-background-grey-lighter">
+              D
+              <i class="fas fa-fw fa-donate"></i>
+            </span>
+            <span class="tag has-text-weight-semibold">{{formatNumber tokensPerHour}} TKN/h</span>
+          </a>
+        </div>
+        <div class="dropdown-menu" role="menu" id="dropdown-menu-tokens">
+          <div class="dropdown-content">
+            <div class="dropdown-item"><p class="menu-label">Income per hour</p></div>
+            <hr class="dropdown-divider">
+            <a class="dropdown-item is-active" href="#">Last 30 days <span class="has-text-white">(D)</span></a>
+            <a class="dropdown-item" href="#">Last 3 months <span class="has-text-grey">(3M)</span></a>
+            <a class="dropdown-item" href="#">Last 6 months <span class="has-text-grey">(6M)</span></a>
+            <a class="dropdown-item" href="#">Last year <span class="has-text-grey">(Y)</span></a>
+            <a class="dropdown-item" href="#">All time <span class="has-text-grey">(A)</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="navbar-item">
+      <div class="dropdown is-hoverable">
+        <div class="dropdown-trigger">
+          <a class="tags has-addons" aria-haspopup="true" aria-controls="dropdown-menu-tokens">
+            <span class="tag is-italic has-text-weight-semibold has-background-grey-lighter">
+              C
+              <i class="fas fa-fw fa-dollar-sign"></i>
+            </span>
+            <span class="tag has-text-weight-semibold">{{formatNumber lastDataPoint.rawTokens}} TKN</span>
+          </a>
+        </div>
+        <div class="dropdown-menu" role="menu" id="dropdown-menu-tokens">
+          <div class="dropdown-content">
+            <div class="dropdown-item"><p class="menu-label">Income</p></div>
+            <hr class="dropdown-divider">
+            <a class="dropdown-item is-active" href="#">Current value <span class="has-text-white">(C)</span></a>
+            <a class="dropdown-item" href="#">This period <span class="has-text-grey">(P)</span></a>
+            <a class="dropdown-item" href="#">Last 30 days <span class="has-text-grey">(M)</span></a>
+            <a class="dropdown-item" href="#">Last 3 months <span class="has-text-grey">(3M)</span></a>
+            <a class="dropdown-item" href="#">Last 6 months <span class="has-text-grey">(6M)</span></a>
+            <a class="dropdown-item" href="#">Last year <span class="has-text-grey">(Y)</span></a>
+            <a class="dropdown-item" href="#">All time <span class="has-text-grey">(A)</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="navbar-item">
+      <div class="tags has-addons">
+        <span class="tag has-background-grey-lighter"><i class="fas fa-fw fa-heart"></i></span>
+        <span class="tag has-text-weight-semibold">{{formatNumber lastDataPoint.rawFollowers}}</span>
+      </div>
+    </div>
+
+    {{else}}
+    <div class="navbar-item has-text-grey-light is-size-6">The missing analytics for Chaturbate</div>
+  {{/if}}
+</template>

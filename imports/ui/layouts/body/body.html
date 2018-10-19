@@ -5,7 +5,10 @@
       <div class="container is-fluid">
         <div class="navbar-brand">
           <div class="navbar-item has-text-weight-bold">
-            Chaturlytics<span style="font-size: 0.75em; font-weight: 400; color: rgb(231, 128, 5); margin-top: -.5em; margin-left: 0.3em">Alpha</span>
+            <!-- Chaturlytics<span style="font-size: 0.75em; font-weight: 400; color: rgb(231, 128, 5); margin-top: -.5em; margin-left: 0.3em">Alpha</span> -->
+            <figure class="image" style="width:8.7rem">
+              <img src="/img/chaturlytics-logo.svg" alt="Chaturlytics (Alpha)">
+            </figure>
           </div>
 
           <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
@@ -16,85 +19,7 @@
         </div>
 
         <div class="navbar-menu">
-          <div class="navbar-start">
-            {{#if Template.subscriptionsReady}}
-
-            <div class="navbar-item">
-              <div class="tags has-addons">
-                {{#if isBroadcasting}}
-                  <span class="tag is-success has-text-white"><i class="fas fa-fw fa-video"></i></span>
-                  <span class="tag is-success has-text-white">Live</span>
-                  <span class="tag">{{timeOnline}}</span>
-                {{else}}
-                <span class="tag is-dark has-text-white"><i class="fas fa-fw fa-video-slash"></i></span>
-                <span class="tag">{{timeOffline}}</span>
-                {{/if}}
-              </div>
-            </div>
-
-            <div class="navbar-item">
-              <div class="dropdown is-hoverable">
-                <div class="dropdown-trigger">
-                  <a class="tags has-addons" aria-haspopup="true" aria-controls="dropdown-menu-tokens">
-                    <span class="tag is-italic has-text-weight-semibold has-background-grey-lighter">
-                      D
-                      <i class="fas fa-fw fa-donate"></i>
-                    </span>
-                    <span class="tag">{{formatNumber tokensPerHour}} TKN/h</span>
-                  </a>
-                </div>
-                <div class="dropdown-menu" role="menu" id="dropdown-menu-tokens">
-                  <div class="dropdown-content">
-                    <div class="dropdown-item"><p class="menu-label">Income per hour</p></div>
-                    <hr class="dropdown-divider">
-                    <a class="dropdown-item is-active" href="#">Last 30 days <span class="has-text-white">(D)</span></a>
-                    <a class="dropdown-item" href="#">Last 3 months <span class="has-text-grey">(3M)</span></a>
-                    <a class="dropdown-item" href="#">Last 6 months <span class="has-text-grey">(6M)</span></a>
-                    <a class="dropdown-item" href="#">Last year <span class="has-text-grey">(Y)</span></a>
-                    <a class="dropdown-item" href="#">All time <span class="has-text-grey">(A)</span></a>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="navbar-item">
-              <div class="dropdown is-hoverable">
-                <div class="dropdown-trigger">
-                  <a class="tags has-addons" aria-haspopup="true" aria-controls="dropdown-menu-tokens">
-                    <span class="tag is-italic has-text-weight-semibold has-background-grey-lighter">
-                      C
-                      <i class="fas fa-fw fa-dollar-sign"></i>
-                    </span>
-                    <span class="tag">{{formatNumber lastDataPoint.rawTokens}} TKN</span>
-                  </a>
-                </div>
-                <div class="dropdown-menu" role="menu" id="dropdown-menu-tokens">
-                  <div class="dropdown-content">
-                    <div class="dropdown-item"><p class="menu-label">Income</p></div>
-                    <hr class="dropdown-divider">
-                    <a class="dropdown-item is-active" href="#">Current value <span class="has-text-white">(C)</span></a>
-                    <a class="dropdown-item" href="#">This period <span class="has-text-grey">(P)</span></a>
-                    <a class="dropdown-item" href="#">Last 30 days <span class="has-text-grey">(M)</span></a>
-                    <a class="dropdown-item" href="#">Last 3 months <span class="has-text-grey">(3M)</span></a>
-                    <a class="dropdown-item" href="#">Last 6 months <span class="has-text-grey">(6M)</span></a>
-                    <a class="dropdown-item" href="#">Last year <span class="has-text-grey">(Y)</span></a>
-                    <a class="dropdown-item" href="#">All time <span class="has-text-grey">(A)</span></a>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="navbar-item">
-              <div class="tags has-addons">
-                <span class="tag has-background-grey-lighter"><i class="fas fa-fw fa-heart"></i></span>
-                <span class="tag">{{formatNumber lastDataPoint.rawFollowers}}</span>
-              </div>
-            </div>
-
-          {{else}}
-            <div class="navbar-item has-text-grey-light is-size-7">Loading...</div>
-          {{/if}}
-          </div>
+          <div class="navbar-start">{{> navbarQuickStats}}</div>
           <div class="navbar-end">
 
             <div class="navbar-item">
@@ -141,8 +66,6 @@
     </nav>
   </div>
 
-  <!-- <div class="container">-->
-
   <div id="menu-wrapper">
 
     <aside class="menu">
@@ -181,6 +104,31 @@
         <li><a><i class="fas fa-fw fa-money-check-alt"></i>Membership</a></li>
         <li><a class="{{isActiveAsCurrentRouteNamed 'settings'}}" href="/settings"><i class="fas fa-fw fa-cog"></i>Settings</a></li>
       </ul>
+      <footer class="aside-footer is-size-7">
+        <div class="columns has-text-centered" style="margin-bottom:1em;">
+          <div class="column is-half p-b-0">
+            <a href="/support" class="has-text-white">Support</a>
+          </div>
+          <div class="column is-half p-b-0">
+            <div class="dropdown is-hoverable is-right is-up is-fullwidth">
+              <div class="dropdown-trigger">
+                <a class="has-text-white" aria-haspopup="true" aria-controls="dropdown-menu-stuff" style="width:100%;">
+                  More
+                  <i class="fas fa-fw fa-angle-down" aria-hidden="true"></i>
+                </a>
+              </div>
+              <div class="dropdown-menu" role="menu" id="dropdown-menu-stuff">
+                <div class="dropdown-content is-dark">
+                  <a class="dropdown-item" href="#">Contact</a>
+                  <a class="dropdown-item" href="#">Privacy Policy</a>
+                  <a class="dropdown-item" href="#">Terms of Use</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div> Copyright &copy;&nbsp;2018&nbsp;Chaturlytics. All&nbsp;rights&nbsp;reserved. </div>
+      </footer>
     </aside>
 
   </div>
@@ -192,5 +140,15 @@
       </div>
     </section>
   </div>
+
+  <!-- {{#if splashScreen}}
+  <div class="hero is-fullheight is-light is-bold" id="splash-screen">
+    <div class="hero-body">
+      <figure class="image" style="margin-left:auto;margin-right:auto;">
+        <img src="/img/chaturlytics-extended-logo.svg" alt="Chaturlytics">
+      </figure>
+    </div>
+  </div>
+  {{/if}} -->
 
 </template>

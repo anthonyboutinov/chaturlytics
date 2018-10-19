@@ -209,9 +209,9 @@ Meteor.methods({
         console.log("CASE 3: off-time");
         updateEndTimeInsteadOfCreatingANewDataPoint = lastDataPoint
           && lastDataPoint.rawTokens === rawDataPoint.token_balance
-          && lastDataPoint.rawFollowers === rawDataPoint.num_followers
-          && lastDataPoint.totalVotesUp === rawDataPoint.votes_up
-          && lastDataPoint.totalVotesDown === rawDataPoint.votes_down;
+          && lastDataPoint.rawFollowers === rawDataPoint.num_followers;
+          // && lastDataPoint.totalVotesUp === rawDataPoint.votes_up
+          // && lastDataPoint.totalVotesDown === rawDataPoint.votes_down;
         nextSyncOption = nextSyncOptions.later;
       } else // else if the session is ongoing
       // --- CASE 4 ---

@@ -133,11 +133,11 @@
             <!-- <td class="has-text-right">{{formatNumber numBroadcasts}}</td> -->
             <td class="has-text-right no-wrap">{{timeOnline}}</td>
             <!-- <td class="has-text-right no-wrap">{{deltaFollowers}}</td> -->
-            <td class="has-text-right no-wrap" __style="{{deltaTokensStyle}}">{{formatNumber deltaTokens}}</td>
-            <td class="has-text-right no-wrap" __style="{{avgTokensStyle}}">{{formatNumber avgTokens}}</td>
-            <td class="has-text-right no-wrap">{{formatNumber extraCurrency}}</td>
-            <td class="has-text-right no-wrap" style="{{totalDeltaPrimaryCurrencyStyle}} border-left:2px solid #dbdbdb;">{{formatNumber totalDeltaPrimaryCurrency}}</td>
-            <td class="has-text-right no-wrap" style="{{avgPrimaryCurrencyStyle}}">{{formatNumber avgPrimaryCurrency}}</td>
+            <td class="has-text-right no-wrap" data-value="{{deltaTokens}}" __style="{{deltaTokensStyle}}">{{formatNumber deltaTokens}}</td>
+            <td class="has-text-right no-wrap" data-value="{{avgTokens}}" __style="{{avgTokensStyle}}">{{formatNumber avgTokens}}</td>
+            <td class="has-text-right no-wrap" data-value={{extraCurrency}}>{{formatNumber extraCurrency}}</td>
+            <td class="has-text-right no-wrap" data-value="{{totalDeltaPrimaryCurrency}}" style="{{totalDeltaPrimaryCurrencyStyle}} border-left:2px solid #dbdbdb;">{{formatNumber totalDeltaPrimaryCurrency}}</td>
+            <td class="has-text-right no-wrap" data-value="{{avgPrimaryCurrency}}" style="{{avgPrimaryCurrencyStyle}}">{{formatNumber avgPrimaryCurrency}}</td>
             {{#if displayNotes}}<td class="has-text-right">{{notes}}</td>{{/if}}
           </tr>
         {{/each}}
@@ -146,5 +146,38 @@
       {{/if}}
     </tbody>
   </table>
+
+  {{#if rowsSelected}}
+  <div class="details-container">
+    <div class="container is-fluid">
+      <div class="level">
+        <div class="level-left"></div>
+        <div class="level-right">
+          <div class="level-item">
+            <div class="tags has-addons">
+                <span class="tag is-dark has-text-white">SUM</span>
+                <span class="tag has-text-weight-semibold is-wide">{{formatNumber selectedCellsSum}}</span>
+            </div>
+          </div>
+          <div class="level-item">
+            <div class="tags has-addons">
+                <span class="tag is-dark has-text-white">AVERAGE</span>
+                <span class="tag has-text-weight-semibold is-wide">{{formatNumber selectedCellsAvg}}</span>
+            </div>
+          </div>
+          <div class="level-item">
+            <div class="tags has-addons">
+                <span class="tag is-dark has-text-white">COUNTA</span>
+                <span class="tag has-text-weight-semibold is-wide">{{formatNumber rowsSelected.length}}</span>
+            </div>
+          </div>
+          <div class="level-item">
+            <button class="button is-small" id="clear-selection">Clear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {{/if}}
 
 </template>

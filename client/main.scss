@@ -9,6 +9,15 @@ body {
   cursor: default;
 }
 
+#splash-screen {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 2000;
+}
+
 .section .section {
   padding-left: 0;
   padding-right: 0;
@@ -198,7 +207,7 @@ body {
     }
 }
 
-.dropdown.is-hoverable:hover .dropdown-menu {
+.dropdown.is-hoverable:hover .dropdown-menu, .dropdown.is-active .dropdown-menu {
   display: block;
   animation: showDropdown .2s cubic-bezier(.6, .2, .1, 1) both;
 }
@@ -215,7 +224,7 @@ body {
 .dropdown-content {
   border: 0 solid #e2e6e8;
   border-radius: 3px;
-  box-shadow: 0 20px 66px 0 rgba(34,48,73,0.2) !important;
+  box-shadow: 0 20px 66px 0 rgba(34,48,73,0.35) !important;
 }
 
 .dropdown.is-hoverable:hover .dropdown-trigger .button {
@@ -349,4 +358,53 @@ body {
 
 a.dropdown-item:hover:not(.is-active) {
   background-color: rgba(0, 0, 0, 0.05);
+}
+
+.aside-footer {
+  padding: 2rem 1.5rem 0;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.cell-is-highlighted {
+  font-weight: bolder;
+  border: 2px solid rgb(196, 196, 196) !important;
+}
+
+.details-container {
+  position: fixed;
+  right:0;
+  left: 16rem;
+  bottom:0;
+  padding: 0.5em 0;
+
+  background: rgba(255,255,255,0.95);
+  @supports ((backdrop-filter: blur(20px) saturate(100%) hue-rotate(-15deg)) or (-webkit-backdrop-filter: blur(20px) saturate(100%) hue-rotate(-15deg))) {
+    backdrop-filter: blur(20px) saturate(100%) hue-rotate(-15deg);
+    -webkit-backdrop-filter: blur(20px) saturate(100%) hue-rotate(-15deg);
+    background-color: rgba(255, 255, 255, 0.2) !important;
+  }
+}
+
+.tag.is-wide {
+  min-width: 9em;
+}
+
+.dropdown-content.is-dark {
+  box-shadow: 0 20px 66px 0 rgba(34,48,73,0.75) !important;
+  background-color: #4e636e;
+
+  @supports ((backdrop-filter: blur(20px) saturate(100%) hue-rotate(-15deg)) or (-webkit-backdrop-filter: blur(20px) saturate(100%) hue-rotate(-15deg))) {
+    backdrop-filter: blur(20px) saturate(100%) hue-rotate(-15deg);
+    -webkit-backdrop-filter: blur(20px) saturate(100%) hue-rotate(-15deg);
+    background-color: rgba(0, 0, 0, 0.0) !important;
+  }
+
+  .dropdown-item {
+    color: #fff;
+    text-align: left;
+  }
+}
+
+.is-fullwidth {
+  width: 100%;
 }

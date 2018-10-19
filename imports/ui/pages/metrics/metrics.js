@@ -23,6 +23,38 @@ import { ReactiveVar } from 'meteor/reactive-var';
 //   },
 // };
 
+function _clearSelection(template) {
+  template.rowsSelected.get().map(element => $(element).removeClass("cell-is-highlighted"));
+  template.rowsSelected.set([]);
+}
+
+let isMouseDown = false, isHighlighted;
+
+function _selectCell(event, template, doToggleIsHighlihted = false, checkIfIsHighlighted = false) {
+  let rowsSelected = template.rowsSelected.get();
+  const highlightClass = "cell-is-highlighted";
+  if (checkIfIsHighlighted) {
+    $(event.target).toggleClass(highlightClass, isHighlighted);
+  } else {
+    $(event.target).toggleClass(highlightClass);
+  }
+  if ($(event.target).hasClass(highlightClass)) {
+    if (rowsSelected.indexOf(event.target) === -1) {
+      rowsSelected.push(event.target);
+      template.rowsSelected.set(rowsSelected);
+    }
+    if (doToggleIsHighlihted) {
+      isHighlighted = true;
+    }
+  } else {
+    rowsSelected.splice( rowsSelected.indexOf(event.target), 1 );
+    template.rowsSelected.set(rowsSelected);//_.pull(rowsSelected, event.target));
+    if (doToggleIsHighlihted) {
+      isHighlighted = false;
+    }
+  }
+}
+
 Template.Page_metrics.onCreated(function() {
   const instance = this;
   instance.subscribe('sessions.all');
@@ -34,6 +66,7 @@ Template.Page_metrics.onCreated(function() {
   this.skipOffDays = new ReactiveVar(false);
   this.displayNotes = new ReactiveVar(false);
   this.coloration = new ReactiveVar();
+  this.rowsSelected = new ReactiveVar([]);
 
 });
 
@@ -420,25 +453,74 @@ Template.Page_metrics.helpers({
     }
   },
 
+
+///////
+
+
+  selectedCellsSum() {
+    rowsSelected = Template.instance().rowsSelected.get();
+    return rowsSelected.reduce((sum, element) => (parseFloat($(element).attr("data-value")) || 0) + sum, 0);
+  },
+
+  selectedCellsAvg() {
+    rowsSelected = Template.instance().rowsSelected.get();
+    const _sum = rowsSelected.reduce((sum, element) => (parseFloat($(element).attr("data-value")) || 0) + sum, 0);
+    return Math.round(_sum / rowsSelected.length * 10) / 10;
+  },
+
+  rowsSelected: () => Template.instance().rowsSelected.get(),
+
+
+////////
+
+
+
 });
 
 Template.Page_metrics.events({
 
-  'click .set-grouping'(event) {
+  'click .set-grouping'(event, template) {
     event.preventDefault();
-    Template.instance().grouping.set(this.toString());
+    template.grouping.set(this.toString());
+    _clearSelection(template);
   },
 
-  'click .toggle-skip-offdays'(event) {
+  'click .toggle-skip-offdays'(event, template) {
     event.preventDefault();
-    const skipOffDays = Template.instance().skipOffDays;
+    const skipOffDays = template.skipOffDays;
     skipOffDays.set(!skipOffDays.get());
+    _clearSelection(template);
   },
 
-  'click .toggle-display-notes'(event) {
+  'click .toggle-display-notes'(event, template) {
     event.preventDefault();
-    const displayNotes = Template.instance().displayNotes;
+    const displayNotes = template.displayNotes;
     displayNotes.set(!displayNotes.get());
+    _clearSelection(template);
+  },
+
+  // 'click [data-value]'(event, template) {
+  //   _selectCell(_.pull, event, template);
+  // },
+
+  'mousedown [data-value]'(event, template) {
+    event.preventDefault();
+    isMouseDown = true;
+    _selectCell(event, template, true);
+  },
+
+  'mouseover [data-value]'(event, template) {
+    if (isMouseDown) {
+      _selectCell(event, template, false, true);
+    }
+  },
+
+  'mouseup'() {
+    isMouseDown = false;
+  },
+
+  'click #clear-selection'(event, template) {
+    _clearSelection(template);
   },
 
 });

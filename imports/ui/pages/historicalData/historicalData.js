@@ -1,7 +1,5 @@
 import './historicalData.html';
 
-// import { DataPoints } from '/imports/api/datapoints/datapoints.js';
-// import { Sessions } from '/imports/api/sessions/sessions.js';
 import { Meteor } from 'meteor/meteor';
 import { ReactiveVar } from 'meteor/reactive-var';
 
