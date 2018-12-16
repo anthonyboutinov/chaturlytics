@@ -84,6 +84,11 @@ Sessions.schema = new SimpleSchema({
 
   'extraIncome.$': extraIncomeSchema,
 
+  errorCode: {
+    optional: true,
+    type: String,
+  }
+
 });
 
 Sessions.attachSchema(Sessions.schema);

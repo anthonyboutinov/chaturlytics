@@ -76,6 +76,17 @@ Template.Page_logs.helpers({
 
   loadingMoreDataPostFactum: () => Template.instance().loadingMoreDataPostFactum.get(),
 
+  dataPointIcon(dataPoint) {
+    if (dataPoint.broadcastHasDropped) return "has-text-warning";
+    return "has-text-success";
+  },
+
+  sessionIcon(session) {
+    if (session.broadcastHasDropped) return "has-text-warning";
+    if (session.errorCode) return "has-text-danger";
+    return "has-text-success";
+  },
+
 });
 
 Template.Page_logs.onDestroyed(function() {
@@ -97,7 +108,7 @@ Template.Page_logs.events({
 
   'click .delete-dataPoint'(event) {
     event.preventDefault();
-    if (confirm("Delete item? This cannot be undone.")) {
+    if (confirm("Delete entry? This cannot be undone.")) {
       Meteor.call('dataPoints.remove', this._id, (error) => {
         if (error) {
           alert(error.error);
@@ -108,7 +119,7 @@ Template.Page_logs.events({
 
   'click .delete-session'(event) {
     event.preventDefault();
-    if (confirm("Delete item? This cannot be undone.")) {
+    if (confirm("Delete entry? This cannot be undone.")) {
       Meteor.call('sessions.remove', this._id, (error) => {
         if (error) {
           alert(error.error);
@@ -144,6 +155,27 @@ Template.Page_logs.events({
       });
     } catch(e) {
       console.log(e);
+    }
+  },
+
+  'click .update-dataPoint-fixtime'(event, template) {
+    event.preventDefault();
+    try {
+      const endTime = moment(prompt("Enter End DateTime", moment(this.endTime).format(moment.HTML5_FMT.DATETIME_LOCAL)), [moment.HTML5_FMT.DATETIME_LOCAL, moment.ISO_8601]);
+      console.log({endTime});
+      if (!endTime || !endTime.isValid() || (endTime).year() < 2000 ) {
+        alert("Action aborted");
+        return;
+      }
+      Meteor.call('dataPoints.update', this._id, {
+        endTime: endTime.toDate(),
+      }, (error) => {
+        if (error) {
+          alert(error.error);
+        }
+      });
+    } catch (error) {
+      console.log({error});
     }
   },
 

@@ -1,10 +1,10 @@
 <template name="Page_logs">
-  <h2 class="title">Logs</h2>
+  <h1 class="title">Logs</h1>
 
   <div class="section">
     <h3 class="is-size-4 title">Data Points</h3>
-    <p class="subtitle has-text-grey">You can edit token amount if there are tokens that you would like to omit from statistics.</p>
-    <table class="table is-fullwidth is-striped is-size-7">
+    <div class="subtitle">You can edit token amount if there are tokens that you would like to omit from statistics.</div>
+    <table class="table is-fullwidth is-striped is-size-7 {{#unless or Template.subscriptionsReady loadingMoreDataPostFactum}}loading-pulse is-large{{/unless}}">
       <thead>
         <tr>
           <th></th>
@@ -21,61 +21,58 @@
         </tr>
       </thead>
       <tbody>
-        {{#if or Template.subscriptionsReady loadingMoreDataPostFactum}}
-          {{#each dataPoints}}
-            <tr>
-              <th>
-                {{#if sessionId}}
-                  <a href="/view/sessions/{{sessionId}}">
-                    <i class="fas fa-video {{#if broadcastHasDropped}} has-text-warning {{else}} has-text-success {{/if}}"
-                    title="Broadcasting{{#if broadcastHasDropped}}, broadcast has dropped for a few minutes{{/if}}"></i>
-                  </a>
-                {{/if}}
-              </th>
-              <th>{{timeframe}}</th>
-              <td>{{duration}}</td>
-              <td class="has-text-right">{{formatNumber deltaTokens}} TKN ({{formatNumber rawTokens}})</td>
-              <td class="has-text-right">{{formatNumber deltaFollowers}} ({{formatNumber rawFollowers}})</td>
-              <td class="has-text-right">{{formatNumber numViewers}}</td>
-              <td class="has-text-right">{{formatNumber numRegisteredViewers}}</td>
-              <td class="has-text-right">{{formatNumber numTokenedViewers}}</td>
-              <td class="has-text-right">{{formatNumber deltaVotesUp}} ({{formatNumber totalVotesUp}})</td>
-              <td class="has-text-right">{{formatNumber deltaVotesDown}} ({{formatNumber totalVotesDown}})</td>
-              <td>
-                <div class="dropdown is-hoverable is-right">
-                  <div class="dropdown-trigger">
-                    <button class="button is-tiny" aria-haspopup="true" aria-controls="dropdown-menu-datapoint-{{_id}}">
-                      <span class="icon is-small">
-                        <i class="fas fa-angle-down" aria-hidden="true"></i>
-                      </span>
-                    </button>
-                  </div>
-                  <div class="dropdown-menu" id="dropdown-menu-datapoint-{{_id}}" role="menu">
-                    <div class="dropdown-content">
-                      <a class="dropdown-item update-dataPoint"> Update </a>
-                      <a class="dropdown-item delete-dataPoint has-text-danger"> Delete </a>
-                    </div>
+        {{#each dataPoints}}
+          <tr>
+            <th>
+              {{#if sessionId}}
+                <a href="/view/sessions/{{sessionId}}">
+                  <i class="fas fa-video {{dataPointIcon this}}"
+                  title="Broadcasting{{#if broadcastHasDropped}}, broadcast has dropped for a few minutes{{/if}}"></i>
+                </a>
+              {{/if}}
+            </th>
+            <th>{{timeframe}}</th>
+            <td>{{duration}}</td>
+            <td class="has-text-right">{{formatNumber deltaTokens}} TKN ({{formatNumber rawTokens}})</td>
+            <td class="has-text-right">{{formatNumber deltaFollowers}} ({{formatNumber rawFollowers}})</td>
+            <td class="has-text-right">{{formatNumber numViewers}}</td>
+            <td class="has-text-right">{{formatNumber numRegisteredViewers}}</td>
+            <td class="has-text-right">{{formatNumber numTokenedViewers}}</td>
+            <td class="has-text-right">{{formatNumber deltaVotesUp}} ({{formatNumber totalVotesUp}})</td>
+            <td class="has-text-right">{{formatNumber deltaVotesDown}} ({{formatNumber totalVotesDown}})</td>
+            <td>
+              <div class="dropdown is-hoverable is-right">
+                <div class="dropdown-trigger">
+                  <button class="button is-tiny" aria-haspopup="true" aria-controls="dropdown-menu-datapoint-{{_id}}">
+                    <span class="icon is-small">
+                      <i class="fas fa-angle-down" aria-hidden="true"></i>
+                    </span>
+                  </button>
+                </div>
+                <div class="dropdown-menu" id="dropdown-menu-datapoint-{{_id}}" role="menu">
+                  <div class="dropdown-content">
+                    <a class="dropdown-item update-dataPoint">Set Delta Tokens</a>
+                    <a class="dropdown-item update-dataPoint-fixtime">Fix Time</a>
+                    <a class="dropdown-item delete-dataPoint has-text-danger"> Delete </a>
                   </div>
                 </div>
-              </td>
-            </tr>
-          {{/each}}
-        {{else}}
-          <tr><td colspan="11" class="has-text-grey has-text-centered" style="padding:2rem 1rem;">Loading...</td></tr>
-        {{/if}}
+              </div>
+            </td>
+          </tr>
+        {{/each}}
       </tbody>
     </table>
 
     {{#if Template.subscriptionsReady}}
       <button class="button is-rounded is-small is-fullwidth loadMore-dataPoints">Load more</button>
     {{else}}
-      <button class="button is-rounded is-small is-fullwidth" disabled><i class="fas fa-fw fa-pulse fa-spinner"></i>Loading...</button>
+      <button class="button is-rounded is-small is-fullwidth loading-pulse" disabled></button>
     {{/if}}
   </div>
 
   <div class="section">
     <h3 class="is-size-4 title">Broadcasts</h3>
-    <table class="table is-fullwidth is-striped is-size-7">
+    <table class="table is-fullwidth is-striped is-size-7 {{#unless or Template.subscriptionsReady loadingMoreDataPostFactum}}loading-pulse is-large{{/unless}}">
       <thead>
         <tr>
           <th></th>
@@ -92,53 +89,49 @@
         </tr>
       </thead>
       <tbody>
-        {{#if or Template.subscriptionsReady loadingMoreDataPostFactum}}
-          {{#each sessions}}
-            <tr>
-              <th>{{#if broadcastHasDropped}}<i class="fas fa-video has-text-warning"
-              title="Broadcasting, broadcast has dropped for a few minutes, see details"></i>{{/if}}</th>
-              <th><a href="/view/sessions/{{_id}}" class="has-text-black">{{timeframe}}</a></th>
-              <td>{{duration}}</td>
-              <td class="has-text-right">{{formatNumber deltaTokens}} TKN</td>
-              <td class="has-text-right">{{formatNumber deltaFollowers}}</td>
-              <td class="has-text-right">{{formatNumber numViewers}}</td>
-              <td class="has-text-right">{{formatNumber numRegisteredViewers}}</td>
-              <td class="has-text-right">{{formatNumber numTokenedViewers}}</td>
-              <td class="has-text-right">{{formatNumber deltaVotesUp}}</td>
-              <td class="has-text-right">{{formatNumber deltaVotesDown}}</td>
-              <td>
-                <div class="dropdown is-hoverable is-right">
-                  <div class="dropdown-trigger">
-                    <button class="button is-tiny" aria-haspopup="true" aria-controls="dropdown-menu-session-{{_id}}">
-                      <span class="icon is-small">
-                        <i class="fas fa-angle-down" aria-hidden="true"></i>
-                      </span>
-                    </button>
-                  </div>
-                  <div class="dropdown-menu" id="dropdown-menu-session-{{_id}}" role="menu">
-                    <div class="dropdown-content">
-                      {{#unless isHistorical}}
-                        <a class="dropdown-item summarize-session">Summarize</a>
-                      {{else}}
-                        <div class="dropdown-item has-text-grey-light">Summarize</div>
-                      {{/unless}}
-                      <a class="dropdown-item delete-session has-text-danger">Delete</a>
-                    </div>
+        {{#each sessions}}
+          <tr>
+            <th>{{#if or broadcastHasDropped errorCode}}<i class="fas fa-video {{sessionIcon this}}"
+            title="{{sessionErrorMessage this}}"></i>{{/if}}</th>
+            <th><a href="/view/sessions/{{_id}}" class="has-text-black">{{timeframe}}</a></th>
+            <td>{{duration}}</td>
+            <td class="has-text-right">{{formatNumber deltaTokens}} TKN</td>
+            <td class="has-text-right">{{formatNumber deltaFollowers}}</td>
+            <td class="has-text-right">{{formatNumber numViewers}}</td>
+            <td class="has-text-right">{{formatNumber numRegisteredViewers}}</td>
+            <td class="has-text-right">{{formatNumber numTokenedViewers}}</td>
+            <td class="has-text-right">{{formatNumber deltaVotesUp}}</td>
+            <td class="has-text-right">{{formatNumber deltaVotesDown}}</td>
+            <td>
+              <div class="dropdown is-hoverable is-right">
+                <div class="dropdown-trigger">
+                  <button class="button is-tiny" aria-haspopup="true" aria-controls="dropdown-menu-session-{{_id}}">
+                    <span class="icon is-small">
+                      <i class="fas fa-angle-down" aria-hidden="true"></i>
+                    </span>
+                  </button>
+                </div>
+                <div class="dropdown-menu" id="dropdown-menu-session-{{_id}}" role="menu">
+                  <div class="dropdown-content">
+                    {{#unless isHistorical}}
+                      <a class="dropdown-item summarize-session">Summarize</a>
+                    {{else}}
+                      <div class="dropdown-item has-text-grey-light">Summarize</div>
+                    {{/unless}}
+                    <a class="dropdown-item delete-session has-text-danger">Delete</a>
                   </div>
                 </div>
-              </td>
-            </tr>
-          {{/each}}
-        {{else}}
-          <tr><td colspan="11" class="has-text-grey has-text-centered" style="padding:2rem 1rem;">Loading...</td></tr>
-        {{/if}}
+              </div>
+            </td>
+          </tr>
+        {{/each}}
       </tbody>
     </table>
 
     {{#if Template.subscriptionsReady}}
       <button class="button is-rounded is-small is-fullwidth loadMore-sessions">Load more</button>
     {{else}}
-      <button class="button is-rounded is-small is-fullwidth" disabled><i class="fas fa-fw fa-pulse fa-spinner"></i>Loading...</button>
+      <button class="button is-rounded is-small is-fullwidth loading-pulse" disabled></button>
     {{/if}}
   </div>
 </template>

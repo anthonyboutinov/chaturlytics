@@ -11,16 +11,19 @@ Date.prototype.subMinutes = function(m){
   return this;
 }
 
+let flag = false;
+
 Template.Page_sessions.onCreated(function () {
   const instance = this;
   instance.subscribe('sessions.all');
+  instance.subscribe('userRates.latest');
+
   instance.seconds = new ReactiveVar(0);
   instance.handle = Meteor.setInterval((function() {
     instance.seconds.set(instance.seconds.get() + 30);
   }), 30000);
 
-  instance.currentlyViewedSession = new ReactiveVar();
-
+  instance.currentlyViewedSession = new ReactiveVar(false);
 });
 
 Template.Page_sessions.helpers({
@@ -73,16 +76,34 @@ Template.Page_sessions.helpers({
   },
 
   currentlyViewedSession() {
-    return Template.instance().currentlyViewedSession.get();
+    const instance = Template.instance();
+    const reactiveVar = instance.currentlyViewedSession.get();
+    if (reactiveVar) {
+      return reactiveVar;
+    }
+
+    if (!flag) {
+      const sessionId = FlowRouter.getParam('_id');
+      const session = Sessions.findOne(sessionId);
+      if (session) {
+        // instance.currentlyViewedSession.set(session);
+        flag = true;
+        console.log("FLAG to true", session);
+        return session;
+      }
+    }
+    return null;
+
     // FlowRouter.watchPathChange();
-    // const session = Sessions.findOne({_id: FlowRouter.getParam('_id')});
-    // console.log({session});
-    // return session;
+    // return Sessions.findOne({_id: FlowRouter.getParam('_id')});
   },
 
-  isActive() {
+  isSelected() {
     const session = Template.instance().currentlyViewedSession.get();
-    return session && this._id === session._id ? "is-selected" : null;
+    return
+      (session && this._id === session._id)
+      // || !session && FlowRouter.getParam('_id') === this._id
+      ? "is-selected" : null;
   },
 
   totalExtraIncome() {
@@ -109,6 +130,6 @@ Template.Page_sessions.events({
     }, 200);
     instance.currentlyViewedSession.set(null);
     // console.log({currentlyViewedSessionSetTo: null});
+  },
 
-  }
 });

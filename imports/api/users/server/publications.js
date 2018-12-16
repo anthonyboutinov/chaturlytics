@@ -6,7 +6,9 @@ Meteor.publish('userData', function () {
     return Meteor.users.find({ _id: this.userId }, {
       fields: {
         currencies: 1,
-        primaryCurrency: 1
+        primaryCurrency: 1,
+        displayOption_tokensPerHour: 1,
+        displayOption_tokensPerHourExtraIncome: 1,
       }
     });
   } else {

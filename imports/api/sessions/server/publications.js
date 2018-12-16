@@ -47,6 +47,17 @@ Meteor.publish('sessions.last', function() {
   }
 
   Meteor._sleepForMs(2000);
+
+  const liveSession = Sessions.find({
+    userId: this.userId,
+    username: UserProfiles.getCurrentUsername(this.userId),
+    endTime: null,
+  }, {
+    limit: 1
+  });
+  if (liveSession.count) {
+    return liveSession;
+  }
   return Sessions.find({
     userId: this.userId,
     username: UserProfiles.getCurrentUsername(this.userId)

@@ -25,10 +25,6 @@ body {
 
 .has-effect-translucent-background {
   background-color: #f4f6fb;
-  background-image: url('/img/dashboard-background@2x.jpg');
-  background-position: bottom right;
-  background-repeat: no-repeat;
-  background-size: cover;
   background-attachment: fixed;
 }
 
@@ -41,8 +37,10 @@ body {
   width: 16rem;
   height: auto;
   // background: #f8f8f8;
-  background-color: #344258;
-  background-image: url('/img/menubar@2x.jpg');
+  // background-color: #344258;
+  // background-image: url('/img/menubar@2x.jpg');
+  background-color: #4b5a75;
+  background: linear-gradient(128deg, #384767, #4b5b75 48%, #5f798a);
   background-position: top;
   background-repeat: no-repeat;
   background-size: cover;
@@ -166,6 +164,11 @@ body {
   color: #777;
   padding: 6rem 0;
   text-align: center;
+
+  border-radius: 4px;
+  animation-name: loading-background;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
 }
 
 .chart-wrapper {
@@ -259,6 +262,10 @@ body {
 
 .panel-heading {
   font-weight: 600 !important;
+}
+
+.panel-block p {
+  margin-bottom: 1em;
 }
 
 .m-b-0 {
@@ -386,7 +393,7 @@ a.dropdown-item:hover:not(.is-active) {
 }
 
 .tag.is-wide {
-  min-width: 9em;
+  min-width: 8em;
 }
 
 .dropdown-content.is-dark {
@@ -407,4 +414,71 @@ a.dropdown-item:hover:not(.is-active) {
 
 .is-fullwidth {
   width: 100%;
+}
+
+.tag.is-translucent-light {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+@keyframes loading-background {
+  0% {
+    background-color: #f9f9fa;
+  }
+  50% {
+    background-color: #fdfdfe;
+  }
+  100% {
+    background-color: #f9f9fa;
+  }
+}
+
+.loading-pulse {
+  position: relative;
+
+  &, & tr, & td, & th {
+    border-color: transparent !important;
+  }
+
+  &::before {
+      content:"";
+      display: block;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1;
+      border-radius: 4px;
+      animation-name: loading-background;
+      animation-duration: 2s;
+      animation-iteration-count: infinite;
+  }
+
+
+  &.is-large {
+    height: 50vh;
+  }
+}
+
+.help {
+  font-size: 1em !important;
+  color: hsl(0, 0%, 48%); // text-grey
+  margin-top: 0 !important;
+
+  .control + &, .level + & {
+    margin-top: 0.25em !important;
+  }
+
+  em {
+    font-style: normal;
+    font-weight: bolder;
+  }
+}
+
+h1.title {
+  font-weight: bolder;
+}
+
+.subtitle {
+  color: hsl(0, 0%, 48%); // text-grey
 }

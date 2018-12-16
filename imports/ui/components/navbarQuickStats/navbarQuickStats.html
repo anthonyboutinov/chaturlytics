@@ -1,15 +1,16 @@
 <template name="navbarQuickStats">
   {{#if Template.subscriptionsReady}}
+    {{__triggerGetTokensPerHour}}
 
     <div class="navbar-item">
       <div class="tags has-addons">
         {{#if isBroadcasting}}
           <span class="tag is-success has-text-white"><i class="fas fa-fw fa-video"></i></span>
           <span class="tag is-success has-text-white">Live</span>
-          <span class="tag has-text-weight-semibold">{{timeOnline}}</span>
+          <span class="tag has-text-weight-semibold is-wide">{{timeOnline}}</span>
         {{else}}
-        <span class="tag is-dark has-text-white"><i class="fas fa-fw fa-video-slash"></i></span>
-        <span class="tag has-text-weight-semibold">{{timeOffline}}</span>
+        <span class="tag has-background-grey-dark has-text-white"><i class="fas fa-fw fa-video-slash"></i></span>
+        <span class="tag has-text-weight-semibold is-wide">{{timeOffline}}</span>
         {{/if}}
       </div>
     </div>
@@ -18,22 +19,36 @@
       <div class="dropdown is-hoverable">
         <div class="dropdown-trigger">
           <a class="tags has-addons" aria-haspopup="true" aria-controls="dropdown-menu-tokens">
-            <span class="tag is-italic has-text-weight-semibold has-background-grey-lighter">
-              D
-              <i class="fas fa-fw fa-donate"></i>
+            <span class="tag has-text-weight-semibold has-background-grey-dark has-text-white">
+              {{abbrCurrentTokensPerHourOption}}
+              <span class="icon">
+                <i class="fas fa-fw fa-donate"></i>
+              </span>
             </span>
-            <span class="tag has-text-weight-semibold">{{formatNumber tokensPerHour}} TKN/h</span>
+            <span class="tag has-text-weight-semibold is-wide">{{formatNumber tokensPerHour.avg}} {{tokensPerHour.currency}}/h</span>
           </a>
         </div>
         <div class="dropdown-menu" role="menu" id="dropdown-menu-tokens">
           <div class="dropdown-content">
             <div class="dropdown-item"><p class="menu-label">Income per hour</p></div>
             <hr class="dropdown-divider">
-            <a class="dropdown-item is-active" href="#">Last 30 days <span class="has-text-white">(D)</span></a>
-            <a class="dropdown-item" href="#">Last 3 months <span class="has-text-grey">(3M)</span></a>
-            <a class="dropdown-item" href="#">Last 6 months <span class="has-text-grey">(6M)</span></a>
-            <a class="dropdown-item" href="#">Last year <span class="has-text-grey">(Y)</span></a>
-            <a class="dropdown-item" href="#">All time <span class="has-text-grey">(A)</span></a>
+            {{#each tokensPerHourOptions}}
+              <a class="dropdown-item {{#if equals currentTokensPerHourOption value}}is-active{{/if}}" href="#" data-select-tokensPerHour="{{value}}">{{label}} <span class="{{#if equals currentTokensPerHourOption value}}has-text-white{{else}}has-text-grey{{/if}}">({{abbr}})</span></a>
+            {{/each}}
+            <hr class="dropdown-divider">
+            <div class="dropdown-item" id="tokensPerHour-toggle-extraIncome">
+              {{#if tokensPerHourIncludeExtraIncome}}
+                <div>
+                  <i class="fas fa-fw fa-toggle-on has-text-primary"></i>
+                  Extra income
+                </div>
+              {{else}}
+                <div>
+                  <i class="fas fa-fw fa-toggle-off"></i>
+                  Extra income
+                </div>
+              {{/if}}
+            </div>
           </div>
         </div>
       </div>
@@ -43,24 +58,21 @@
       <div class="dropdown is-hoverable">
         <div class="dropdown-trigger">
           <a class="tags has-addons" aria-haspopup="true" aria-controls="dropdown-menu-tokens">
-            <span class="tag is-italic has-text-weight-semibold has-background-grey-lighter">
-              C
+            <span class="tag has-text-weight-semibold has-background-grey-dark has-text-white">
+              CUR
               <i class="fas fa-fw fa-dollar-sign"></i>
             </span>
-            <span class="tag has-text-weight-semibold">{{formatNumber lastDataPoint.rawTokens}} TKN</span>
+            <span class="tag has-text-weight-semibold is-wide">{{formatNumber lastDataPoint.rawTokens}} TKN</span>
           </a>
         </div>
         <div class="dropdown-menu" role="menu" id="dropdown-menu-tokens">
           <div class="dropdown-content">
             <div class="dropdown-item"><p class="menu-label">Income</p></div>
             <hr class="dropdown-divider">
-            <a class="dropdown-item is-active" href="#">Current value <span class="has-text-white">(C)</span></a>
-            <a class="dropdown-item" href="#">This period <span class="has-text-grey">(P)</span></a>
-            <a class="dropdown-item" href="#">Last 30 days <span class="has-text-grey">(M)</span></a>
-            <a class="dropdown-item" href="#">Last 3 months <span class="has-text-grey">(3M)</span></a>
-            <a class="dropdown-item" href="#">Last 6 months <span class="has-text-grey">(6M)</span></a>
-            <a class="dropdown-item" href="#">Last year <span class="has-text-grey">(Y)</span></a>
-            <a class="dropdown-item" href="#">All time <span class="has-text-grey">(A)</span></a>
+            <a class="dropdown-item is-active" href="#">Current value <span class="has-text-white">(CUR)</span></a>
+            <a class="dropdown-item" href="#">This month <span class="has-text-grey">(TM)</span></a>
+            <a class="dropdown-item" href="#">Last month <span class="has-text-grey">(LM)</span></a>
+            <a class="dropdown-item" href="#">Last 30 days <span class="has-text-grey">(30D)</span></a>
           </div>
         </div>
       </div>
@@ -68,8 +80,8 @@
 
     <div class="navbar-item">
       <div class="tags has-addons">
-        <span class="tag has-background-grey-lighter"><i class="fas fa-fw fa-heart"></i></span>
-        <span class="tag has-text-weight-semibold">{{formatNumber lastDataPoint.rawFollowers}}</span>
+        <span class="tag has-background-grey-dark has-text-white"><i class="fas fa-fw fa-heart"></i></span>
+        <span class="tag has-text-weight-semibold is-wide">{{formatNumber lastDataPoint.rawFollowers}}</span>
       </div>
     </div>
 

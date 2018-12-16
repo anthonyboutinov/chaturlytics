@@ -1,6 +1,7 @@
 import './settings.html';
 
 import { Currencies } from '/imports/api/currencies/currencies.js';
+import { UserRates } from '/imports/api/userRates/userRates.js';
 import { Meteor } from 'meteor/meteor';
 import { ReactiveVar } from 'meteor/reactive-var';
 
@@ -8,6 +9,7 @@ Template.Page_settings.onCreated(function() {
   const instance = this;
   instance.subscribe("currencies.latest");
   instance.subscribe('userData');
+  instance.subscribe('userRates.all');
   instance.selectedCurrency = new ReactiveVar();
   instance.dataUpdated = new ReactiveVar();
 });
@@ -62,6 +64,10 @@ Template.Page_settings.helpers({
   },
 
   dataUpdated: () => Template.instance().dataUpdated.get(),
+
+  userRates() {
+    return UserRates.find();
+  }
 
 });
 

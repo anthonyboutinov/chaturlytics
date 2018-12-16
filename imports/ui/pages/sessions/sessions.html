@@ -5,8 +5,8 @@
       <div class="column is-one-third" style="overflow-y:scroll;height:calc(100vh - 3.25em);">
         <div class="section">
 
-          <h3 class="title">Broadcasts List</h3>
-          <p class="subtitle has-text-grey">Select a broadcast to view the details on it.</p>
+          <h1 class="title">Broadcasts List</h1>
+          <div class="subtitle">Select a broadcast to view the details on it.</div>
           <table class="table is-fullwidth is-hoverable is-size-6">
             {{#if Template.subscriptionsReady}}
             <tfoot>
@@ -25,10 +25,10 @@
               {{/if}}
               {{#if Template.subscriptionsReady}}
                 {{#each sessions}}
-                  <tr act-select-session="" class="{{isActive}}">
+                  <tr class="{{isSelected}}">
                     <td>
-                      <a class="do-open" href="#">
-                        {{timeframe}}
+                      <a class="do-open" href="/view/sessions/{{_id}}">
+                        {{timeframe}} {{isSelected}}
                         <div class="is-size-7 level" style="line-height:1.5rem;">
                           <div class="level-left">
 
@@ -52,7 +52,7 @@
 
                             {{#if isOneOnOne}}
                               <div class="level-item">
-                                {{#if isActive}}
+                                {{#if isSelected}}
                                   <span><i class="fas fa-fw fa-door-closed" title="This was a one-on-one session"></i></span>
                                 {{else}}
                                   <span><i class="fas fa-fw fa-door-closed has-text-grey-light" title="This was a one-on-one session"></i></span>
@@ -73,7 +73,7 @@
                   </tr>
                 {{/each}}
               {{else}}
-                <tr><td colspan="11" class="has-text-grey has-text-centered" style="padding:2rem 1rem;">Loading...</td></tr>
+                <tr><td class="loading-pulse is-large">Loading...</td></tr>
               {{/if}}
             </tbody>
           </table>

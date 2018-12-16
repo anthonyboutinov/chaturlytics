@@ -12,3 +12,14 @@ UserProfiles.getCurrentUsername = function(userId) {
   };
   return userProfile.username;
 };
+
+UserProfiles.getUserIds = function(username) {
+  const users = UserProfiles.find({username}, {
+    fields: {userId: 1}
+  });
+  if (users) {
+    return users.map((user) => user.userId);
+  } else {
+    throw "No user associated with tis username";
+  }
+}

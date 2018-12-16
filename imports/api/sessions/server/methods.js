@@ -76,8 +76,8 @@ Meteor.methods({
     _.each(dataPoints, (dataPoint) => {
       properties.deltaTokens      += dataPoint.deltaTokens;
       properties.deltaFollowers   += dataPoint.deltaFollowers;
-      properties.deltaVotesUp     += dataPoint.deltaVotesUp;
-      properties.deltaVotesDown   += dataPoint.deltaVotesDown;
+      properties.deltaVotesUp     += dataPoint.deltaVotesUp > 0 ? dataPoint.deltaVotesUp : 0;
+      properties.deltaVotesDown   += dataPoint.deltaVotesDown > 0 ? dataPoint.deltaVotesDown : 0;
       if (dataPoint.broadcastHasDropped) {
         properties.broadcastHasDropped = true;
       }
@@ -211,5 +211,27 @@ Meteor.methods({
 
     return sessionId;
 
+  },
+
+  'sessions.recomputeTimeframe'(sessionId) {
+    if (!this.userId) {
+      return false;
+    }
+    check(sessionId, String);
+    const lastDataPoint = DataPoints.findOne({
+      sessionId
+    }, {sort: {endTime: -1}});
+    const firstDataPoint = DataPoints.findOne({
+      sessionId
+    }, {sort: {endTime: 1}});
+    return Sessions.update({
+      _id: sessionId,
+      userId: this.userId,
+    }, {
+      $set: {
+        startTime: firstDataPoint.startTime,
+        endTime: lastDataPoint.endTime,
+      }
+    });
   },
 });

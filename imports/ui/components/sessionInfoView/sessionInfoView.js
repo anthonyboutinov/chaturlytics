@@ -306,7 +306,7 @@ Template.sessionInfoView.events({
 
   'click .delete-session'(event) {
     event.preventDefault();
-    if (confirm("Delete item? This cannot be undone.")) {
+    if (confirm("Delete entry? This cannot be undone.")) {
       Meteor.call('sessions.remove', this.session._id, (error) => {
         if (error) {
           alert(error.error);
@@ -342,12 +342,13 @@ Template.sessionInfoView.events({
 
   'click .delete-extraIncome'(event, template) {
     event.preventDefault();
-    console.log("click .delete-extraIncome happened");
-    const sessionId = Template.currentData().session._id;
-    const value = parseFloat(this.value);
-    const currency = this.currency;
-    // console.log({sessionId, currency, value});
-    Meteor.call('sessions.deleteExtraIncome', sessionId, currency, value);
+    if (confirm("Delete entry?")) {
+      const sessionId = Template.currentData().session._id;
+      const value = parseFloat(this.value);
+      const currency = this.currency;
+      // console.log({sessionId, currency, value});
+      Meteor.call('sessions.deleteExtraIncome', sessionId, currency, value);
+    }
   },
 
   'click [aria-controls="dropdown-menu-calculator"]'(event, template) {

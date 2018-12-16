@@ -1,6 +1,6 @@
 <template name="Page_settings">
   <div style="max-width:45rem;">
-    <h2 class="title">Settings</h2>
+    <h1 class="title">Settings</h1>
 
     <nav class="panel">
       <p class="panel-heading">
@@ -8,7 +8,22 @@
       </p>
       <div class="panel-block">
         <div>
-          <p style="margin-bottom:1em;">Choose your display currency and adjust conversion rate according to studio fees and any other fees that you might have.</p>
+          <label class="label">Current and previous values</label>
+          <table class="table is-bordered {{#unless Template.subscriptionsReady}}loading-pulse{{/unless}}" style="min-width: 60%;">
+            <tbody>
+              {{#each userRates}}
+                <tr>
+                  <td><!-- {{formatDate this.activeStartingDate}}--> From start</td>
+                  <td class="has-text-right"><span class="has-text-grey-light">1 TKN = </span>{{this.rate}} {{this.currency}}</td>
+                </tr>
+              {{else}}
+                <tr><td class="has-text-center">No data</td></tr>
+              {{/each}}
+            </tbody>
+          </table>
+
+          <label class="label">Update conversion rate</label>
+          <p class="help">Choose your display currency and adjust conversion rate according to&nbsp;studio fees and any other fees that you might&nbsp;have.</p>
           <div class="level">
             <div class="level-left">
               <div class="level-item">

@@ -14,7 +14,7 @@ Template.Page_profiles.helpers({
   },
   hasMultipleUserProfiles() {
     return UserProfiles.find().count() > 1;
-  }
+  },
 });
 
 Template.Page_profiles.events({

@@ -61,6 +61,7 @@ Template.Page_metrics.onCreated(function() {
   instance.subscribe('dataPoints.all');
   instance.subscribe('userData');
   instance.subscribe('currencies.latest');
+  instance.subscribe('userRates.all');
 
   this.grouping = new ReactiveVar('weeks');
   this.skipOffDays = new ReactiveVar(false);
@@ -74,21 +75,6 @@ Template.Page_metrics.helpers({
 
   metrics() {
     const __timer = new Date();
-
-    // function _getConversionMultiplier(usersTokenToUSDRate) {
-    //   const user = Meteor.user();
-    //   if (!user) {
-    //     return "ND";
-    //   }
-    //   const primaryCurrency = user.primaryCurrency;
-    //   const currencies = Currencies.findOne();
-    //   if (!currencies) {
-    //     return "ND";
-    //   }
-    //   const rates = currencies.rates;
-    //   const rate = rates['USD']; // TODO: get what primary currency is from user collection
-    //   return usersTokenToUSDRate * rate;
-    // }
 
     function _adjustMinMax(value, minMaxContainer) {
       if (value > minMaxContainer.max) {
@@ -148,8 +134,31 @@ Template.Page_metrics.helpers({
       ].join(';') + ';';
     }
 
-    const userRate = UserRates.findOne({});
-    const conversionMultiplier = userRate ? userRate.rate : 1;
+    function _getConversionMultiplier() {
+      const userRate = UserRates.findOne({}, {
+        sort: {activeStartingDate: -1}
+      });
+      return userRate ? userRate.rate : 1;
+    }
+
+    function _getDataPointsInRange(fromRounded, toRounded, sessionsInRange) {
+      const noSessionDataPoints = DataPoints.find({
+        sessionId: {$exists: false},
+        startTime: {$exists: true},
+        endTime: {
+          $gte: fromRounded,
+          $lt: toRounded,
+        },
+      }).fetch();
+
+      const sessionsDataPoints = DataPoints.find({
+        sessionId: {$in: sessionsInRange.map(session => session._id)},
+      }).fetch();
+
+      return noSessionDataPoints.concat(sessionsDataPoints);
+    }
+
+    const conversionMultiplier = _getConversionMultiplier();
     const instance = Template.instance();
 
     let coloration = {
@@ -210,22 +219,17 @@ Template.Page_metrics.helpers({
         // defalut behaviour
         toRounded = moment(fromToRounded.fromRounded).add(groupingStep, groupingInterval);
       }
-      const query = {
+
+      const sessionsInRange = Sessions.find({
         startTime: {$exists: true},
         endTime: {
           $gte: fromToRounded.fromRounded.toDate(),
           $lt: toRounded.toDate(),
         },
-      };
-      // const queryDuringSessions = _.cloneDeep(query);
-      // queryDuringSessions.sessionId = {$exists: true};
-
-      const sessionsInRange = Sessions.find(query, {
+      }, {
         sort: {endTime: 1}
       }).fetch();
-      const dataPointsInRange = DataPoints.find(query).fetch();
-      // const dataPointsInRangeDuringSessions = DataPoints.find(queryDuringSessions).fetch();
-      // const dataPointsInRangeDuringSessions = _.filter(dataPointsInRange, (dataPoint) => dataPoint.sessionId);
+      const dataPointsInRange = _getDataPointsInRange(fromToRounded.fromRounded.toDate(), toRounded.toDate(), sessionsInRange);
 
       const deltaTokensDuringSessions = dataPointsInRange.reduce((sum, dataPoint) => sum + (!_.isNull(dataPoint.sessionId) ? dataPoint.deltaTokens : 0), 0);
       const deltaTokens = dataPointsInRange.reduce((sum, dataPoint) => sum + dataPoint.deltaTokens, 0);
@@ -243,40 +247,20 @@ Template.Page_metrics.helpers({
             sum + moment(session.endTime).diff(moment(session.startTime), 'minutes'),
           0);
         const timeOnline = moment.duration(totalMinutesOnline, 'minutes');
-
         const timeOnlineAsHours = timeOnline.as('hours', true);
 
-        const extraCurrencyInTokens = Math.round(sessionsInRange.reduce((sum, session) => {
-          if (session.extraIncome) {
-            return sum +
-              session.extraIncome.reduce((subsum, item) => subsum + item.value / userRate.rate, 0); // FIXME: currency and conversion rate!!!
-          }
-          return sum;
-        }, 0));
-
-        const extraCurrency = sessionsInRange.reduce((sum, session) => {
-          if (session.extraIncome) {
-            return sum +
-              session.extraIncome.reduce((subsum, item) => subsum + item.value, 0);
-          }
-          return sum;
-        }, 0);
-
-        const avgExtraCurrencyInTokens = Math.round(extraCurrencyInTokens / timeOnlineAsHours);
+        const extraCurrency = UserRates.sumExtraIncomeAndTokens(Meteor.user()._id, sessionsInRange).sum;
 
         const avgTokens = Math.round(deltaTokensDuringSessions / timeOnlineAsHours);
         _adjustMinMax(avgTokens, coloration.avgTokens);
 
-        const avgPrimaryCurrency = Math.round((avgTokens + avgExtraCurrencyInTokens) * conversionMultiplier);
+        const avgPrimaryCurrency = Math.round(avgTokens * conversionMultiplier + extraCurrency / timeOnlineAsHours);
         _adjustMinMax(avgPrimaryCurrency, coloration.avgPrimaryCurrency);
 
-        // console.log({extraCurrencyInTokens, avgExtraCurrencyInTokens, extraCurrency});
-        if (extraCurrencyInTokens) {
-          totalDeltaPrimaryCurrency += extraCurrencyInTokens * conversionMultiplier;
+        if (extraCurrency !== 0) {
+          totalDeltaPrimaryCurrency += extraCurrency;
           _adjustMinMax(totalDeltaPrimaryCurrency, coloration.totalDeltaPrimaryCurrency);
         }
-
-
 
         metrics.unshift({
           startTime: fromToRounded.fromRounded,
