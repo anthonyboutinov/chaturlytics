@@ -99,7 +99,7 @@ Template.Page_logs.events({
   //   const target = event.target;
   //   Meteor.call('dataPoints.insertIndepenentlyFromRawData', target.raw.value, (error) => {
   //     if (error) {
-  //       alert(error.error);
+  //       alert(error.message);
   //     } else {
   //       target.raw.value = '';
   //     }
@@ -111,7 +111,7 @@ Template.Page_logs.events({
     if (confirm("Delete entry? This cannot be undone.")) {
       Meteor.call('dataPoints.remove', this._id, (error) => {
         if (error) {
-          alert(error.error);
+          alert(error.message);
         }
       });
     }
@@ -122,7 +122,7 @@ Template.Page_logs.events({
     if (confirm("Delete entry? This cannot be undone.")) {
       Meteor.call('sessions.remove', this._id, (error) => {
         if (error) {
-          alert(error.error);
+          alert(error.message);
         }
       });
     }
@@ -131,7 +131,7 @@ Template.Page_logs.events({
     event.preventDefault();
     Meteor.call('sessions.summarize', this._id, (error, result) => {
       if (error) {
-        alert(error.error);
+        alert(error.message);
       } else {
         console.log({result});
       }
@@ -150,7 +150,7 @@ Template.Page_logs.events({
         rawTokens,
       }, (error) => {
         if (error) {
-          alert(error.error);
+          alert(error.message);
         }
       });
     } catch(e) {
@@ -171,7 +171,7 @@ Template.Page_logs.events({
         endTime: endTime.toDate(),
       }, (error) => {
         if (error) {
-          alert(error.error);
+          alert(error.message);
         }
       });
     } catch (error) {
@@ -195,7 +195,7 @@ Template.Page_logs.events({
   //   event.preventDefault();
   //   const target = event.target;
   //   Meteor.call('dataPoints.getDataPointFromChaturbate', target.url.value, (error) => {
-  //     if (error) { alert(error.error); }
+  //     if (error) { alert(error.message); }
   //   });
   // }
 });

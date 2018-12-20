@@ -309,7 +309,7 @@ Template.sessionInfoView.events({
     if (confirm("Delete entry? This cannot be undone.")) {
       Meteor.call('sessions.remove', this.session._id, (error) => {
         if (error) {
-          alert(error.error);
+          alert(error.message);
         }
       });
     }

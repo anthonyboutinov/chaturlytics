@@ -7,80 +7,63 @@
         Display Currency
       </p>
       <div class="panel-block">
-        <div>
-          <label class="label">Current and previous values</label>
-          <table class="table is-bordered {{#unless Template.subscriptionsReady}}loading-pulse{{/unless}}" style="min-width: 60%;">
-            <tbody>
-              {{#each userRates}}
-                <tr>
-                  <td><!-- {{formatDate this.activeStartingDate}}--> From start</td>
-                  <td class="has-text-right"><span class="has-text-grey-light">1 TKN = </span>{{this.rate}} {{this.currency}}</td>
-                </tr>
-              {{else}}
-                <tr><td class="has-text-center">No data</td></tr>
-              {{/each}}
-            </tbody>
-          </table>
+        <div class="is-fullwidth">
+          <div class="panel-subblock">
+            <label class="label">Current and previous values</label>
+            <table class="table is-fullwidth {{#unless Template.subscriptionsReady}}loading-pulse{{/unless}}">
+              <!-- <tfoot>
+                <tr><td class="has-text-center" colspan="3">
+                  <a class="button is-white is-fullwidth" id="add-conversion-rate">
+                    <span class="icon is-small"><i class="fas fa-plus-circle has-text-primary"></i></span>
+                    <span>Add</span>
+                  </a>
+                </td></tr>
+              </tfoot> -->
+              <tbody class="{{#if hasMultipleUserRates}}em-first{{/if}}">
+                {{#each userRates}}
+                  <tr>
+                    <td>{{#if fromStart}}From start{{else}}Starting {{formatDate this.activeStartingDate}}{{/if}}</td>
+                    <td class="has-text-right">
+                      <span class="has-text-grey-light">1 TKN = </span>{{this.rate}} {{this.currency}}
 
-          <label class="label">Update conversion rate</label>
-          <p class="help">Choose your display currency and adjust conversion rate according to&nbsp;studio fees and any other fees that you might&nbsp;have.</p>
-          <div class="level">
-            <div class="level-left">
-              <div class="level-item">
-                1 Token
-              </div>
-              <div class="level-item">
-                =
-              </div>
-              <div class="level-item">
-                <div class="control">
-                  <div class="select {{#unless userCurrencies}}is-loading{{/unless}}">
-                    <select id="select-currency" {{disabledAttr}}>
-                      <option>[Select]</option>
-                      {{#each currencyKeys}}
-                        <option value="{{this}}">{{this}}</option>
-                        <!-- <div style="padding: 0.5em 1em;min-width: 6em;display:inline-block;cursor:default;">
-                          {{#if currencyToggleOn}}
-                            <div class="toggle-currency-display">
-                              <i class="fas fa-fw fa-toggle-on has-text-success"></i>&nbsp;{{this}}
-                            </div>
-                          {{else}}
-                          <div class="toggle-currency-display">
-                            <i class="fas fa-fw fa-toggle-off has-text-grey"></i>&nbsp;{{this}}
+                      <div class="dropdown is-hoverable is-right">
+                        <div class="dropdown-trigger">
+                          <button class="button is-tiny" aria-haspopup="true" aria-controls="dropdown-menu-session-{{_id}}">
+                            <span class="icon is-small">
+                              <i class="fas fa-angle-down" aria-hidden="true"></i>
+                            </span>
+                          </button>
+                        </div>
+                        <div class="dropdown-menu" role="menu" id="dropdown-menu-userRate-{{this._id}}">
+                          <div class="dropdown-content">
+                            <a class="dropdown-item edit-userRate">Edit</a>
+                            <a class="dropdown-item delete-userRate has-text-danger">Delete</a>
                           </div>
-                          {{/if}}
-                        </div> -->
-                      {{/each}}
-                    </select>
-                  </div>
-                </div>
-              </div><!-- eof level-item -->
-              <div class="level-item">
-                <div class="control">
-                  <input class="input" {{disabledUnlessSelectedCurrency}} id="user-defined-rate" type="number" autocomplete="false" value="{{userConversionRateHintValue}}">
-                </div>
-              </div>
-              <div class="level-item">
-                <div class="control">
-                  <button class="button is-primary" id="update-user-rate">Update</button>
-                </div>
-              </div>
-              <!-- <div class="level-item">
-                <div class="control">
-                  <button class="button is-primary">Create new conversion rate</button>
-                </div>
-              </div> -->
-            </div>
-          </div><!-- eof level -->
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                {{else}}
+                  <tr><td class="has-text-center" colspan="3">No data</td></tr>
+                {{/each}}
+              </tbody>
+            </table>
+
+            {{#unless updateConversionRateVariable}}
+              <a class="button is-white is-fullwidth" id="add-userRate">
+                <span class="icon is-small"><i class="fas fa-plus-circle has-text-primary"></i></span>
+                <span>Add exchange rate or change curency</span>
+              </a>
+            {{/unless}}
+          </div>
+
+          {{#with updateConversionRateVariable}}
+            {{> updateConversionRateSettingView}}
+          {{/with}}
+
         </div>
       </div>
     </nav>
-
-    {{#if dataUpdated}}
-      <div class="notification is-success">
-        Data updated.
-      </div>
-    {{/if}}
 
 
     <!-- <nav class="panel">

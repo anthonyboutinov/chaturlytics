@@ -23,7 +23,7 @@ Template.Page_profiles.events({
     const target = event.target;
     Meteor.call('userProfiles.insert', target.url.value, (error) => {
       if (error) {
-        alert(error.error);
+        alert(error.message);
       } else {
         target.url.value = '';
       }

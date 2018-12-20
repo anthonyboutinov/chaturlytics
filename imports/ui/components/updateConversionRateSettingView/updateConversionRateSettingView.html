@@ -1,0 +1,81 @@
+<template name="updateConversionRateSettingView">
+  {{#if dataUpdated}}
+    <div class="notification is-success close-component">
+      <button class="delete"></button>
+      Data updated.
+    </div>
+  {{else}}
+    <form class="panel-subblock" id="update-conversion-rate-form">
+      <label class="label">Update conversion rate</label>
+      <p class="help">Choose your display currency and adjust conversion rate according to&nbsp;studio fees and any other fees that you might&nbsp;have.</p>
+      <div class="level">
+        <div class="level-left">
+          <div class="level-item">1 Token</div>
+          <div class="level-item">=</div>
+          <div class="level-item">
+            <div class="control">
+              {{#if currency}}
+                <div class="select">
+                  <select disabled>
+                    <option selected>{{currency}}</option>
+                  </select>
+                </div>
+              {{else}}
+                <div class="select {{#unless userCurrencies}}is-loading{{/unless}}">
+                  <select id="select-currency" {{disabledAttr}}>
+                    <option>[Select]</option>
+                    {{#each currencyKeys}}
+                      <option value="{{this}}">{{this}}</option>
+                    {{/each}}
+                  </select>
+                </div>
+              {{/if}}
+            </div>
+          </div><!-- eof level-item -->
+          <div class="level-item">
+            <div class="control">
+              <input class="input" {{disabledUnlessSelectedCurrency}} id="user-defined-rate" type="number" min="0.01" step="any" autocomplete="false" value="{{userConversionRateHintValue}}">
+            </div>
+          </div>
+          {{#if currency}}
+            <div class="control">
+              <button class="button is-primary" id="update-user-rate">Done</button>
+            </div>
+          {{/if}}
+        </div>
+      </div><!-- eof level -->
+      {{#unless currency}}
+        <div class="level">
+          <div class="level-left">
+            <div class="level-item help">Make this rate effective starting</div>
+            <div class="level-item">
+              <label class="button is-inline set-dateNow-true">
+                <span class="icon is-small">
+                  {{#if dateNow}}
+                    <span>
+                      <i class="fas fa-dot-circle has-text-info"></i>
+                    </span>
+                  {{else}}
+                    <span>
+                      <i class="fas fa-circle has-text-grey-light"></i>
+                    </span>
+                  {{/if}}
+                </span>
+                <span>Now</span>
+              </label>
+            </div>
+            <div class="level-item">or</div>
+            <div class="level-item">
+              <div class="control">
+                <input type="date" id="conversion-rate-date" class="input set-dateNow-false" autocomplete="false" placeholder="{{formatDate moment 'll'}}">
+              </div>
+            </div>
+          </div>
+        </div><!-- eof level -->
+        <div class="control">
+          <input type="submit" value="Done" class="button is-primary">
+        </div>
+      {{/unless}}
+    </form>
+  {{/if}}
+</template>

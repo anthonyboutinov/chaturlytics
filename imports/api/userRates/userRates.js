@@ -29,7 +29,11 @@ UserRates.sumExtraIncomeAndTokens = function(userId, sessions, tokens = 0) {
   }
 
   function _latestRate(userRates) {
-    return userRates[0].rate;
+    if (userRates[0]) {
+      return userRates[0].rate;
+    } else {
+      return 1;
+    }
   }
 
   const userRates = UserRates.find({ userId }, {

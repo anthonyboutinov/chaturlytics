@@ -1,5 +1,5 @@
 Handlebars.registerHelper('formatNumber', function(value) {
-  return value && typeof value === 'number' ? value.toLocaleString('en') : value;
+  return value && typeof value === 'number' ? (Math.round(value * 100) / 100).toLocaleString('en') : value;
 });
 
 Handlebars.registerHelper('or', function(a, b) {

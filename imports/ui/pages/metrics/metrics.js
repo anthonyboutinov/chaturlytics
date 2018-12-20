@@ -426,7 +426,9 @@ Template.Page_metrics.helpers({
   },
 
   userCurrencyLabel() {
-    const userRate = UserRates.findOne({});
+    const userRate = UserRates.findOne({}, {
+      sort: {activeStartingDate: -1}
+    });
     return userRate ? userRate.currency : null;
   },
 
@@ -465,8 +467,9 @@ Template.Page_metrics.events({
 
   'click .set-grouping'(event, template) {
     event.preventDefault();
-    template.grouping.set(this.toString());
+    const self = this;
     _clearSelection(template);
+    template.grouping.set(self.toString());
   },
 
   'click .toggle-skip-offdays'(event, template) {

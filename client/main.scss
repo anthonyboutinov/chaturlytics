@@ -34,7 +34,8 @@ body {
   right: auto;
   bottom: 0;
   left: 0;
-  width: 16rem;
+  min-width: 16rem;
+  width: 13vw;
   height: auto;
   // background: #f8f8f8;
   // background-color: #344258;
@@ -110,7 +111,8 @@ body {
 }
 
 .navbar-brand {
-  width: 17rem;
+  min-width: 17rem;
+  width: 13vw;
 }
 
 .card-dashboard {
@@ -264,7 +266,7 @@ body {
   font-weight: 600 !important;
 }
 
-.panel-block p {
+.panel-block p, form > p {
   margin-bottom: 1em;
 }
 
@@ -481,4 +483,51 @@ h1.title {
 
 .subtitle {
   color: hsl(0, 0%, 48%); // text-grey
+}
+
+table {
+  td, th {
+    &.has-regular-button {
+      padding-top: 0.12em;
+      padding-bottom: 0.12em;
+    }
+  }
+}
+
+.button.is-inline {
+  border: none;
+  padding-left: 0.3em;
+  padding-right: 0.3em;
+}
+
+.panel-subblock:not(:last-child) {
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .section.is-primary {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+}
+.container.is-primary {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.notification.close-component {
+  cursor: pointer;
+  &:hover .delete {
+    background-color: rgba(10, 10, 10, .3);
+  }
+}
+
+.dropdown {
+  text-align: left;
+  font-weight: normal;
+}
+
+tbody.em-first > tr:first-child {
+  font-weight: bolder;
 }
