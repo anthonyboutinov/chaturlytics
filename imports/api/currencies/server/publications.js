@@ -15,7 +15,7 @@ import { Currencies } from '../currencies.js';
 // });
 
 Meteor.publish('currencies.latest', function () {
-  Meteor._sleepForMs(500);
+  // Meteor._sleepForMs(500);
   return Currencies.find({}, {
     sort: { date: -1 },
     limit: 1

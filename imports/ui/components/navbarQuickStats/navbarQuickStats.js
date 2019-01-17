@@ -41,18 +41,25 @@ Template.navbarQuickStats.onCreated(function() {
   instance.subscribe('userData');
 
   instance.tokensPerHour = new ReactiveVar();
-  instance.recomputationTrigger = new ReactiveVar(0);
 
-  instance.tokensPerHourTwoHoursIntervalHandle = Meteor.setInterval((function() {
+  instance.intervalHandlers = [];
+  instance.intervalHandlers.push(Meteor.setInterval((function() {
+
+    instance.recomputationTrigger = new ReactiveVar(0);
     instance.recomputationTrigger.set(instance.recomputationTrigger.get() + 1);
     _getTokensPerHour(instance);
-  }), 1000 * 60 * 60 * 2); // update every 2 hours
+  }), 1000 * 30)); // update every 30 mins
   _getTokensPerHour(instance);
+
+  instance.recomputationTriggerOneMinute = new ReactiveVar(0);
+  instance.intervalHandlers.push(Meteor.setInterval((function() {
+    instance.recomputationTriggerOneMinute.set(instance.recomputationTriggerOneMinute.get() + 30);
+  }), 1000)); // update every min
 
 });
 
 Template.navbarQuickStats.onDestroyed(function() {
-  Meteor.clearInterval(this.tokensPerHourTwoHoursIntervalHandle);
+  this.intervalHandlers.forEach((interval) => Meteor.clearInterval(interval));
 });
 
 function _getTokensPerHour(instance) {
@@ -88,7 +95,6 @@ Template.navbarQuickStats.helpers({
     const lastSession = Sessions.findOne({}, {
       sort: {startTime: -1}
     });
-    console.log({lastSession});
     if (lastSession && !lastSession.endTime) {
       return true;
     }
@@ -100,7 +106,7 @@ Template.navbarQuickStats.helpers({
   },
 
   timeOnline() {
-    Template.instance().recomputationTrigger.get();
+    Template.instance().recomputationTriggerOneMinute.get();
     const liveSession = Sessions.findOne({
       endTime: null
     });

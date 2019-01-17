@@ -61,7 +61,15 @@ Meteor.methods({
       return null;
     };
 
-    const dataPoints = DataPoints.find({sessionId: _id}).fetch();
+    const dataPointsCursor = DataPoints.find({sessionId: _id});
+
+    // extra safe guard
+    if (!dataPointsCursor) {
+      Meteor.call('sessions.remove', _id);
+      return;
+    }
+
+    const dataPoints = dataPointsCursor.fetch();
     let properties = {
       deltaTokens: 0,
       deltaVotesUp: 0,
@@ -73,7 +81,7 @@ Meteor.methods({
     };
     let isOneOnOne = true;
 
-    _.each(dataPoints, (dataPoint) => {
+    dataPoints.forEach((dataPoint) => {
       properties.deltaTokens      += dataPoint.deltaTokens;
       properties.deltaFollowers   += dataPoint.deltaFollowers;
       properties.deltaVotesUp     += dataPoint.deltaVotesUp > 0 ? dataPoint.deltaVotesUp : 0;
@@ -221,6 +229,13 @@ Meteor.methods({
     const lastDataPoint = DataPoints.findOne({
       sessionId
     }, {sort: {endTime: -1}});
+
+    // extra safe guard
+    if (!lastDataPoint) {
+      Meteor.call('sessions.remove', sessionId);
+      return;
+    }
+
     const firstDataPoint = DataPoints.findOne({
       sessionId
     }, {sort: {endTime: 1}});

@@ -31,3 +31,4 @@ momentjs:moment
 littledata:synced-cron
 oaf:moment-duration-format
 http
+stevezhu:lodash

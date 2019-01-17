@@ -27,7 +27,6 @@ function _getLabelForErrorCode(errorCode) {
 
 Handlebars.registerHelper('sessionErrorMessage', function(session, asString = true) {
   if (!session) return null;
-  console.log({session});
   let errors = [];
   if (session.broadcastHasDropped) errors.push("The video stream has dropped for a few minutes.");
   if (session.errorCode) errors.push(_getLabelForErrorCode(session.errorCode));

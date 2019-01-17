@@ -60,7 +60,7 @@ Template.Page_metrics.onCreated(function() {
   instance.subscribe('sessions.all');
   instance.subscribe('dataPoints.all');
   instance.subscribe('userData');
-  instance.subscribe('currencies.latest');
+  instance.subscribe('currencies.latest'); // FIXME: subscribe to all! Or think of something else...
   instance.subscribe('userRates.all');
 
   this.grouping = new ReactiveVar('weeks');
@@ -86,6 +86,9 @@ Template.Page_metrics.helpers({
     }
 
     function _getFromToRounded(descriptiveGroupingInterval) {
+      // Note: This function is the second most computationally expensive piece of code here
+      //// TODO: Store temporarely with short expiration time (14 min)
+
       const edgeDataPointQuery = { startTime: {$exists: true} };
       const firstOne = DataPoints.findOne(edgeDataPointQuery, {
         sort: {endTime: 1},
@@ -142,6 +145,8 @@ Template.Page_metrics.helpers({
     }
 
     function _getDataPointsInRange(fromRounded, toRounded, sessionsInRange) {
+      // Note: This function is the most computationally expensive piece of code here
+
       const noSessionDataPoints = DataPoints.find({
         sessionId: {$exists: false},
         startTime: {$exists: true},
@@ -195,6 +200,9 @@ Template.Page_metrics.helpers({
     }
 
     const fromToRounded = _getFromToRounded(descriptiveGroupingInterval);
+    if (!fromToRounded) {
+      return;
+    }
 
     let metrics = [];
 
@@ -238,7 +246,13 @@ Template.Page_metrics.helpers({
 
       _adjustMinMax(deltaTokens, coloration.tokens);
 
-      let totalDeltaPrimaryCurrency = Math.round(deltaTokens * conversionMultiplier);
+      // pre-fetch userRates so that sumExtraIncomeAndTokens doesn't have to do that over and over
+      const userRates = UserRates.find({ userId: Meteor.user()._id }, {
+        sort: {activeStartingDate: -1}
+      }).fetch();
+
+      // let totalDeltaPrimaryCurrency = Math.round(deltaTokens * conversionMultiplier); // FIXME: replace conversionMultiplier with dynamic function
+      let totalDeltaPrimaryCurrency = dataPointsInRange.reduce((sum, dataPoint) => sum + UserRates.dataPointsTokensToCurrency(dataPoint, userRates), 0);
       _adjustMinMax(totalDeltaPrimaryCurrency, coloration.totalDeltaPrimaryCurrency);
 
       if (sessionsInRange.length) {
@@ -249,12 +263,12 @@ Template.Page_metrics.helpers({
         const timeOnline = moment.duration(totalMinutesOnline, 'minutes');
         const timeOnlineAsHours = timeOnline.as('hours', true);
 
-        const extraCurrency = UserRates.sumExtraIncomeAndTokens(Meteor.user()._id, sessionsInRange).sum;
+        const extraCurrency = UserRates.sumExtraIncomeAndTokens(sessionsInRange, userRates).sum;
 
         const avgTokens = Math.round(deltaTokensDuringSessions / timeOnlineAsHours);
         _adjustMinMax(avgTokens, coloration.avgTokens);
 
-        const avgPrimaryCurrency = Math.round(avgTokens * conversionMultiplier + extraCurrency / timeOnlineAsHours);
+        const avgPrimaryCurrency = Math.round((deltaTokensDuringSessions * conversionMultiplier + extraCurrency) / timeOnlineAsHours);  // FIXME: replace conversionMultiplier with dynamic function
         _adjustMinMax(avgPrimaryCurrency, coloration.avgPrimaryCurrency);
 
         if (extraCurrency !== 0) {
@@ -310,10 +324,8 @@ Template.Page_metrics.helpers({
 
     instance.coloration.set(coloration);
 
-    console.log({coloration, metrics});
-
     if (coloration.tokens.delta) {
-      _.each(metrics, (metric) => {
+      metrics.forEach((metric) => {
         metric.deltaTokensStyle = _defineStyle(metric.deltaTokens, coloration.tokens, metric.numBroadcasts);
         metric.avgTokensStyle   = _defineStyle(metric.avgTokens,   coloration.avgTokens, metric.numBroadcasts);
         metric.totalDeltaPrimaryCurrencyStyle = _defineStyle(metric.totalDeltaPrimaryCurrency, coloration.totalDeltaPrimaryCurrency, metric.numBroadcasts);

@@ -518,7 +518,12 @@ table {
 
 .notification.close-component {
   cursor: pointer;
+
+  .delete {
+    display: none;
+  }
   &:hover .delete {
+    display: inline-block;
     background-color: rgba(10, 10, 10, .3);
   }
 }

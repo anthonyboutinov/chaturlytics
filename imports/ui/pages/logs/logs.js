@@ -132,8 +132,6 @@ Template.Page_logs.events({
     Meteor.call('sessions.summarize', this._id, (error, result) => {
       if (error) {
         alert(error.message);
-      } else {
-        console.log({result});
       }
     });
   },
@@ -161,13 +159,23 @@ Template.Page_logs.events({
   'click .update-dataPoint-fixtime'(event, template) {
     event.preventDefault();
     try {
+
       const endTime = moment(prompt("Enter End DateTime", moment(this.endTime).format(moment.HTML5_FMT.DATETIME_LOCAL)), [moment.HTML5_FMT.DATETIME_LOCAL, moment.ISO_8601]);
       console.log({endTime});
       if (!endTime || !endTime.isValid() || (endTime).year() < 2000 ) {
         alert("Action aborted");
         return;
       }
+
+      const prevDataPoint = DataPoints.findOne({
+        endTime: {$lt: endTime.toDate()}
+      }, {
+        sort: {endTime: -1},
+        limit: 1,
+      });
+
       Meteor.call('dataPoints.update', this._id, {
+        startTime: prevDataPoint.endTime,
         endTime: endTime.toDate(),
       }, (error) => {
         if (error) {

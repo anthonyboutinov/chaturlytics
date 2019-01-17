@@ -423,11 +423,16 @@ Meteor.methods({
 
     const username = UserProfiles.getCurrentUsername(this.userId);
 
+    const userRates = UserRates.find({ userId: this.userId }, {
+      sort: {activeStartingDate: -1}
+    }).fetch();
+
     let summary = {
       sum: 0,
       hours: 0,
       currency: 'TKN',
     };
+
     DataPoints.find({
       userId: this.userId,
       username,
@@ -440,9 +445,9 @@ Meteor.methods({
         startTime: 1,
         endTime: 1,
       }
-    }).map(function(doc) {
-      summary.sum += doc.deltaTokens;
-      summary.hours += _hours(doc);
+    }).map(function(dataPoint) {
+      summary.sum += doIncludeExtraIncome ? UserRates.dataPointsTokensToCurrency(dataPoint, userRates) : dataPoint.deltaTokens;
+      summary.hours += _hours(dataPoint);
     });
 
     if (doIncludeExtraIncome) {
@@ -457,13 +462,22 @@ Meteor.methods({
           endTime: 1,
         }
       }).fetch();
-      const _summary = UserRates.sumExtraIncomeAndTokens(this.userId, sessions, summary.sum); // That would return value in latest Currency
-      summary.sum = _summary.sum;
+      const _summary = UserRates.sumExtraIncomeAndTokens(sessions, userRates); // That would return value in latest Currency
+      summary.sum += _summary.sum;
       summary.currency = _summary.currency;
-      summary.hours += sessions.reduce(doc => _hours(doc));
+      // summary.hours += sessions.reduce(doc => _hours(doc));
     }
 
     summary.avg = Math.round(summary.sum / summary.hours);
+
+    // console.log("getAvgTokensPerHourDuringOnlineTime:", {
+    //   oldestDataPoint,
+    //   doIncludeExtraIncome,
+    //   sum: summary.sum,
+    //   hours: summary.hours,
+    //   avg: summary.avg,
+    // });
+
     return summary;
   },
 
@@ -480,11 +494,13 @@ Meteor.methods({
     });
     if (result) {
       if (_.has(setOptions, 'endTime')) {
-        const sessionId = DataPoints.findOne({
-          _id,
-          userId: this.userId,
-        }, {fields: {sessionId: 1}}).sessionId;
-        Meteor.call('sessions.recomputeTimeframe', sessionId);
+        const thisDataPoint = DataPoints.findOne({_id}, {fields: {sessionId: 1}});
+        if (thisDataPoint) {
+          const sessionId = thisDataPoint.sessionId;
+          if (sessionId) {
+            Meteor.call('sessions.recomputeTimeframe', sessionId);
+          }
+        }
       }
     }
     return result;
