@@ -13,12 +13,6 @@ Date.prototype.subMinutes = function(m){
     return this;
 }
 
-// function _correctTimezone(date) {
-//   const newDate = new Date(date.getTime());
-//   newDate.subMinutes(-3*60); // add 3 hours to compensate for time zone
-//   return newDate;
-// }
-
 let trySlowingDownALittleTimer = null;
 
 Meteor.methods({
@@ -131,26 +125,6 @@ Meteor.methods({
 
   },
 
-  // 'dataPoints.correctTimezone'() {
-  //   const session  = Sessions.findOne({});
-  //   DataPoints.update({numViewers:46}, {
-  //     $set: {
-  //       endTime:session.endTime,
-  //       sessionId: session._id
-  //     }
-  //   });
-    // const lastDataPoint = DataPoints.findOne({numViewers: 46});
-    // console.log({lastDataPoint});
-    // const correctedEndTime = _correctTimezone(lastDataPoint.endTime);
-    // console.log({correctedEndTime});
-    // const updated = DataPoints.update({numViewers:46}, {
-    //   $set: {
-    //     endTime: correctedEndTime
-    //   }
-    // });
-    // console.log(DataPoints.findOne({numViewers: 46}));
-  // },
-
   'dataPoints.insertIndepenentlyFromRawData'(rawDataPoint, username) {
 
     const __timer = new Date();
@@ -256,13 +230,14 @@ Meteor.methods({
         {
           console.log("CASE 2.2: session finished, updating session");
           try {
+            const dateFormat = "YYYY-MM-DDTHH:mm ZZ";
             // substring 16 chars because we don't need milliseconds, then add timezone of -5h, then parse as utc in the specified format, then to local and to date
-            const toLocalTime = moment.utc(rawDataPoint.last_broadcast.substring(0, 16) + ' -07:00', "YYYY-MM-DDTHH:mm ZZ").local().toDate();
-            console.log({
-              toLocalTime,
-              minusFive: moment.utc(rawDataPoint.last_broadcast.substring(0, 16) + ' -05:00', "YYYY-MM-DDTHH:mm ZZ").local().toDate(),
-              minusEight: moment.utc(rawDataPoint.last_broadcast.substring(0, 16) + ' -08:00', "YYYY-MM-DDTHH:mm ZZ").local().toDate()
-            });
+            const toLocalTime = moment.utc(rawDataPoint.last_broadcast.substring(0, 16) + ' -07:00', dateFormat).local().toDate();
+            // console.log({
+            //   toLocalTime,
+            //   minusFive: moment.utc(rawDataPoint.last_broadcast.substring(0, 16) + ' -05:00', dateFormat).local().toDate(),
+            //   minusEight: moment.utc(rawDataPoint.last_broadcast.substring(0, 16) + ' -08:00', dateFormat).local().toDate()
+            // });
             console.log({initialLastBroadcast: rawDataPoint.last_broadcast, toLocalTime});
             rawDataPoint.last_broadcast = toLocalTime; //moment.utc(rawDataPoint.last_broadcast).toDate();
             // rawDataPoint.last_broadcast = momentTZ().tz(rawDataPoint.last_broadcast, "America/Denver").toDate();

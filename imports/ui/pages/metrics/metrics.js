@@ -213,6 +213,7 @@ Template.Page_metrics.helpers({
     while (moment.max(fromToRounded.fromRounded, fromToRounded.lastDatetimeRounded) === fromToRounded.lastDatetimeRounded) {
       let toRounded;
       if (doSwap) {
+
         if (swapHandle) {
           toRounded = moment(fromToRounded.fromRounded).date(1).add(1, 'month');
         } else {
@@ -220,9 +221,13 @@ Template.Page_metrics.helpers({
           toRounded = moment(fromToRounded.fromRounded).add(groupingStep, groupingInterval);
           if (toRounded.date() >= 28) {
             toRounded = moment(fromToRounded.fromRounded).date(1).add(1, 'month');
+          } else if (toRounded.date() > 1 && toRounded.date() <= 3) {
+            toRounded = toRounded.set('date', 1);
           }
         }
+
         swapHandle != swapHandle;
+
       } else {
         // defalut behaviour
         toRounded = moment(fromToRounded.fromRounded).add(groupingStep, groupingInterval);
