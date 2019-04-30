@@ -16,19 +16,37 @@
             </tfoot>
             {{/if}}
             <tbody>
-              {{#if hasOngoingSession}}
-                <tr class="has-background-white-ter has-text-grey is-size-7">
+              {{#with ongoingSession}}
+                <!-- <tr class="has-background-white-ter has-text-grey is-size-7">
                   <td class="has-text-centered" style="padding-top:1.5rem;padding-bottom:1.5rem;">
                     <i class="fas fa-fw fa-hourglass-half"></i> Broadcast live
                   </td>
+                </tr> -->
+                <tr class="{{isSelected}}">
+                  <td>
+                    <a class="do-open" href="/view/sessions/{{_id}}">
+                      <strong>Current Live Broadcast</strong>
+                      <div class="{{#unless isSelected}}has-text-grey{{/unless}} line-clamp-2">{{{notePreview}}}</div>
+                      <div class="is-size-7 level" style="line-height:1.5rem;">
+                        <div class="level-left">
+
+                          <div class="level-item">
+                            {{duration}}
+                          </div>
+
+                        </div>
+                      </div>
+                    </a>
+                  </td>
                 </tr>
-              {{/if}}
+              {{/with}}
               {{#if Template.subscriptionsReady}}
                 {{#each sessions}}
                   <tr class="{{isSelected}}">
                     <td>
                       <a class="do-open" href="/view/sessions/{{_id}}">
-                        {{timeframe}} {{isSelected}}
+                        <strong>{{timeframe}}</strong>
+                        <div class="{{#unless isSelected}}has-text-grey{{/unless}} line-clamp-2">{{{notePreview}}}</div>
                         <div class="is-size-7 level" style="line-height:1.5rem;">
                           <div class="level-left">
 
@@ -37,7 +55,7 @@
                             </div>
 
                           </div>
-                          <div class="level-right {{#unless isActive}}has-text-grey{{/unless}}">
+                          <div class="level-right {{#unless isSelected}}has-text-grey{{/unless}}">
 
                             <div class="level-item">
                               {{formatNumber deltaTokens}} TKN
@@ -46,7 +64,7 @@
 
                             {{#if sessionHasDropped}}
                               <div class="level-item">
-                                <i class="fas fa-fw fa-video {{#unless isActive}}has-text-warning{{/unless}}" title="Warning: Broadcast has dropped for a few minutes during session"></i>
+                                <i class="fas fa-fw fa-video {{#unless isSelected}}has-text-warning{{/unless}}" title="Warning: Broadcast has dropped for a few minutes during session"></i>
                               </div>
                             {{/if}}
 

@@ -295,7 +295,11 @@ const _debouncedNoteSubmit = _.debounce((sessionId, noteContent) => {
 Template.sessionInfoView.events({
 
   'blur form[name="noteForm"] .contenteditable, keyup form[name="noteForm"] .contenteditable'(event) {
-    _debouncedNoteSubmit(this.session._id, event.currentTarget.innerText);
+    _debouncedNoteSubmit(
+      this.session._id, event.currentTarget.innerText
+      .replace(/Notice: /g, '') // remove Notice: prefixes
+      .replace(/(?:\r\n|\r|\n)/g, '<br>' // replace new lines with BR tags
+    ));
   },
 
   'focus form[name="noteForm"] .contenteditable'(event) {
@@ -327,6 +331,7 @@ Template.sessionInfoView.events({
     const valueField = template.find('#extraIncomeValueAdd');
     const value = parseFloat(valueField.value);
     const currency = userRate.currency;
+    const isHourlyRated = template.find("#extraIncomeIsHourlyRated").checked;
     valueField.value = "";
 
     template.timerHandle = Meteor.setInterval((function() {
@@ -334,7 +339,7 @@ Template.sessionInfoView.events({
     }), 1000 * 2); // 2 sec
     template.processingNewExtraIncome.set(true);
 
-    Meteor.call('sessions.insertExtraIncome', this.session._id, currency, value, function(error, result) {
+    Meteor.call('sessions.insertExtraIncome', this.session._id, currency, value, isHourlyRated, function(error, result) {
       Meteor.clearInterval(template.timerHandle);
       template.processingNewExtraIncome.set(false);
     });
@@ -346,8 +351,8 @@ Template.sessionInfoView.events({
       const sessionId = Template.currentData().session._id;
       const value = parseFloat(this.value);
       const currency = this.currency;
-      // console.log({sessionId, currency, value});
-      Meteor.call('sessions.deleteExtraIncome', sessionId, currency, value);
+      const isHourlyRated = this.isHourlyRated;
+      Meteor.call('sessions.deleteExtraIncome', sessionId, currency, value, isHourlyRated);
     }
   },
 

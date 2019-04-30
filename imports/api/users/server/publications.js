@@ -9,6 +9,7 @@ Meteor.publish('userData', function () {
         primaryCurrency: 1,
         displayOption_tokensPerHour: 1,
         displayOption_tokensPerHourExtraIncome: 1,
+        displayOption_metricsGrouping: 1,
       }
     });
   } else {

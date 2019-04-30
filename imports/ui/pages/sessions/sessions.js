@@ -36,7 +36,7 @@ Template.Page_sessions.helpers({
     });
   },
 
-  hasOngoingSession() {
+  ongoingSession() {
     return Sessions.findOne({
       endTime: null,
     });
@@ -100,10 +100,11 @@ Template.Page_sessions.helpers({
 
   isSelected() {
     const session = Template.instance().currentlyViewedSession.get();
-    return
+    const result =
       (session && this._id === session._id)
       // || !session && FlowRouter.getParam('_id') === this._id
       ? "is-selected" : null;
+    return result;
   },
 
   totalExtraIncome() {
@@ -111,6 +112,15 @@ Template.Page_sessions.helpers({
       return this.extraIncome.reduce((sum, item) => sum + item.value, 0).toLocaleString('en')
         + ' ' + this.extraIncome[0].currency;
     }
+  },
+
+  notePreview() { // FIXME: set it as part of specification and rm all instances of this method from such places
+    if (!this.note) {
+      return;
+    }
+    const limit = 128;
+    const substring = this.note.replace(/<br> *<br>/g, '<br>').substring(0, limit);
+    return substring + (this.note.length > limit ? '…' : '');
   },
 
 });

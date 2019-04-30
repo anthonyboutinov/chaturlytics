@@ -21,7 +21,7 @@ Template.updateConversionRateSettingView.helpers({
     return user ? user.currencies : false;
   },
 
-  primaryCurrency() {
+  primaryCurrency() { // FIXME: Seems like I don't use primaryCurrency at all anywhere actually!
     const user = Meteor.user();
     return user ? user.primaryCurrency : false;
   },

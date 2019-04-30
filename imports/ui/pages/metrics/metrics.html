@@ -6,22 +6,8 @@
         <h1 class="title">Metrics</h1>
       </div>
     </div>
+    {{#if userDataReady}}
     <div class="level-right">
-
-      <div class="level-item">
-        <button class="button toggle-display-notes">
-          {{#unless displayNotes}}
-            <span class="icon is-small">
-              <i class="fas fa-fw fa-toggle-off" aria-hidden="true"></i>
-            </span>
-          {{else}}
-            <span class="icon is-small">
-              <i class="fas fa-fw fa-toggle-on" aria-hidden="true"></i>
-            </span>
-          {{/unless}}
-          <span> Notes</span>
-        </button>
-      </div>
 
       {{#if skipOffDaysToggleApplicable}}
         <div class="level-item">
@@ -63,6 +49,40 @@
       </div>
 
     </div>
+    {{/if}}
+  </div>
+
+  {{#if userDataReady}}
+
+  <div class="columns margin-bottom-medium">
+
+    <div class="column is-one-third">
+      <div class="panel">
+        <h2 class="panel-heading">Time Online</h2>
+        <div class="panel-block">
+          <div style="width:100%;height:200px;">[Chart]</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="column is-one-third">
+      <div class="panel">
+        <h2 class="panel-heading">Income In Tokens</h2>
+        <div class="panel-block">
+          <div style="width:100%;height:200px;">[Chart]</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="column is-one-third">
+      <div class="panel">
+        <h2 class="panel-heading">Total Income, <span class="tag is-round" style="background: #ebebeb; margin-bottom: -1em;">{{userCurrencyLabel}}</span></h2>
+        <div class="panel-block">
+          <div style="width:100%;height:200px;">[Chart]</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- <div class="box">
@@ -84,7 +104,6 @@
         <th>Extra Income, <span class="tag is-round" style="margin-top: -0.25em;">{{userCurrencyLabel}}</span> </th>
         <th>Total<br>Income, <span class="tag is-round" style="margin-top: -0.25em;">{{userCurrencyLabel}}</span></th>
         <th>Total<br>Avg Income<br>per Hour<br>During<br>Broadcasts, <span class="tag is-round" style="margin-top: -0.25em;">{{userCurrencyLabel}}</span></th>
-        {{#if displayNotes}}<th style="width: 25vw;">Notes</th>{{/if}}
       </tr>
     </thead>
     <tfoot>
@@ -119,7 +138,7 @@
                       </div>
                       {{#if note}}
                         <div class="dropdown-item">
-                          <p class="has-text-grey">{{note}}</p>
+                          <p class="has-text-grey">{{{note}}}</p>
                         </div>
                       {{/if}}
                       <hr class="dropdown-divider">
@@ -140,7 +159,6 @@
             <td class="has-text-right no-wrap" data-value={{extraCurrency}}>{{formatNumber extraCurrency}}</td>
             <td class="has-text-right no-wrap" data-value="{{totalDeltaPrimaryCurrency}}" style="{{totalDeltaPrimaryCurrencyStyle}} border-left:2px solid #dbdbdb;">{{formatNumber totalDeltaPrimaryCurrency}}</td>
             <td class="has-text-right no-wrap" data-value="{{avgPrimaryCurrency}}" style="{{avgPrimaryCurrencyStyle}}">{{formatNumber avgPrimaryCurrency}}</td>
-            {{#if displayNotes}}<td class="has-text-right">{{notes}}</td>{{/if}}
           </tr>
         {{/each}}
       {{/if}}
@@ -178,6 +196,12 @@
       </div>
     </div>
   </div>
+  {{/if}}
+
+  {{else}}
+
+  <div class="loading-pulse is-large"></div>
+
   {{/if}}
 
 </template>

@@ -179,6 +179,9 @@ body {
 
 .do-open {
   display: block;
+  &>strong {
+    font-weight: 500;
+  }
 }
 
 .section.is-small {
@@ -539,4 +542,42 @@ table {
 
 tbody.em-first > tr:first-child {
   font-weight: bolder;
+}
+
+.field.has-addons .control .checkbox {
+  background-color: #fff;
+  border-width: 1px;
+  cursor: pointer;
+  padding: calc(.375em - 1px) 0.75em;
+  text-align: center;
+  white-space: nowrap;
+  border-color: #dbdbdb;
+  box-shadow: none;
+  align-items: center;
+  border: 1px solid rgb(219, 219, 219);
+  display: inline-flex;
+  font-size: 1rem;
+  height: 2.25em;
+  justify-content: flex-start;
+  line-height: 1.5;
+  border-radius: 4px;
+}
+
+input[type="checkbox"] {
+  margin-right: 0.6em;
+}
+
+.field.has-addons .control:last-child .checkbox {
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  // line-height: 1.5;
+  max-height: 3em;
 }

@@ -6,6 +6,7 @@
 
   <hr>
 
+  {{#if session.endTime}}
   <nav class="level">
     <div class="level-item has-text-centered">
       <div>
@@ -63,12 +64,14 @@
 
   <hr>
 
+  {{/if}}
+
   <div class="section is-small">
       <form name="noteForm">
         <div class="field">
           <h5 class="title is-size-4">Notes</h5>
           <div class="control">
-            <p contenteditable="true" class="contenteditable {{isPlaceholderClass}}">{{noteOrPlaceholder}}</p>
+            <p contenteditable="true" class="contenteditable {{isPlaceholderClass}}">{{{noteOrPlaceholder}}}</p>
           </div>
         </div>
       </form>
@@ -82,9 +85,12 @@
         <table class="table is-bordered is-narrow rows-aligned-middle">
           {{#each dynamicSession.extraIncome}}
             <tr>
-              <td style="min-width: 15.6em;" class="has-text-right">
+              <td style="min-width: 15.6em;border-right-width:0;" class="has-text-right">
                 <span class="has-text-semibold">{{formatNumber value}}</span>
                 <span class="has-text-grey">{{currency}}</span>
+              </td>
+              <td style="border-left-width:0;" class="has-text-center">
+                {{#if isHourlyRated}}<span class="tag">hourly-rated</span>{{/if}}
               </td>
               <td>
                 <button class="button is-small is-danger is-inverted delete-extraIncome">Delete</button>
@@ -106,6 +112,12 @@
               </div>
               <div class="control">
                 <div class="button is-static">{{userCurrencyLabel}}</div>
+              </div>
+              <div class="control">
+                <label class="checkbox" for="extraIncomeIsHourlyRated">
+                  <input type="checkbox" id="extraIncomeIsHourlyRated" checked="{{#if session.isOneOnOne}}false{{/if}}">
+                    Hourly-rated
+                </label>
               </div>
             </div>
           </div>

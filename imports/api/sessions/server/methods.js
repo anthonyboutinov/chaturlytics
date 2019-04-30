@@ -119,7 +119,7 @@ Meteor.methods({
     });
   },
 
-  'sessions.insertExtraIncome'(sessionId, currency, value) {
+  'sessions.insertExtraIncome'(sessionId, currency, value, isHourlyRated) {
     const __timer = new Date();
     if (!this.userId) {
       return false;
@@ -127,6 +127,9 @@ Meteor.methods({
     check(sessionId, String);
     check(currency, String);
     check(value, Number);
+    if (typeof isHourlyRated !== 'undefined') {
+      check (isHourlyRated, Boolean);
+    }
 
     const session = Sessions.findOne(sessionId, {
       fields: { extraIncome: 1 },
@@ -139,6 +142,9 @@ Meteor.methods({
       currency,
       value
     };
+    if (typeof isHourlyRated !== 'undefined') {
+      extraIncomeInstance.isHourlyRated = isHourlyRated;
+    }
 
     let result;
     if (!session.extraIncome) {
@@ -164,24 +170,30 @@ Meteor.methods({
     return result;
   },
 
-  'sessions.deleteExtraIncome'(sessionId, currency, value) {
+  'sessions.deleteExtraIncome'(sessionId, currency, value, isHourlyRated) {
     if (!this.userId) {
       return false;
     }
     check(sessionId, String);
     check(currency, String);
     check(value, Number);
+    if (typeof isHourlyRated !== 'undefined' && isHourlyRated !== null) {
+      check (isHourlyRated, Boolean);
+    }
+
+    const extraIncome = {
+      currency,
+      value
+    };
+    if (typeof isHourlyRated !== 'undefined') {
+      extraIncome.isHourlyRated = isHourlyRated;
+    }
 
     return Sessions.update({
       _id:sessionId,
       userId: this.userId,
     }, {
-      $pull: {
-        extraIncome: {
-          currency,
-          value
-        }
-      }
+      $pull: { extraIncome }
     });
   },
 

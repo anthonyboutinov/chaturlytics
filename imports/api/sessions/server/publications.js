@@ -55,7 +55,7 @@ Meteor.publish('sessions.last', function() {
   }, {
     limit: 1
   });
-  if (liveSession.count) {
+  if (liveSession.count()) {
     return liveSession;
   }
   return Sessions.find({

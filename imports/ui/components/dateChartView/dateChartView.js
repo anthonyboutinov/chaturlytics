@@ -26,8 +26,15 @@ Template.dateChartView.onRendered(function () {
       const drawingContext = instance.find('.thisChart').getContext('2d');
 
       function _mapToTime(dataPoints, fieldName, fillerValue = null) {
+        let sumTokens = 0;
         return dataPoints.map(function(dataPoint) {
-          return {
+          if (fieldName === 'rawTokens') {
+            sumTokens += dataPoint.deltaTokens;
+            return {
+              x: dataPoint.endTime,
+              y: sumTokens
+            }
+          } else return {
             x: dataPoint.endTime,
             y: dataPoint[fieldName]
           }

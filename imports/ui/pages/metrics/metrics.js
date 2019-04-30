@@ -8,21 +8,6 @@ import { UserRates } from '/imports/api/userRates/userRates.js';
 import { Meteor } from 'meteor/meteor';
 import { ReactiveVar } from 'meteor/reactive-var';
 
-// const _chartConfigs = {
-//   deltaTokens: {
-//     data: [
-//       {
-//         label: "Delta Tokens",
-//         fill: true,
-//         borderColor: 'rgba(140, 206, 140, 1)',
-//         backgroundColor: 'rgba(140, 206, 140, 1)',
-//         dataAlias: 'deltaTokens',
-//         yAxisID: 'generic',
-//       },
-//     ],
-//   },
-// };
-
 function _clearSelection(template) {
   template.rowsSelected.get().map(element => $(element).removeClass("cell-is-highlighted"));
   template.rowsSelected.set([]);
@@ -63,15 +48,30 @@ Template.Page_metrics.onCreated(function() {
   instance.subscribe('currencies.latest'); // FIXME: subscribe to all! Or think of something else...
   instance.subscribe('userRates.all');
 
-  this.grouping = new ReactiveVar('weeks');
-  this.skipOffDays = new ReactiveVar(false);
-  this.displayNotes = new ReactiveVar(false);
-  this.coloration = new ReactiveVar();
-  this.rowsSelected = new ReactiveVar([]);
+  instance.userDataReady = new ReactiveVar(false);
+
+  instance.autorun(function() {
+    if (instance.userDataReady.get()) {
+      return;
+    }
+    const user = Meteor.user();
+    if (!user || !user.currencies) {
+       return;
+    }
+
+    instance.grouping = new ReactiveVar(user.displayOption_metricsGrouping || 'weeks');
+    instance.skipOffDays = new ReactiveVar(false);
+    instance.coloration = new ReactiveVar();
+    instance.rowsSelected = new ReactiveVar([]);
+
+    instance.userDataReady.set(true);
+  });
 
 });
 
 Template.Page_metrics.helpers({
+
+  userDataReady: () => Template.instance().userDataReady.get(),
 
   metrics() {
     const __timer = new Date();
@@ -268,12 +268,14 @@ Template.Page_metrics.helpers({
         const timeOnline = moment.duration(totalMinutesOnline, 'minutes');
         const timeOnlineAsHours = timeOnline.as('hours', true);
 
-        const extraCurrency = UserRates.sumExtraIncomeAndTokens(sessionsInRange, userRates).sum;
+        const sumExtraIncomeAndTokens = UserRates.sumExtraIncomeAndTokens(sessionsInRange, userRates);
+        const extraCurrency = sumExtraIncomeAndTokens.sum;
+        const extraCurrencyHourlyRated = sumExtraIncomeAndTokens.hourlyRatedSum | 0;
 
         const avgTokens = Math.round(deltaTokensDuringSessions / timeOnlineAsHours);
         _adjustMinMax(avgTokens, coloration.avgTokens);
 
-        const avgPrimaryCurrency = Math.round((deltaTokensDuringSessions * conversionMultiplier + extraCurrency) / timeOnlineAsHours);  // FIXME: replace conversionMultiplier with dynamic function
+        const avgPrimaryCurrency = Math.round((deltaTokensDuringSessions * conversionMultiplier + extraCurrencyHourlyRated) / timeOnlineAsHours);  // FIXME: replace conversionMultiplier with dynamic function
         _adjustMinMax(avgPrimaryCurrency, coloration.avgPrimaryCurrency);
 
         if (extraCurrency !== 0) {
@@ -380,8 +382,6 @@ Template.Page_metrics.helpers({
 
   skipOffDays: () => Template.instance().skipOffDays.get(),
 
-  displayNotes: () => Template.instance().displayNotes.get(),
-
   coloration: () => Template.instance().coloration.get(),
 
   skipOffDaysToggleApplicable: () => Template.instance().grouping.get() === 'days',
@@ -407,7 +407,7 @@ Template.Page_metrics.helpers({
     return index + 1;
   },
 
-  ////
+////////
 
   timeframeForSession() {
     const start = this.startTime ? moment(this.startTime).format('lll') + ' - ' : '-∞ to ';
@@ -446,7 +446,7 @@ Template.Page_metrics.helpers({
     const userRate = UserRates.findOne({}, {
       sort: {activeStartingDate: -1}
     });
-    return userRate ? userRate.currency : null;
+    return userRate ? userRate.currency : "–";
   },
 
   totalExtraIncome() {
@@ -457,7 +457,7 @@ Template.Page_metrics.helpers({
   },
 
 
-///////
+////////
 
 
   selectedCellsSum() {
@@ -476,8 +476,6 @@ Template.Page_metrics.helpers({
 
 ////////
 
-
-
 });
 
 Template.Page_metrics.events({
@@ -487,6 +485,7 @@ Template.Page_metrics.events({
     const self = this;
     _clearSelection(template);
     template.grouping.set(self.toString());
+    Meteor.call('users.setDisplayOption', 'metricsGrouping', self.toString());
   },
 
   'click .toggle-skip-offdays'(event, template) {
@@ -496,16 +495,7 @@ Template.Page_metrics.events({
     _clearSelection(template);
   },
 
-  'click .toggle-display-notes'(event, template) {
-    event.preventDefault();
-    const displayNotes = template.displayNotes;
-    displayNotes.set(!displayNotes.get());
-    _clearSelection(template);
-  },
-
-  // 'click [data-value]'(event, template) {
-  //   _selectCell(_.pull, event, template);
-  // },
+////////
 
   'mousedown [data-value]'(event, template) {
     event.preventDefault();
@@ -520,11 +510,15 @@ Template.Page_metrics.events({
   },
 
   'mouseup'() {
-    isMouseDown = false;
+    if (isMouseDown) {
+      isMouseDown = false;
+    }
   },
 
   'click #clear-selection'(event, template) {
     _clearSelection(template);
   },
+
+////////
 
 });

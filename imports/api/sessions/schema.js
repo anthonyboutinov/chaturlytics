@@ -4,6 +4,10 @@ import SimpleSchema from 'simpl-schema';
 extraIncomeSchema = new SimpleSchema({
   currency: String,
   value: Number,
+  isHourlyRated: {
+    type: Boolean,
+    optional: true
+  },
 });
 
 Sessions.schema = new SimpleSchema({

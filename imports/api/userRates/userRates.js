@@ -20,7 +20,7 @@ function _latestUserRate(userRates) {
 UserRates.sumExtraIncomeAndTokens = function(sessions, userRates = null) {
   if (!sessions.length) return nullObject;
 
-  // [{currency, value, date}]
+  // [{currency, value, date, isHourlyRated}]
   let extraIncome = [];
   sessions.map((session) => {
     if (session.extraIncome && session.extraIncome.length) {
@@ -30,6 +30,7 @@ UserRates.sumExtraIncomeAndTokens = function(sessions, userRates = null) {
             date: session.endTime,
             currency: xiInstance.currency,
             value: xiInstance.value,
+            isHourlyRated: xiInstance.isHourlyRated,
           }
         }
       ));
@@ -62,14 +63,17 @@ UserRates.sumExtraIncomeAndTokens = function(sessions, userRates = null) {
   // vx is extraIncome.value[x],
   // rx is rateForThatInstance,
   // and rl is the latest currency rate for the user
-  const sumOtherCurrencies = extraIncomeOtherCurrencies.reduce((sum, item) => sum + item.value / _getCurrencyRate(item, userRates), 0) * _latestUserRate(userRates).rate;
+  const sumOtherCurrencies = extraIncomeOtherCurrencies.reduce((sum, item) =>                      sum + item.value / _getCurrencyRate(item, userRates),       0) * _latestUserRate(userRates).rate;
+  let       hourlyRatedSum = extraIncomeOtherCurrencies.reduce((sum, item) => item.isHourlyRated ? sum + item.value / _getCurrencyRate(item, userRates) : sum, 0) * _latestUserRate(userRates).rate;
 
-  const sumSameCurrency = extraIncomeSameCurrency.reduce((sum, item) => sum + item.value, 0);
+  const sumSameCurrency = extraIncomeSameCurrency.reduce((sum, item) =>                      sum + item.value,       0);
+  hourlyRatedSum        = extraIncomeSameCurrency.reduce((sum, item) => item.isHourlyRated ? sum + item.value : sum, hourlyRatedSum);
 
   // console.log({extraIncomeSameCurrency, extraIncomeOtherCurrencies, firstUserRate: _latestUserRate(userRates), sumOtherCurrencies, sumSameCurrency});
 
   return {
     sum: sumSameCurrency + sumOtherCurrencies,
+    hourlyRatedSum,
     currency: _latestUserRate(userRates).currency,
   };
 };

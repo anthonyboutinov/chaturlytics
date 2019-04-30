@@ -131,6 +131,20 @@ Template.navbarQuickStats.helpers({
     }
   },
 
+  timeOfflineClass() {
+    const lastSession = Sessions.findOne({}, {
+      sort: {endTime: -1}
+    });
+    if (!lastSession) return;
+    const daysFromNow = moment({hours:0}).diff(lastSession.endTime, 'days');
+    console.log({daysFromNow});
+    if (daysFromNow > 2 && daysFromNow < 5) {
+      return "is-warning";
+    } else if (daysFromNow >= 5 && daysFromNow < 15) {
+      return "is-danger";
+    }
+  },
+
   tokensPerHour: () => Template.instance().tokensPerHour.get(),
 
   currentTokensPerHourOption: () => Meteor.user().displayOption_tokensPerHour,

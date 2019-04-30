@@ -438,7 +438,7 @@ Meteor.methods({
         }
       }).fetch();
       const _summary = UserRates.sumExtraIncomeAndTokens(sessions, userRates); // That would return value in latest Currency
-      summary.sum += _summary.sum;
+      summary.sum += _summary.hourlyRatedSum | 0;
       summary.currency = _summary.currency;
       // summary.hours += sessions.reduce(doc => _hours(doc));
     }
