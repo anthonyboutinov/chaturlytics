@@ -185,28 +185,47 @@ Template.Page_metrics.helpers({
       },
     };
 
-    let groupingInterval = instance.grouping.get();
-    const descriptiveGroupingInterval = groupingInterval;
     const skipOffDays = instance.skipOffDays.get();
 
-    const isPrimitiveGrouping = groupingInterval === 'days' || groupingInterval === 'weeks' || groupingInterval === 'months' || groupingInterval === 'years';
-    const groupingStep = isPrimitiveGrouping ? 1 :
-      groupingInterval === 'halvesOfMonth' ? 15 : null;
-    if (!isPrimitiveGrouping) {
-      groupingInterval = groupingInterval === 'halvesOfMonth' ? 'days' : null;
-    }
-    if (!groupingStep || !groupingInterval) {
-      throw 'This Grouping is not covered';
+    //////
+
+    function _isPrimitiveGrouping(groupingInterval) {
+      return groupingInterval === 'days'
+          || groupingInterval === 'weeks'
+          || groupingInterval === 'months'
+          || groupingInterval === 'years';
     }
 
-    const fromToRounded = _getFromToRounded(descriptiveGroupingInterval);
+    function _computedGroupingInterval(groupingInterval) {
+      if (!_isPrimitiveGrouping(groupingInterval)) {
+        groupingInterval = groupingInterval === 'halvesOfMonth' ? 'days' : null;
+      }
+      if (!groupingInterval) {
+        throw 'This Grouping is not covered';
+      }
+      return groupingInterval;
+    }
+
+    function _groupingStep(groupingInterval) {
+      const groupingStep = _isPrimitiveGrouping(groupingInterval) ? 1 :
+        groupingInterval === 'halvesOfMonth' ? 15 : null;
+      if (!groupingStep) {
+        throw 'This Grouping is not covered';
+      }
+      return groupingStep;
+    }
+
+    const groupingInterval = _computedGroupingInterval(instance.grouping.get());
+    const groupingStep = _groupingStep(instance.grouping.get());
+
+    const fromToRounded = _getFromToRounded(instance.grouping.get());
     if (!fromToRounded) {
       return;
     }
 
     let metrics = [];
 
-    let doSwap = descriptiveGroupingInterval === 'halvesOfMonth';
+    let doSwap = instance.grouping.get() === 'halvesOfMonth';
     let swapHandle = fromToRounded.fromRounded.date() >= 15;
 
     // while fromToRounded.fromRounded is before fromToRounded.lastDatetimeRounded
@@ -230,6 +249,7 @@ Template.Page_metrics.helpers({
 
       } else {
         // defalut behaviour
+        console.log({fromToRounded, groupingStep, groupingInterval});
         toRounded = moment(fromToRounded.fromRounded).add(groupingStep, groupingInterval);
       }
 
@@ -289,13 +309,15 @@ Template.Page_metrics.helpers({
           numBroadcasts: sessionsInRange ? sessionsInRange.length : '–',
           timeOnline: timeOnline.format("h [h] m [m]"),
           deltaTokens,
+          deltaTokensToPrimaryCurrency: deltaTokens * conversionMultiplier, // FIXME: replace conversionMultiplier with dynamic function
+          deltaTokensToUSD: deltaTokens * 0.05,
           // deltaTokensDuringSessions, // TODO: add to interface
           deltaFollowers,
           avgTokens,
           sessions: sessionsInRange,
-          notes: sessionsInRange.reduce((sum, session) =>
-            session.note ? sum + session.note + " ❡ " : sum,
-            ''),
+          // notes: sessionsInRange.reduce((sum, session) =>
+          //   session.note ? sum + session.note + " ❡ " : sum,
+          //   ''),
           totalDeltaPrimaryCurrency,
           avgPrimaryCurrency,
           extraCurrency: extraCurrency ? extraCurrency : '–',

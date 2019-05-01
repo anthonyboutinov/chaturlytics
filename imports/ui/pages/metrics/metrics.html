@@ -154,7 +154,10 @@
             <!-- <td class="has-text-right">{{formatNumber numBroadcasts}}</td> -->
             <td class="has-text-right no-wrap">{{timeOnline}}</td>
             <!-- <td class="has-text-right no-wrap">{{deltaFollowers}}</td> -->
-            <td class="has-text-right no-wrap" data-value="{{deltaTokens}}" __style="{{deltaTokensStyle}}">{{formatNumber deltaTokens}}</td>
+            <td class="has-text-right no-wrap" data-value="{{deltaTokens}}" __style="{{deltaTokensStyle}}"
+              title="{{formatNumber deltaTokensToPrimaryCurrency}} {{userCurrencyLabel}} ({{formatNumber deltaTokensToUSD}} USD)">
+              {{formatNumber deltaTokens}}
+            </td>
             <td class="has-text-right no-wrap" data-value="{{avgTokens}}" __style="{{avgTokensStyle}}">{{formatNumber avgTokens}}</td>
             <td class="has-text-right no-wrap" data-value={{extraCurrency}}>{{formatNumber extraCurrency}}</td>
             <td class="has-text-right no-wrap" data-value="{{totalDeltaPrimaryCurrency}}" style="{{totalDeltaPrimaryCurrencyStyle}} border-left:2px solid #dbdbdb;">{{formatNumber totalDeltaPrimaryCurrency}}</td>
