@@ -7,6 +7,7 @@ import { Currencies } from '/imports/api/currencies/currencies.js';
 import { UserRates } from '/imports/api/userRates/userRates.js';
 import { Meteor } from 'meteor/meteor';
 import { ReactiveVar } from 'meteor/reactive-var';
+import { GroupingDelegate } from '/imports/ui/pages/metrics/groupingDelegate.js';
 
 function _clearSelection(template) {
   template.rowsSelected.get().map(element => $(element).removeClass("cell-is-highlighted"));
@@ -85,47 +86,6 @@ Template.Page_metrics.helpers({
       }
     }
 
-    function _getFromToRounded(descriptiveGroupingInterval) {
-      // Note: This function is the second most computationally expensive piece of code here
-      //// TODO: Store temporarely with short expiration time (14 min)
-
-      const edgeDataPointQuery = { startTime: {$exists: true} };
-      const firstOne = DataPoints.findOne(edgeDataPointQuery, {
-        sort: {endTime: 1},
-        limit: 1,
-        fields: {endTime: 1}
-      });
-      if (!firstOne) {
-        return;
-      }
-      const lastOne = DataPoints.findOne(edgeDataPointQuery, {
-        sort: {endTime: -1},
-        limit: 1,
-        fields: {endTime: 1}
-      });
-
-      let fromRounded = moment(firstOne.endTime)
-        .set('hour', 0)
-        .set('minute', 0)
-        .set('second', 0)
-        .set('millisecond', 0);
-      const lastDatetimeRounded = moment(lastOne.endTime)
-        .set('hour', 0)
-        .set('minute', 0)
-        .set('second', 0)
-        .set('millisecond', 0)
-        .add(1, 'days');
-
-      if (descriptiveGroupingInterval === 'months' || descriptiveGroupingInterval === 'halvesOfMonth') {
-        fromRounded = fromRounded.startOf('month');
-      } else if (descriptiveGroupingInterval === 'years') {
-        fromRounded = fromRounded.startOf('year');
-      } else if (descriptiveGroupingInterval === 'weeks') {
-        fromRounded = fromRounded.startOf('week');
-      }
-      return {fromRounded, lastDatetimeRounded};
-    }
-
     function _defineStyle(value, minMax, numBroadcasts) {
       const percentage = (value - minMax.min) / minMax.delta;
       const hueAngle = Math.round(percentage * 300); // use colors only from 0º to 300º
@@ -187,87 +147,29 @@ Template.Page_metrics.helpers({
 
     const skipOffDays = instance.skipOffDays.get();
 
-    //////
-
-    function _isPrimitiveGrouping(groupingInterval) {
-      return groupingInterval === 'days'
-          || groupingInterval === 'weeks'
-          || groupingInterval === 'months'
-          || groupingInterval === 'years';
-    }
-
-    function _computedGroupingInterval(groupingInterval) {
-      if (!_isPrimitiveGrouping(groupingInterval)) {
-        groupingInterval = groupingInterval === 'halvesOfMonth' ? 'days' : null;
-      }
-      if (!groupingInterval) {
-        throw 'This Grouping is not covered';
-      }
-      return groupingInterval;
-    }
-
-    function _groupingStep(groupingInterval) {
-      const groupingStep = _isPrimitiveGrouping(groupingInterval) ? 1 :
-        groupingInterval === 'halvesOfMonth' ? 15 : null;
-      if (!groupingStep) {
-        throw 'This Grouping is not covered';
-      }
-      return groupingStep;
-    }
-
-    const groupingInterval = _computedGroupingInterval(instance.grouping.get());
-    const groupingStep = _groupingStep(instance.grouping.get());
-
-    const fromToRounded = _getFromToRounded(instance.grouping.get());
-    if (!fromToRounded) {
-      return;
-    }
-
     let metrics = [];
 
-    let doSwap = instance.grouping.get() === 'halvesOfMonth';
-    let swapHandle = fromToRounded.fromRounded.date() >= 15;
+    const groupingDelegate = new GroupingDelegate(instance.grouping.get());
 
     // while fromToRounded.fromRounded is before fromToRounded.lastDatetimeRounded
-    while (moment.max(fromToRounded.fromRounded, fromToRounded.lastDatetimeRounded) === fromToRounded.lastDatetimeRounded) {
-      let toRounded;
-      if (doSwap) {
-
-        if (swapHandle) {
-          toRounded = moment(fromToRounded.fromRounded).date(1).add(1, 'month');
-        } else {
-          // mimic default behaviour
-          toRounded = moment(fromToRounded.fromRounded).add(groupingStep, groupingInterval);
-          if (toRounded.date() >= 28) {
-            toRounded = moment(fromToRounded.fromRounded).date(1).add(1, 'month');
-          } else if (toRounded.date() > 1 && toRounded.date() <= 3) {
-            toRounded = toRounded.set('date', 1);
-          }
-        }
-
-        swapHandle != swapHandle;
-
-      } else {
-        // defalut behaviour
-        console.log({fromToRounded, groupingStep, groupingInterval});
-        toRounded = moment(fromToRounded.fromRounded).add(groupingStep, groupingInterval);
-      }
+    while (groupingDelegate.shouldContinue()) {
 
       const sessionsInRange = Sessions.find({
         startTime: {$exists: true},
         endTime: {
-          $gte: fromToRounded.fromRounded.toDate(),
-          $lt: toRounded.toDate(),
+          $gte: groupingDelegate.lowerDateRange(),
+          $lt: groupingDelegate.upperDateRange(),
         },
       }, {
         sort: {endTime: 1}
       }).fetch();
-      const dataPointsInRange = _getDataPointsInRange(fromToRounded.fromRounded.toDate(), toRounded.toDate(), sessionsInRange);
+
+      const dataPointsInRange = _getDataPointsInRange(groupingDelegate.lowerDateRange(), groupingDelegate.upperDateRange(), sessionsInRange);
 
       const deltaTokensDuringSessions = dataPointsInRange.reduce((sum, dataPoint) => sum + (!_.isNull(dataPoint.sessionId) ? dataPoint.deltaTokens : 0), 0);
       const deltaTokens = dataPointsInRange.reduce((sum, dataPoint) => sum + dataPoint.deltaTokens, 0);
       const deltaFollowers = dataPointsInRange.reduce((sum, dataPoint) => sum + (dataPoint.deltaFollowers ? dataPoint.deltaFollowers : 0), 0);
-      const endTime = moment(toRounded).subtract(1, 'second');
+      const endTime = moment(groupingDelegate.toRounded).subtract(1, 'second');
 
       _adjustMinMax(deltaTokens, coloration.tokens);
 
@@ -304,7 +206,7 @@ Template.Page_metrics.helpers({
         }
 
         metrics.unshift({
-          startTime: fromToRounded.fromRounded,
+          startTime: groupingDelegate.fromToRounded.fromRounded,
           endTime,
           numBroadcasts: sessionsInRange ? sessionsInRange.length : '–',
           timeOnline: timeOnline.format("h [h] m [m]"),
@@ -324,7 +226,7 @@ Template.Page_metrics.helpers({
         });
       } else if (!skipOffDays) {
         metrics.unshift({
-          startTime: fromToRounded.fromRounded,
+          startTime: groupingDelegate.fromToRounded.fromRounded,
           endTime,
           numBroadcasts: '–',
           timeOnline: '–',
@@ -339,7 +241,6 @@ Template.Page_metrics.helpers({
         });
       }
 
-      fromToRounded.fromRounded = toRounded;
     } // eof while
 
     function _setColorationDelta(colorationIntance) {
