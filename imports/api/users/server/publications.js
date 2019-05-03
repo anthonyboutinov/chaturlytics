@@ -10,6 +10,7 @@ Meteor.publish('userData', function () {
         displayOption_tokensPerHour: 1,
         displayOption_tokensPerHourExtraIncome: 1,
         displayOption_metricsGrouping: 1,
+        displayOption_metricsDaterange: 1,
       }
     });
   } else {

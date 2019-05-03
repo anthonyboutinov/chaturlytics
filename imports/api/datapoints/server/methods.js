@@ -16,6 +16,9 @@ Date.prototype.subMinutes = function(m){
 let trySlowingDownALittleTimer = null;
 
 Meteor.methods({
+
+
+
   'dataPoints.remove'(_id) {
     if (!this.userId) {
       return false;
@@ -24,6 +27,9 @@ Meteor.methods({
     console.log({result});
     return result;
   },
+
+
+
 
   'dataPoints.getDataPointsForAll'() {
     const now = new Date();
@@ -42,6 +48,9 @@ Meteor.methods({
     });
     return true;
   },
+
+
+
 
   'dataPoints.getDataPointFromChaturbate'(url, username) {
     function _handleErrorsForGetDataPointFromChaturbate(error, url, username) {
@@ -96,6 +105,9 @@ Meteor.methods({
     }
   },
 
+
+
+
   'dataPoints.emergencyEndSessionForUsername'(username, errorCode) {
     function _emergencyEndSessionForUserId(userId, username) {
       const lastDataPoint = DataPoints.findOne({userId, username}, {
@@ -122,8 +134,10 @@ Meteor.methods({
 
     const userIds = UserProfiles.getUserIds(username);
     return userIds.map(userId => _emergencyEndSessionForUserId(userId, username));
-
   },
+
+
+
 
   'dataPoints.insertIndepenentlyFromRawData'(rawDataPoint, username) {
 
@@ -386,6 +400,9 @@ Meteor.methods({
     return results;
   },
 
+
+
+
   'dataPoints.getAvgTokensPerHourDuringOnlineTime'(oldestDataPoint = moment("2000-01-01").toDate(), doIncludeExtraIncome = false) {
     if (!this.userId) {
       return false;
@@ -456,6 +473,9 @@ Meteor.methods({
     return summary;
   },
 
+
+
+
   'dataPoints.update'(_id, setOptions) {
     if (!this.userId) {
       return false;
@@ -480,6 +500,9 @@ Meteor.methods({
     }
     return result;
   },
+
+
+
 
   'dataPoints.updateSchema'() {
     if (!this.userId) {

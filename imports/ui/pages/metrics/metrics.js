@@ -1,5 +1,6 @@
 import './metrics.html';
 // import '/imports/ui/components/dateChartView/dateChartView.js';
+import '/imports/ui/components/chartView/chartView.js';
 
 import { DataPoints } from '/imports/api/datapoints/datapoints.js';
 import { Sessions } from '/imports/api/sessions/sessions.js';
@@ -8,6 +9,8 @@ import { UserRates } from '/imports/api/userRates/userRates.js';
 import { Meteor } from 'meteor/meteor';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { GroupingDelegate } from '/imports/ui/pages/metrics/groupingDelegate.js';
+import { ChartSetup } from '/imports/ui/pages/metrics/chartSetup.js';
+
 
 function _clearSelection(template) {
   template.rowsSelected.get().map(element => $(element).removeClass("cell-is-highlighted"));
@@ -61,11 +64,18 @@ Template.Page_metrics.onCreated(function() {
     }
 
     instance.grouping = new ReactiveVar(user.displayOption_metricsGrouping || 'weeks');
+    instance.daterange = new ReactiveVar(user.displayOption_metricsDaterange || 90);
     instance.skipOffDays = new ReactiveVar(false);
     instance.coloration = new ReactiveVar();
     instance.rowsSelected = new ReactiveVar([]);
+    instance.showTheRest = new ReactiveVar(false);
+    instance.dataIsPartiallyHidden = new ReactiveVar(false);
 
     instance.userDataReady.set(true);
+
+    // instance.timeOnlineChartSetup = null;
+    // instance.totalIncomeChartSetup = null;
+    instance.triggerChartsRedraw = new ReactiveVar(false);
   });
 
 });
@@ -104,7 +114,7 @@ Template.Page_metrics.helpers({
       return userRate ? userRate.rate : 1;
     }
 
-    function _getDataPointsInRange(fromRounded, toRounded, sessionsInRange) {
+    function _getDataPointsInRange(fromRounded, upperMoment, sessionsInRange) {
       // Note: This function is the most computationally expensive piece of code here
 
       const noSessionDataPoints = DataPoints.find({
@@ -112,7 +122,7 @@ Template.Page_metrics.helpers({
         startTime: {$exists: true},
         endTime: {
           $gte: fromRounded,
-          $lt: toRounded,
+          $lt: upperMoment,
         },
       }).fetch();
 
@@ -148,28 +158,33 @@ Template.Page_metrics.helpers({
     const skipOffDays = instance.skipOffDays.get();
 
     let metrics = [];
+    instance.timeOnlineChartSetup = new ChartSetup({colorScheme: 'time'});
+    instance.totalIncomeChartSetup = new ChartSetup({colorScheme: 'money'});
+    instance.incomeInTKNChartSetup = new ChartSetup({colorScheme: 'tokens'});
 
-    const groupingDelegate = new GroupingDelegate(instance.grouping.get());
+    const groupingDelegate = new GroupingDelegate(instance.grouping.get(), instance.daterange.get());
 
-    // while fromToRounded.fromRounded is before fromToRounded.lastDatetimeRounded
+    const showTheRest = instance.showTheRest.get();
+    instance.dataIsPartiallyHidden.set(false);
+
     while (groupingDelegate.shouldContinue()) {
 
       const sessionsInRange = Sessions.find({
         startTime: {$exists: true},
         endTime: {
-          $gte: groupingDelegate.lowerDateRange(),
-          $lt: groupingDelegate.upperDateRange(),
+          $gte: groupingDelegate.lowerMoment.toDate(),
+          $lt: groupingDelegate.upperMoment.toDate(),
         },
       }, {
         sort: {endTime: 1}
       }).fetch();
 
-      const dataPointsInRange = _getDataPointsInRange(groupingDelegate.lowerDateRange(), groupingDelegate.upperDateRange(), sessionsInRange);
+      const dataPointsInRange = _getDataPointsInRange(groupingDelegate.lowerMoment.toDate(), groupingDelegate.upperMoment.toDate(), sessionsInRange);
 
       const deltaTokensDuringSessions = dataPointsInRange.reduce((sum, dataPoint) => sum + (!_.isNull(dataPoint.sessionId) ? dataPoint.deltaTokens : 0), 0);
       const deltaTokens = dataPointsInRange.reduce((sum, dataPoint) => sum + dataPoint.deltaTokens, 0);
       const deltaFollowers = dataPointsInRange.reduce((sum, dataPoint) => sum + (dataPoint.deltaFollowers ? dataPoint.deltaFollowers : 0), 0);
-      const endTime = moment(groupingDelegate.toRounded).subtract(1, 'second');
+      const endTime = moment(groupingDelegate.upperMoment).subtract(1, 'second');
 
       _adjustMinMax(deltaTokens, coloration.tokens);
 
@@ -205,17 +220,34 @@ Template.Page_metrics.helpers({
           _adjustMinMax(totalDeltaPrimaryCurrency, coloration.totalDeltaPrimaryCurrency);
         }
 
+        instance.timeOnlineChartSetup.push({
+          x: endTime,
+          y: Math.round(timeOnlineAsHours),
+        });
+
+        instance.totalIncomeChartSetup.push({
+          x: endTime,
+          y: Math.round(totalDeltaPrimaryCurrency),
+        });
+
+        instance.incomeInTKNChartSetup.push({
+          x: endTime,
+          y: deltaTokens,
+        });
+
         metrics.unshift({
-          startTime: groupingDelegate.fromToRounded.fromRounded,
+          startTime: groupingDelegate.lowerMoment,
           endTime,
           numBroadcasts: sessionsInRange ? sessionsInRange.length : '–',
           timeOnline: timeOnline.format("h [h] m [m]"),
           deltaTokens,
-          deltaTokensToPrimaryCurrency: deltaTokens * conversionMultiplier, // FIXME: replace conversionMultiplier with dynamic function
+          deltaTokensToPrimaryCurrency: Math.round(deltaTokens * conversionMultiplier), // FIXME: replace conversionMultiplier with dynamic function
           deltaTokensToUSD: deltaTokens * 0.05,
           // deltaTokensDuringSessions, // TODO: add to interface
           deltaFollowers,
           avgTokens,
+          avgTokensToPrimaryCurrency: Math.round(avgTokens * conversionMultiplier), // FIXME: replace conversionMultiplier with dynamic function
+          avgTokensToUSD: avgTokens * 0.05,
           sessions: sessionsInRange,
           // notes: sessionsInRange.reduce((sum, session) =>
           //   session.note ? sum + session.note + " ❡ " : sum,
@@ -226,7 +258,7 @@ Template.Page_metrics.helpers({
         });
       } else if (!skipOffDays) {
         metrics.unshift({
-          startTime: groupingDelegate.fromToRounded.fromRounded,
+          startTime: groupingDelegate.lowerMoment,
           endTime,
           numBroadcasts: '–',
           timeOnline: '–',
@@ -242,6 +274,8 @@ Template.Page_metrics.helpers({
       }
 
     } // eof while
+
+    instance.triggerChartsRedraw.set(true);
 
     function _setColorationDelta(colorationIntance) {
       colorationIntance.delta = colorationIntance.max - colorationIntance.min;
@@ -261,6 +295,12 @@ Template.Page_metrics.helpers({
         metric.totalDeltaPrimaryCurrencyStyle = _defineStyle(metric.totalDeltaPrimaryCurrency, coloration.totalDeltaPrimaryCurrency, metric.numBroadcasts);
         metric.avgPrimaryCurrencyStyle = _defineStyle(metric.avgPrimaryCurrency, coloration.avgPrimaryCurrency, metric.numBroadcasts);
       });
+    }
+
+    const maxFastRenderTableSize = 60;
+    if (!showTheRest && metrics.length >= maxFastRenderTableSize) {
+      instance.dataIsPartiallyHidden.set(true);
+      metrics = _.take(metrics, maxFastRenderTableSize);
     }
 
     console.log('Execution time for metrics helper: ', new Date() - __timer);
@@ -291,6 +331,30 @@ Template.Page_metrics.helpers({
     }
   },
 
+  daterangeLabel(switchOn) {
+    console.log({switchOn});
+    switch (switchOn) {
+      case 'allTime':
+        return "All time";
+        break;
+      case '1month':
+        return "Last month";
+        break;
+      case '3months':
+        return "Last 3 months";
+        break;
+      case '6months':
+        return "Last 6 months";
+        break;
+      case '12months':
+        return "Last year";
+        break;
+      default:
+        console.warn('Invalid case');
+        return 'Invalid value';
+    }
+  },
+
   isActiveByEquals: (a, b) => a === b ? "is-active" : null,
 
   groupingOptions: () => [
@@ -302,6 +366,16 @@ Template.Page_metrics.helpers({
   ],
 
   grouping: () => Template.instance().grouping.get(),
+
+  daterangeOptions: () => [
+    '1month',
+    '3months',
+    '6months',
+    '12months',
+    'allTime'
+  ],
+
+  daterange: () => Template.instance().daterange.get(),
 
   skipOffDays: () => Template.instance().skipOffDays.get(),
 
@@ -396,6 +470,29 @@ Template.Page_metrics.helpers({
 
   rowsSelected: () => Template.instance().rowsSelected.get(),
 
+////////
+
+  dataIsPartiallyHidden: () => Template.instance().dataIsPartiallyHidden.get(),
+
+  triggerChartsRedraw : () => Template.instance().triggerChartsRedraw.get(),
+
+  timeOnlineChartSetup() {
+    if (Template.instance().triggerChartsRedraw.get()) {
+      return Template.instance().timeOnlineChartSetup;
+    }
+  },
+
+  totalIncomeChartSetup() {
+    if (Template.instance().triggerChartsRedraw.get()) {
+      return Template.instance().totalIncomeChartSetup;
+    }
+  },
+
+  incomeInTKNChartSetup() {
+    if (Template.instance().triggerChartsRedraw.get()) {
+      return Template.instance().incomeInTKNChartSetup;
+    }
+  },
 
 ////////
 
@@ -407,8 +504,18 @@ Template.Page_metrics.events({
     event.preventDefault();
     const self = this;
     _clearSelection(template);
+    template.triggerChartsRedraw.set(false);
     template.grouping.set(self.toString());
     Meteor.call('users.setDisplayOption', 'metricsGrouping', self.toString());
+  },
+
+  'click .set-daterange'(event, template) {
+    event.preventDefault();
+    const self = this;
+    _clearSelection(template);
+    template.triggerChartsRedraw.set(false);
+    template.daterange.set(self.toString());
+    Meteor.call('users.setDisplayOption', 'metricsDaterange', self.toString());
   },
 
   'click .toggle-skip-offdays'(event, template) {
@@ -416,6 +523,10 @@ Template.Page_metrics.events({
     const skipOffDays = template.skipOffDays;
     skipOffDays.set(!skipOffDays.get());
     _clearSelection(template);
+  },
+
+  'click .show-the-rest'(event, template) {
+    template.showTheRest.set(true);
   },
 
 ////////

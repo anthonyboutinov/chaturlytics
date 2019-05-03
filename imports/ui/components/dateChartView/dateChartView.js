@@ -23,7 +23,7 @@ Template.dateChartView.onRendered(function () {
     // instance.subscribe('dataPoints.forSession', Template.currentData().session._id, () => {
       // console.log("subscriptionReady");
 
-      const drawingContext = instance.find('.thisChart').getContext('2d');
+      const drawingContext = instance.find('canvas').getContext('2d');
 
       function _mapToTime(dataPoints, fieldName, fillerValue = null) {
         let sumTokens = 0;
@@ -42,8 +42,6 @@ Template.dateChartView.onRendered(function () {
       }
 
       // Meteor.setTimeout(() => {
-
-        console.log({instance});
 
         const dataContext = instance.data;
         const dataPoints = DataPoints.find({sessionId: dataContext.session._id}, {

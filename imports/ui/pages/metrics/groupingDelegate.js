@@ -1,51 +1,95 @@
 import { DataPoints } from '/imports/api/datapoints/datapoints.js';
 
+
+/*
+  Public stuff:
+    constructor (_)
+    - var lowerMoment
+    - var upperMoment
+    + method Boolean shouldContinue()
+
+  How to use:
+    const i = new GroupingDelegate(_);
+    while (i.shouldContinue()) {
+      ...
+    }
+*/
 GroupingDelegate = class {
 
-  constructor(originalGrouping) {
+  constructor(originalGrouping, descriptiveDaterange) {
 
     // Constructor: private methods
     //
 
-    function _getFromToRounded(descriptiveGroupingInterval) {
+    function _descriptiveDaterangeSearchQuery(descriptiveDaterange) {
+      const query = {
+        startTime: {$exists: true},
+      };
+      if (descriptiveDaterange !== 'allTime') {
+        var daterangeMonths;
+        switch (descriptiveDaterange) {
+          case '1month':
+            daterangeMonths = 1;
+            break;
+          case '3months':
+            daterangeMonths = 3;
+            break;
+          case '6months':
+            daterangeMonths = 6;
+            break;
+          case '12months':
+            daterangeMonths = 12;
+            break;
+          default:
+            console.warn('Invalid case');
+            return query;
+        }
+        query.endTime = {$gte: moment().startOf('day').subtract(daterangeMonths, 'months').toDate()};
+      }
+      return query;
+    }
+
+    function _getLowerMoment(descriptiveGroupingInterval, descriptiveDaterange) {
       // Note: This function is the second most computationally expensive piece of code here
       //// TODO: Store temporarely with short expiration time (14 min)
 
-      const edgeDataPointQuery = { startTime: {$exists: true} };
-      const firstOne = DataPoints.findOne(edgeDataPointQuery, {
+      const firstOne = DataPoints.findOne(_descriptiveDaterangeSearchQuery(descriptiveDaterange), {
         sort: {endTime: 1},
         limit: 1,
         fields: {endTime: 1}
       });
       if (!firstOne) {
-        return;
+        return null;
       }
-      const lastOne = DataPoints.findOne(edgeDataPointQuery, {
-        sort: {endTime: -1},
-        limit: 1,
-        fields: {endTime: 1}
-      });
 
-      let fromRounded = moment(firstOne.endTime)
+      let lowerMoment = moment(firstOne.endTime)//.startOf('day');
         .set('hour', 0)
         .set('minute', 0)
         .set('second', 0)
         .set('millisecond', 0);
-      const lastDatetimeRounded = moment(lastOne.endTime)
+
+      if (descriptiveGroupingInterval === 'months' || descriptiveGroupingInterval === 'halvesOfMonth') {
+        lowerMoment = lowerMoment.startOf('month');
+      } else if (descriptiveGroupingInterval === 'years') {
+        lowerMoment = lowerMoment.startOf('year');
+      } else if (descriptiveGroupingInterval === 'weeks') {
+        lowerMoment = lowerMoment.startOf('week');
+      }
+      return lowerMoment;
+    }
+
+    function _getLastMomentRounded(descriptiveDaterange) {
+      const lastOne = DataPoints.findOne(_descriptiveDaterangeSearchQuery(descriptiveDaterange), {
+        sort: {endTime: -1},
+        limit: 1,
+        fields: {endTime: 1}
+      });
+      return moment(lastOne.endTime)//.endOf('day');
         .set('hour', 0)
         .set('minute', 0)
         .set('second', 0)
         .set('millisecond', 0)
         .add(1, 'days');
-
-      if (descriptiveGroupingInterval === 'months' || descriptiveGroupingInterval === 'halvesOfMonth') {
-        fromRounded = fromRounded.startOf('month');
-      } else if (descriptiveGroupingInterval === 'years') {
-        fromRounded = fromRounded.startOf('year');
-      } else if (descriptiveGroupingInterval === 'weeks') {
-        fromRounded = fromRounded.startOf('week');
-      }
-      return {fromRounded, lastDatetimeRounded};
     }
 
     function _isPrimitiveGrouping(groupingInterval) {
@@ -79,40 +123,33 @@ GroupingDelegate = class {
 
 
     this.originalGrouping = originalGrouping;
-    this.fromToRounded = _getFromToRounded(originalGrouping);
-    if (!this.fromToRounded.fromRounded) {
+    this.lowerMoment = _getLowerMoment(originalGrouping, descriptiveDaterange);
+    if (!this.lowerMoment) {
+      console.warn("No initial datapoint found when grouping");
       return;
       // Pointless to continue
     }
+    this.lastMomentRounded = _getLastMomentRounded(descriptiveDaterange);
 
     this.groupingInterval = _computedGroupingInterval(originalGrouping);
     this.groupingStep = _groupingStep(originalGrouping);
     this.doSwap = originalGrouping === 'halvesOfMonth';
-    this.swapHandle = this.fromToRounded.fromRounded.date() >= 15;
+    this.swapHandle = this.lowerMoment.date() >= 15;
 
     console.log("GroupingDelegate instance successfully constructed");
   }
 
   shouldContinue() {
-    if (!this.fromToRounded) {
+    if (!this.lowerMoment) {
       return false;
     }
     this._closePreviousIteration();
-    const shouldContinue = moment.max(this.fromToRounded.fromRounded, this.fromToRounded.lastDatetimeRounded) === this.fromToRounded.lastDatetimeRounded;
+    const shouldContinue = moment.max(this.lowerMoment, this.lastMomentRounded) === this.lastMomentRounded;
     if (shouldContinue) {
       this._setToRounded();
     }
     return shouldContinue;
   }
-
-  lowerDateRange() {
-    return this.fromToRounded.fromRounded.toDate();
-  }
-
-  upperDateRange () {
-    return this.toRounded.toDate();
-  }
-
 
   // PRIVATE METHODS
   //
@@ -121,28 +158,28 @@ GroupingDelegate = class {
     if (this.doSwap) {
 
       if (this.swapHandle) {
-        this.toRounded = moment(this.fromToRounded.fromRounded).date(1).add(1, 'month');
+        this.upperMoment = moment(this.lowerMoment).date(1).add(1, 'month');
       } else {
         // mimic default behaviour
-        this.toRounded = moment(this.fromToRounded.fromRounded).add(this.groupingStep, this.groupingInterval);
-        if (this.toRounded.date() >= 28) {
-          this.toRounded = moment(this.fromToRounded.fromRounded).date(1).add(1, 'month');
-        } else if (this.toRounded.date() > 1 && this.toRounded.date() <= 3) {
-          this.toRounded = this.toRounded.set('date', 1);
+        this.upperMoment = moment(this.lowerMoment).add(this.groupingStep, this.groupingInterval);
+        if (this.upperMoment.date() >= 28) {
+          this.upperMoment = moment(this.lowerMoment).date(1).add(1, 'month');
+        } else if (this.upperMoment.date() > 1 && this.upperMoment.date() <= 3) {
+          this.upperMoment = this.upperMoment.set('date', 1);
         }
       }
       this.swapHandle != this.swapHandle;
     } else {
-      // console.log({this.fromToRounded, groupingStep, groupingInterval});
-      this.toRounded = moment(this.fromToRounded.fromRounded).add(this.groupingStep, this.groupingInterval);
+      // console.log({this.lowerMoment, groupingStep, groupingInterval});
+      this.upperMoment = moment(this.lowerMoment).add(this.groupingStep, this.groupingInterval);
     }
   }
 
   _closePreviousIteration() {
-    // if toRounded exists, set fromRounded to it
-    if (this.toRounded) {
-      this.fromToRounded.fromRounded = this.toRounded;
-      // this.toRounded = null; // this is probably redundant
+    // if upperMoment exists, set lowerMoment to it
+    if (this.upperMoment) {
+      this.lowerMoment = this.upperMoment;
+      // this.upperMoment = null; // this is probably redundant
     }
   }
 

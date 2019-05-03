@@ -29,6 +29,28 @@
       <div class="level-item">
         <div class="dropdown is-hoverable is-right">
           <div class="dropdown-trigger">
+            <button class="button" aria-haspopup="true" aria-controls="dropdown-menu-metrics-daterange">
+              <span>{{daterangeLabel daterange}}</span>
+              <span class="icon is-small">
+                <i class="fas fa-angle-down" aria-hidden="true"></i>
+              </span>
+            </button>
+          </div>
+          <div class="dropdown-menu" role="menu" id="dropdown-menu-metrics-daterange">
+            <div class="dropdown-content">
+              <div class="dropdown-item"><p class="menu-label">Change date range</p></div>
+              <hr class="dropdown-divider">
+              {{#each daterangeOptions}}
+                <a class="dropdown-item {{isActiveByEquals daterange this}} set-daterange" href="#">{{daterangeLabel this}}</a>
+              {{/each}}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="level-item">
+        <div class="dropdown is-hoverable is-right">
+          <div class="dropdown-trigger">
             <button class="button" aria-haspopup="true" aria-controls="dropdown-menu-metrics">
               <span>{{groupingLabel grouping}}</span>
               <span class="icon is-small">
@@ -60,7 +82,9 @@
       <div class="panel">
         <h2 class="panel-heading">Time Online</h2>
         <div class="panel-block">
-          <div style="width:100%;height:200px;">[Chart]</div>
+          {{#if triggerChartsRedraw}}
+            {{> chartView dataContext=timeOnlineChartSetup}}
+          {{/if}}
         </div>
       </div>
     </div>
@@ -69,7 +93,9 @@
       <div class="panel">
         <h2 class="panel-heading">Income In Tokens</h2>
         <div class="panel-block">
-          <div style="width:100%;height:200px;">[Chart]</div>
+          {{#if triggerChartsRedraw}}
+            {{> chartView dataContext=incomeInTKNChartSetup}}
+          {{/if}}
         </div>
       </div>
     </div>
@@ -78,7 +104,9 @@
       <div class="panel">
         <h2 class="panel-heading">Total Income, <span class="tag is-round" style="background: #ebebeb; margin-bottom: -1em;">{{userCurrencyLabel}}</span></h2>
         <div class="panel-block">
-          <div style="width:100%;height:200px;">[Chart]</div>
+          {{#if triggerChartsRedraw}}
+            {{> chartView dataContext=totalIncomeChartSetup}}
+          {{/if}}
         </div>
       </div>
     </div>
@@ -158,15 +186,23 @@
               title="{{formatNumber deltaTokensToPrimaryCurrency}} {{userCurrencyLabel}} ({{formatNumber deltaTokensToUSD}} USD)">
               {{formatNumber deltaTokens}}
             </td>
-            <td class="has-text-right no-wrap" data-value="{{avgTokens}}" __style="{{avgTokensStyle}}">{{formatNumber avgTokens}}</td>
+            <td class="has-text-right no-wrap" data-value="{{avgTokens}}" __style="{{avgTokensStyle}}"
+              title="{{formatNumber avgTokensToPrimaryCurrency}} {{userCurrencyLabel}} ({{formatNumber avgTokensToUSD}} USD)">
+              {{formatNumber avgTokens}}
+            </td>
             <td class="has-text-right no-wrap" data-value={{extraCurrency}}>{{formatNumber extraCurrency}}</td>
             <td class="has-text-right no-wrap" data-value="{{totalDeltaPrimaryCurrency}}" style="{{totalDeltaPrimaryCurrencyStyle}} border-left:2px solid #dbdbdb;">{{formatNumber totalDeltaPrimaryCurrency}}</td>
             <td class="has-text-right no-wrap" data-value="{{avgPrimaryCurrency}}" style="{{avgPrimaryCurrencyStyle}}">{{formatNumber avgPrimaryCurrency}}</td>
           </tr>
         {{/each}}
       {{/if}}
+
     </tbody>
   </table>
+
+  {{#if dataIsPartiallyHidden}}
+  <button class="is-fullwidth button is-medium show-the-rest" style="margin-bottom:calc(300px - 2rem);margin-top:calc(-300px + 2rem);">Show the rest</button>
+  {{/if}}
 
   {{#if rowsSelected}}
   <div class="details-container">

@@ -175,6 +175,15 @@ body {
 
 .chart-wrapper {
   margin-bottom: 1.5rem;
+  position: relative;
+  width: 100%;
+
+  .panel-block & {
+    margin-bottom: 0;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    width: calc(100% + 2rem);
+  }
 }
 
 .do-open {
