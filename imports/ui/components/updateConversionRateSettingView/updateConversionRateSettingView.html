@@ -22,7 +22,7 @@
                 </div>
               {{else}}
                 <div class="select {{#unless userCurrencies}}is-loading{{/unless}}">
-                  <select id="select-currency" {{disabledAttr}}>
+                  <select class="select-currency" {{disabledAttr}}>
                     <option>[Select]</option>
                     {{#each currencyKeys}}
                       <option value="{{this}}">{{this}}</option>
@@ -37,6 +37,62 @@
               <input class="input" {{disabledUnlessSelectedCurrency}} id="user-defined-rate" type="number" min="0.01" step="any" autocomplete="false" value="{{userConversionRateHintValue}}">
             </div>
           </div>
+
+          <div class="level-item">
+            <div class="dropdown is-right {{calculatorDropdownIsActive}}">
+              <div class="dropdown-trigger">
+                <div class="button {{calculatorDropdownIsActive}}" aria-haspopup="true" aria-controls="dropdown-menu-calculator">
+                  <i class="fas fa-calculator"></i>
+                </div>
+              </div>
+              <div class="dropdown-menu is-wide" role="menu" id="dropdown-menu-calculator">
+                <div class="dropdown-content">
+                  <div class="dropdown-item"><p class="menu-label">Quick calculator</p>
+                  <p>Choose a payout from the list and enter the amount of money you actually received from it after all of the fees. This will adjust how much a token is worth prior to that period.</p></div>
+                  <hr class="dropdown-divider">
+                  <div class="dropdown-item">
+                    <div class="level">
+                      <div class="level-left">
+                        <div class="level-item">
+                          <div class="field">
+                            <div class="control">
+                              <div class="select {{#unless payouts}}is-loading{{/unless}}">
+                                <select class="select-payout" {{disabledAttrPayoutsReady}}>
+                                  <option>[Select]</option>
+                                  {{#each payouts}}
+                                    <option value="{{this}}">{{formatNumber sumTokens}} TKN on {{payoutDate}}</option>
+                                  {{/each}}
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="level-item">=</div>
+                        <div class="level-item">
+                          <div class="field has-addons" style="width: 19.4em;">
+                            <div class="control">
+                              <div class="select {{#unless userCurrencies}}is-loading{{/unless}}">
+                                <select class="select-currency" {{disabledAttr}}>
+                                  <option>[Select]</option>
+                                  {{#each currencyKeys}}
+                                    <option value="{{this}}">{{this}}</option>
+                                  {{/each}}
+                                </select>
+                              </div>
+                            </div>
+                            <div class="control">
+                              <input class="input has-text-right" type="number" placeholder="0" id="calculator-number">
+                            </div>
+                          </div>
+                        </div><!--eof .level-item -->
+                      </div>
+                    </div><!-- eof .level -->
+                  </div><!-- eof .dropdown-item -->
+                </div>
+              </div>
+            </div>
+          </div>
+
           {{#if currency}}
             <div class="control">
               <button class="button is-primary" id="update-user-rate">Done</button>

@@ -7,11 +7,19 @@ import { ReactiveVar } from 'meteor/reactive-var';
 
 Template.updateConversionRateSettingView.onCreated(function() {
   const instance = this;
+
   instance.subscribe("currencies.latest");
   instance.subscribe('userData');
+
   instance.selectedCurrency = new ReactiveVar(instance.data.currency);
   instance.dataUpdated = new ReactiveVar();
   instance.dateNow = new ReactiveVar(true);
+
+  ////////
+
+  instance.calculatorDropdownIsActive = new ReactiveVar(false);
+  instance.payouts = new ReactiveVar(false);
+
 });
 
 Template.updateConversionRateSettingView.helpers({
@@ -59,10 +67,6 @@ Template.updateConversionRateSettingView.helpers({
     return Template.instance().data.rate || _userConversionRateHintValue();
   },
 
-  disabledAttr() {
-    return Currencies.findOne() ? null : "disabled";
-  },
-
   disabledUnlessSelectedCurrency() {
     return Currencies.findOne() && Template.instance().selectedCurrency.get() ? null : "disabled";
   },
@@ -72,6 +76,21 @@ Template.updateConversionRateSettingView.helpers({
   dataUpdated: () => Template.instance().dataUpdated.get(),
 
   dateNow: () => Template.instance().dateNow.get(),
+
+  /////////
+
+  disabledAttr() {
+    return Currencies.findOne() ? null : "disabled";
+  },
+
+  disabledAttrPayoutsReady() {
+    return Template.instance().payouts.get() ? null : "disabled";
+  },
+
+
+  payouts: () => Template.instance().payouts.get(),
+
+  calculatorDropdownIsActive: () => Template.instance().calculatorDropdownIsActive.get() ? "is-active" : null,
 
 });
 
@@ -84,8 +103,10 @@ Template.updateConversionRateSettingView.events({
   //   Meteor.call('users.setCurrencyDisplayToggle', thisCurrency, toggleTo);
   // },
 
-  'change #select-currency'(event, instance) {
+  'change .select-currency'(event, instance) {
     instance.selectedCurrency.set(event.target.value);
+    const selectNode = instance.find('select.select-currency');
+    selectNode.value = event.target.value;
   },
 
   'submit #update-conversion-rate-form'(event, instance) {
@@ -121,6 +142,13 @@ Template.updateConversionRateSettingView.events({
 
   "click .set-dateNow-false, focus .set-dateNow-false"(event, instance) {
     instance.dateNow.set(false);
+  },
+
+  //////////
+
+  'click [aria-controls="dropdown-menu-calculator"]'(event, template) {
+    event.preventDefault();
+    template.calculatorDropdownIsActive.set(!template.calculatorDropdownIsActive.get());
   },
 
 });

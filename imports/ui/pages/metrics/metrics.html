@@ -191,8 +191,8 @@
               {{formatNumber avgTokens}}
             </td>
             <td class="has-text-right no-wrap" data-value={{extraCurrency}}>{{formatNumber extraCurrency}}</td>
-            <td class="has-text-right no-wrap" data-value="{{totalDeltaPrimaryCurrency}}" style="{{totalDeltaPrimaryCurrencyStyle}} border-left:2px solid #dbdbdb;">{{formatNumber totalDeltaPrimaryCurrency}}</td>
-            <td class="has-text-right no-wrap" data-value="{{avgPrimaryCurrency}}" style="{{avgPrimaryCurrencyStyle}}">{{formatNumber avgPrimaryCurrency}}</td>
+            <th class="has-text-right no-wrap" data-value="{{totalDeltaPrimaryCurrency}}" style="{{totalDeltaPrimaryCurrencyStyle}} border-left:2px solid #dbdbdb;">{{formatNumber totalDeltaPrimaryCurrency}}</th>
+            <th class="has-text-right no-wrap" data-value="{{avgPrimaryCurrency}}" style="{{avgPrimaryCurrencyStyle}}">{{formatNumber avgPrimaryCurrency}}</th>
           </tr>
         {{/each}}
       {{/if}}
@@ -220,6 +220,12 @@
             <div class="tags has-addons">
                 <span class="tag has-background-grey-dark has-text-white">AVERAGE</span>
                 <span class="tag has-text-weight-semibold is-wide is-translucent-light">{{formatNumber selectedCellsAvg}}</span>
+            </div>
+          </div>
+          <div class="level-item">
+            <div class="tags has-addons">
+                <span class="tag has-background-grey-dark has-text-white">MAX</span>
+                <span class="tag has-text-weight-semibold is-wide is-translucent-light">{{formatNumber selectedCellsMax}}</span>
             </div>
           </div>
           <div class="level-item">

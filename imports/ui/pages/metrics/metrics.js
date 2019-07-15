@@ -118,11 +118,11 @@ Template.Page_metrics.helpers({
       // Note: This function is the most computationally expensive piece of code here
 
       const noSessionDataPoints = DataPoints.find({
-        sessionId: {$exists: false},
+        sessionId: null,
         startTime: {$exists: true},
         endTime: {
           $gte: fromRounded,
-          $lt: upperMoment,
+          $lte: upperMoment,
         },
       }).fetch();
 
@@ -159,7 +159,7 @@ Template.Page_metrics.helpers({
 
     let metrics = [];
     instance.timeOnlineChartSetup = new ChartSetup({colorScheme: 'time'});
-    instance.totalIncomeChartSetup = new ChartSetup({colorScheme: 'money'});
+    instance.totalIncomeChartSetup = new ChartSetup({colorScheme: ['money', 'tokens']});
     instance.incomeInTKNChartSetup = new ChartSetup({colorScheme: 'tokens'});
 
     const groupingDelegate = new GroupingDelegate(instance.grouping.get(), instance.daterange.get());
@@ -228,7 +228,12 @@ Template.Page_metrics.helpers({
         instance.totalIncomeChartSetup.push({
           x: endTime,
           y: Math.round(totalDeltaPrimaryCurrency),
-        });
+        }, 'money');
+
+        instance.totalIncomeChartSetup.push({
+          x: endTime,
+          y: deltaTokens,
+        }, 'tokens');
 
         instance.incomeInTKNChartSetup.push({
           x: endTime,
@@ -466,6 +471,14 @@ Template.Page_metrics.helpers({
     rowsSelected = Template.instance().rowsSelected.get();
     const _sum = rowsSelected.reduce((sum, element) => (parseFloat($(element).attr("data-value")) || 0) + sum, 0);
     return Math.round(_sum / rowsSelected.length * 10) / 10;
+  },
+
+  selectedCellsMax() {
+    rowsSelected = Template.instance().rowsSelected.get();
+    return rowsSelected.reduce(function(max, element) {
+      const value = (parseFloat($(element).attr("data-value")) || 0);
+      return value > max ? value : max;
+    } , 0);
   },
 
   rowsSelected: () => Template.instance().rowsSelected.get(),

@@ -57,9 +57,6 @@ Template.chartView.onRendered(function () {
       dataContext.options = defaultOptions;
     }
 
-    console.log(dataContext);
-    console.log(instance);
-
     function randomScalingFactor() {
             return Math.round(Math.random() * 100 * (Math.random() > 0.5 ? -1 : 1));
         }

@@ -25,34 +25,50 @@ class ChartSetup {
     /*
 
     config: {
-      colorScheme: 'tokens' || 'money' || 'time'
+      colorScheme: 'tokens' || 'money' || 'time' OR and array of such strings
     }
 
     */
 
-    if (!config.colorScheme) {
+    if (typeof config.colorScheme === 'undefined') {
       config.colorScheme = 'default';
     }
 
     this.type = 'line';
     this.data = {
-      datasets: [{
+      datasets: []
+    };
+
+    this.idRefs = _.flatten([config.colorScheme]);
+  }
+
+  _data(id) {
+    function _datasetTemplate(colorSchemeId) {
+      const colorScheme = ChartSetup.colorSchemes[colorSchemeId] || ChartSetup.colorSchemes.default;
+      return {
         data: [],
         fill: true,
         pointRadius: 0,
-        backgroundColor: ChartSetup.colorSchemes[config.colorScheme].backgroundColor,
-        borderColor: ChartSetup.colorSchemes[config.colorScheme].borderColor,
+        backgroundColor: colorScheme.backgroundColor,
+        borderColor: colorScheme.borderColor,
         tension: 0,
-      }]
-    };
+      };
+    }
+    const index = id ? _.indexOf(this.idRefs, id) : 0;
+    let dataset = this.data.datasets[index];
+    if (typeof dataset === 'undefined') {
+      if (id) {
+        this.idRefs.push(id);
+      }
+      const newDataset = _datasetTemplate(id || _.first(this.idRefs));
+      this.data.datasets.push(newDataset);
+      dataset = newDataset;
+    }
+    return dataset.data;
   }
 
-  get _data() {
-    return this.data.datasets[0].data;
-  }
-
-  push(point) {
-    this._data.push(point);
+  push(point, id) {
+    this._data(id).push(point);
   }
 
   // hash() {

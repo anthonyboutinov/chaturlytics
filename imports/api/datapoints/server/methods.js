@@ -269,8 +269,10 @@ Meteor.methods({
           callSessionSummarize = true;
 
           const thisDataPointDuration = moment(endTime).diff(lastDataPoint.endTime, 'minutes');
+          const tooShortOfAnInterval = Math.ceil(nextSyncOption.sooner / 2);
+          console.log({thisDataPointDuration, tooShortOfAnInterval, isItBelowThat: thisDataPointDuration <= tooShortOfAnInterval});
           // if it's less $lte 8 mim
-          if (thisDataPointDuration <= Math.ceil(nextSyncOption.sooner / 2)) {
+          if (thisDataPointDuration <= tooShortOfAnInterval) {
             console.log("CASE 2.2.a: dataPoint is too short, gluing it with the last one (overriding the last one)");
             overrideLastPointInsteadOfCreatingANewOne = true;
           }
