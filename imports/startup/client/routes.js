@@ -67,7 +67,7 @@ viewRouts.route('/logs', {
 viewRouts.route('/sessions/:_id?', {
   name: 'view.sessions',
   action() {
-    BlazeLayout.render('Layout_body', { content: 'Page_sessions', sectionless: true });
+    BlazeLayout.render('Layout_body', { content: 'Page_sessions', sectionless: true, overflowYHidden: true });
   },
   triggersEnter: [function(context, redirect) {
     console.log('running /sessions trigger');

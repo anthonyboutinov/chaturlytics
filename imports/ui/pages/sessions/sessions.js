@@ -11,7 +11,7 @@ Date.prototype.subMinutes = function(m){
   return this;
 }
 
-let flag = false;
+// let flag = false;
 
 Template.Page_sessions.onCreated(function () {
   const instance = this;
@@ -23,7 +23,9 @@ Template.Page_sessions.onCreated(function () {
     instance.seconds.set(instance.seconds.get() + 30);
   }), 30000);
 
-  instance.currentlyViewedSession = new ReactiveVar(false);
+  sessionId = FlowRouter.getParam('_id') || false;
+  instance.currentlyViewedSession = new ReactiveVar(sessionId ? Sessions.findOne(sessionId) : false);
+
 });
 
 Template.Page_sessions.helpers({
@@ -82,17 +84,17 @@ Template.Page_sessions.helpers({
       return reactiveVar;
     }
 
-    if (!flag) {
-      const sessionId = FlowRouter.getParam('_id');
-      const session = Sessions.findOne(sessionId);
-      if (session) {
-        // instance.currentlyViewedSession.set(session);
-        flag = true;
-        console.log("FLAG to true", session);
-        return session;
-      }
-    }
-    return null;
+    // if (!flag) {
+    //   const sessionId = FlowRouter.getParam('_id');
+    //   const session = Sessions.findOne(sessionId);
+    //   if (session) {
+    //     instance.currentlyViewedSession.set(session);
+    //     // flag = true;
+    //     // console.log("FLAG to true", session);
+    //     return session;
+    //   }
+    // // }
+    // return null;
 
     // FlowRouter.watchPathChange();
     // return Sessions.findOne({_id: FlowRouter.getParam('_id')});

@@ -133,7 +133,7 @@
 
   </div>
 
-  <div id="content-wrapper" class="{{#if translucentBackground}}has-effect-translucent-background{{/if}}">
+  <div id="content-wrapper" class="{{#if translucentBackground}}has-effect-translucent-background{{/if}}{{#if overflowYHidden}}overflow-y-hidden{{/if}}">
     <section class="{{#unless sectionless}}section is-primary{{/unless}}">
       <div class="{{#unless sectionless}}container is-primary{{/unless}}">
         {{>Template.dynamic template=content}}

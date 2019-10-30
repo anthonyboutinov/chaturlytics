@@ -28,6 +28,10 @@ body {
   background-attachment: fixed;
 }
 
+.overflow-y-hidden {
+  overflow-y: hidden;
+}
+
 #menu-wrapper {
   position: fixed;
   top: 3.25rem;

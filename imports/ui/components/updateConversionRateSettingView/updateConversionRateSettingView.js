@@ -114,14 +114,14 @@ Template.updateConversionRateSettingView.events({
 
     let _moment;
     if (!instance.dateNow.get()) {
-      _moment = moment(instance.find("#conversion-rate-date").value);
+      _moment = moment(instance.find("#conversion-rate-date").value, "MMM D, YYYY");
       if (!_moment.isValid()) {
         alert("Not a valid date.")
         return;
       }
     }
 
-    const currency = instance.data.currency || instance.find('#select-currency').value;
+    const currency = instance.data.currency || instance.find('.select-currency').value;
     const rate = instance.find('#user-defined-rate').value;
     const _id = instance.data._id || null;
     const date = !_moment ? new Date() : _moment.toDate();

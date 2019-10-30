@@ -33,6 +33,7 @@ Meteor.methods({
 
   'dataPoints.getDataPointsForAll'() {
     const now = new Date();
+    const usernames = [];
     UserProfiles.find({
       isActive: true,
       $or: [
@@ -43,8 +44,11 @@ Meteor.methods({
       fields: {url: 1, username: 1},
       reactive: false,
     }).forEach(function(item) {
-      console.log("Calling dataPoints.getDataPointFromChaturbate for " + item.username);
-      Meteor.call('dataPoints.getDataPointFromChaturbate', item.url, item.username);
+      if (_.indexOf(usernames, item.username) < 0) {
+        usernames.push(item.username);
+        console.log("Calling dataPoints.getDataPointFromChaturbate for " + item.username);
+        Meteor.call('dataPoints.getDataPointFromChaturbate', item.url, item.username);
+      }
     });
     return true;
   },
@@ -267,16 +271,17 @@ Meteor.methods({
           sessionId = lastDataPoint.sessionId;
           isOnlineOrJustFinishedStreaming = true;
           callSessionSummarize = true;
-
-          const thisDataPointDuration = moment(endTime).diff(lastDataPoint.endTime, 'minutes');
-          const tooShortOfAnInterval = Math.ceil(nextSyncOption.sooner / 2);
-          console.log({thisDataPointDuration, tooShortOfAnInterval, isItBelowThat: thisDataPointDuration <= tooShortOfAnInterval});
-          // if it's less $lte 8 mim
-          if (thisDataPointDuration <= tooShortOfAnInterval) {
-            console.log("CASE 2.2.a: dataPoint is too short, gluing it with the last one (overriding the last one)");
-            overrideLastPointInsteadOfCreatingANewOne = true;
-          }
         }
+
+        const thisDataPointDuration = moment(endTime).diff(lastDataPoint.endTime, 'minutes');
+        const tooShortOfAnInterval = Math.ceil(nextSyncOption.sooner / 2);
+        console.log({thisDataPointDuration, tooShortOfAnInterval, isItBelowThat: thisDataPointDuration <= tooShortOfAnInterval});
+        // if it's less $lte 8 mim
+        if (thisDataPointDuration <= tooShortOfAnInterval) {
+          console.log("CASE 2.2.a: dataPoint is too short, gluing it with the last one (overriding the last one)");
+          overrideLastPointInsteadOfCreatingANewOne = true;
+        }
+
       } else
       // else if this is during an off-time
       // --- CASE 3 ---

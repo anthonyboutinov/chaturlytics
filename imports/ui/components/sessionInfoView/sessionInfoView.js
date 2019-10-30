@@ -28,6 +28,8 @@ Template.sessionInfoView.onCreated(function(){
   instance.processingNewExtraIncome = new ReactiveVar(false);
   instance.calculatorDropdownIsActive = new ReactiveVar(false);
 
+  instance.noteGotEdited = new ReactiveVar(false);
+
   currentData.combinedChartConfig = {};
   currentData.combinedChartConfig.session = currentData.session;
   currentData.combinedChartConfig.chartConfig = {
@@ -233,13 +235,13 @@ Template.sessionInfoView.helpers({
   // },
 
   noteOrPlaceholder() {
-    return this.session.note ? this.session.note.replace(/\\r\\n/g, "<br />") : notePlaceholder;
+    return this.session.note
+      ? this.session.note.replace(/\\r\\n/g, "<br>") : notePlaceholder;
   },
 
   isPlaceholderClass() {
-    //FIXME: ошибка здесь в коде, что-то не так
-    // const textIsNotAPlaceholderText = Template.instance().find('form[name="noteForm"] .contenteditable').innerText !== notePlaceholder;
-    return this.session.note ? null : "has-text-grey-light";
+    return this.session.note || Template.instance().noteGotEdited.get()
+      ? null : "has-text-grey-light";
   },
 
   plusMinus(number) {
@@ -288,23 +290,42 @@ Template.sessionInfoView.helpers({
 
 });
 
-const _debouncedNoteSubmit = _.debounce((sessionId, noteContent) => {
+const _debouncedNoteSubmit = _.debounce((sessionId, currentTarget) => {
+
+  let noteContent = currentTarget.innerText
+    .replace(/Notice: /g, '') // remove Notice: prefixes
+    .replace(/(?:\r\n|\r|\n)/g, '<br>' // replace new lines with BR tags
+  );
+  if (noteContent === "<br>") {
+    noteContent = null;
+  }
+
+  console.log({noteContent});
+
   Meteor.call('sessions.setNote', sessionId, noteContent);
+  $(currentTarget).find("[style]").removeAttr("style").each(function() {
+    $(this).html($(this).html().replace(/Notice: /g, '') + "<br>");
+  });
+
 }, 900);
 
 Template.sessionInfoView.events({
 
+  'blur form[name="noteForm"] .contenteditable'(event) {
+    if (event.currentTarget.innerText.replace(/(?:\r\n|\r|\n)/g, '') === "") {
+      event.currentTarget.innerText = notePlaceholder;
+      Template.instance().noteGotEdited.set(false);
+    }
+  },
+
   'blur form[name="noteForm"] .contenteditable, keyup form[name="noteForm"] .contenteditable'(event) {
-    _debouncedNoteSubmit(
-      this.session._id, event.currentTarget.innerText
-      .replace(/Notice: /g, '') // remove Notice: prefixes
-      .replace(/(?:\r\n|\r|\n)/g, '<br>' // replace new lines with BR tags
-    ));
+    _debouncedNoteSubmit(this.session._id, event.currentTarget);
   },
 
   'focus form[name="noteForm"] .contenteditable'(event) {
     if (event.currentTarget.innerText === notePlaceholder) {
       event.currentTarget.innerText = "";
+      Template.instance().noteGotEdited.set(true);
     }
   },
 

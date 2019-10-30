@@ -109,7 +109,9 @@ Meteor.methods({
       return false;
     }
     check(sessionId, String);
-    check(note, String);
+    if (note) {
+      check(note, String);
+    }
 
     return Sessions.update({
       _id:sessionId,
