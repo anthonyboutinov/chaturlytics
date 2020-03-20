@@ -26,7 +26,7 @@ Template.calendarView.onRendered(function() {
         return template;
       },
       allday: function(schedule) {
-        return schedule.title + ' <i class="fa fa-refresh"></i>';
+        return schedule.title;// + ' <i class="far fa-refresh"></i>';
       },
       alldayTitle: function() {
         return '<span class="tui-full-calendar-left-content">Summary</span>';

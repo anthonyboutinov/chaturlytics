@@ -16,7 +16,7 @@ Template.Layout_body.onCreated(function() {
   const instance = this;
 
   // GLOBAL SUBSCRIPTIONS
-  // instance.subscribe('userRates.all'); // not used in this template, but in other ones
+  // instance.subscribe('userRates.all'); // used not in this template, but in the other ones
   instance.subscribe('userProfiles.all');
 
 });

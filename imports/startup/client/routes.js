@@ -17,7 +17,7 @@ import '../../ui/pages/not-found/not-found.js';
 FlowRouter.route('/', {
   name: 'home',
   action() {
-    BlazeLayout.render('Layout_body', { content: 'Page_home', translucentBackground: true });
+    BlazeLayout.render('Layout_body', { content: 'Page_home', translucentBackground: true, sectionless: true, });
   },
 });
 

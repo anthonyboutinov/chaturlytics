@@ -8,7 +8,7 @@ Meteor.publish('dataPoints.all', function () {
     return this.ready();
   }
 
-  Meteor._sleepForMs(2000);
+  // Meteor._sleepForMs(2000);
   return DataPoints.find({
     userId: this.userId,
     username: UserProfiles.getCurrentUsername(this.userId),
@@ -20,7 +20,7 @@ Meteor.publish('dataPoints.lastOnes', function (limit) {
     return this.ready();
   }
 
-  Meteor._sleepForMs(2000);
+  // Meteor._sleepForMs(2000);
   return DataPoints.find({
     userId: this.userId,
     username: UserProfiles.getCurrentUsername(this.userId),
@@ -39,7 +39,7 @@ Meteor.publish('dataPoints.forDates', function (startTime, endTime) {
   check(startTime, Date);
   check(endTime, Date);
 
-  Meteor._sleepForMs(2000);
+  // Meteor._sleepForMs(2000);
   return DataPoints.find({
     userId: this.userId,
     username: UserProfiles.getCurrentUsername(this.userId),
@@ -54,7 +54,7 @@ Meteor.publish('dataPoints.forSession', function (sessionId) {
   }
   check(sessionId, String);
 
-  Meteor._sleepForMs(2000);
+  // Meteor._sleepForMs(2000);
   const firstDataPointForTheSession = DataPoints.findOne({
     userId: this.userId,
     sessionId
@@ -75,7 +75,7 @@ Meteor.publish('dataPoints.last', function() {
     return this.ready();
   }
 
-  Meteor._sleepForMs(1000);
+  // Meteor._sleepForMs(1000);
   return DataPoints.find({
     userId: this.userId,
     username: UserProfiles.getCurrentUsername(this.userId)

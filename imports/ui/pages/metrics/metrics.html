@@ -30,6 +30,7 @@
         <div class="dropdown is-hoverable is-right">
           <div class="dropdown-trigger">
             <button class="button" aria-haspopup="true" aria-controls="dropdown-menu-metrics-daterange">
+              <span class="icon"><i class="fad fa-ruler-triangle"></i></span>
               <span>{{daterangeLabel daterange}}</span>
               <span class="icon is-small">
                 <i class="fas fa-angle-down" aria-hidden="true"></i>
@@ -52,6 +53,7 @@
         <div class="dropdown is-hoverable is-right">
           <div class="dropdown-trigger">
             <button class="button" aria-haspopup="true" aria-controls="dropdown-menu-metrics">
+              <span class="icon"><i class="fad fa-object-group"></i></span>
               <span>{{groupingLabel grouping}}</span>
               <span class="icon is-small">
                 <i class="fas fa-angle-down" aria-hidden="true"></i>
@@ -178,6 +180,13 @@
                   </div>
                 </div>
               {{/each}}
+              {{#if equals @index 0}}
+                {{#if isBroadcasting}}
+                <div class="tag is-success is-light" style="margin-bottom:0.5em;">
+                  <i class="fad fa-spinner-third fa-pulse"></i>
+                </div>
+                {{/if}}
+              {{/if}}
             </td>{{/unless}}
             <!-- <td class="has-text-right">{{formatNumber numBroadcasts}}</td> -->
             <td class="has-text-right no-wrap">{{timeOnline}}</td>

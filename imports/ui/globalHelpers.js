@@ -1,3 +1,6 @@
+import { Sessions } from '/imports/api/sessions/sessions.js';
+
+
 Handlebars.registerHelper('formatNumber', function(value) {
   return value && typeof value === 'number' ? (Math.round(value * 100) / 100).toLocaleString('en') : value;
 });
@@ -35,4 +38,27 @@ Handlebars.registerHelper('sessionErrorMessage', function(session, asString = tr
     return errors.join(' ');
   }
   return errors;
+});
+
+Handlebars.registerHelper('log', function(a) {
+  console.log(a);
+  return "<span class='tag is-warning'>Log</span>";
+});
+
+
+//////////////-------------------
+
+
+Handlebars.registerHelper('isBroadcasting', function() {
+  const lastSession = Sessions.findOne({}, {
+    sort: {startTime: -1}
+  });
+  if (lastSession && !lastSession.endTime) {
+    return true;
+  }
+  if (!lastSession || lastSession.endTime && lastSession.endTime < new Date()) {
+    return false;
+  } else {
+    return true;
+  }
 });

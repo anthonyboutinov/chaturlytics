@@ -1,60 +1,163 @@
 <template name="dashboardView">
 
-  <section class="section">
-    <div class="notification">
-      <p>Welcome!</p>
+  <section class="hero hero-dashboardView is-bold is-dark has-text-centered">
+    <div class="hero-body">
+
+      <div class="fa-stack fa-2x">
+        <i class="fas fa-stack-2x fa-circle has-text-success" style="margin: 0 auto 0.5rem auto"></i>
+        <!-- <i class="fas fa-stack-1x fa-fw fa-video" title="Live"></i> -->
+      </div>
+
+      <div class="title">{{currentUserProfile.username}}</div>
+      <div class="subtitle is-size-7 is-semitransparent-hoverable" style="margin-left: auto; margin-right: auto;">
+        {{#if lastUpdated}} Last updated at {{lastUpdated}} {{else}}&nbsp;{{/if}}
+      </div>
+    </div>
+    <div class="hero-foot">
+      <div class="container is-fluid">
+        <div class="section" style="padding-top:0;">
+          <div class="level" style="align-items:flex-end;">
+            <div class="level-left">
+              <div class="level-item has-text-left" style="display:block;">
+                <p style="margin-bottom:1em;">Mermership status: paid until December 20, 2019</p>
+                <a href="#" class="button is-dark">Manage Membership</a>
+              </div>
+            </div>
+            <div class="level-right">
+              <a class="level-item button is-dark" href="#">
+                <span>Open Chaturbate</span>
+                <span class="icon">
+                  <i class="fas fa-external-link-alt fa-sm"></i>
+                </span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <div class="columns">
+  <div class="container is-fluid">
 
+    <section class="section">
+      <!-- <div class="notification">
+        <p>Welcome!</p>
+      </div> -->
+      <!-- <div class="heading is-size-5">Overview</div> -->
 
-    <div class="column is-4">
-      <div class="card card-dashboard">
-        <header class="card-header">
-          <!-- <div class="card-icon-box has-background-info">
-            <i class="fas fa-fw fa-video fa-stack-1x fa-inverse"></i>
-          </div> -->
-          <p class="card-header-title subtitle">
-            Broadcasts
-          </p>
-        </header>
-        <div class="card-content">
-          <span class="has-text-info">
-            <span class="is-size-4">{{sessionsCount}}</span> <span class="is-size-7">this month</span>
-          </span>
-        </div>
-        <!-- <div class="card-footer">
-          <div class="card-footer-item">
-            <a href="#" class="has-text-gray">See all</a>
+      <div class="columns">
+        <div class="column is-4">
+          <div class="card card-dashboard is-brand-broadcasts-inverse">
+            <header class="card-header">
+              <div class="level">
+                <div class="level-left">
+                  <div class="level-item">
+                    <p class="card-header-title subtitle">
+                      Broadcasts
+                    </p>
+                  </div>
+                </div>
+                <div class="level-right">
+                  <div class="level-item">
+                    <i class="fas fa-expand"></i>
+                  </div>
+                </div>
+              </div>
+            </header>
+            <div class="card-content">
+              {{#if Template.subscriptionsReady}}
+                <span class="is-size-3">{{sessionsCount}} </span><span class="is-size-4">shows this month</span>
+              {{else}}
+                <span class="is-size-3">&nbsp;</span>
+              {{/if}}
+            </div>
+            <!-- <div class="card-footer">
+              <div class="card-footer-item">
+                <a href="#" class="has-text-gray">See all</a>
+              </div>
+            </div> -->
           </div>
-        </div> -->
-      </div>
-    </div>
-
-    <div class="column is-4">
-      <div class="card card-dashboard">
-        <header class="card-header">
-          <!-- <div class="card-icon-box has-background-success">
-            <i class="fas fa-fw fa-dollar-sign fa-stack-1x fa-inverse"></i>
-          </div> -->
-          <p class="card-header-title subtitle">
-            Earnings
-          </p>
-        </header>
-        <div class="card-content">
-          <span class="has-text-success">
-            <span class="is-size-7">$</span><span class="is-size-4">1,027</span> <span class="is-size-7">this month</span>
-          </span>
         </div>
-        <!-- <div class="card-footer">
-          <div class="card-footer-item">
-            <a href="#" class="has-text-gray">Details</a>
-          </div>
-        </div> -->
-      </div>
-    </div>
 
+        {{#with stats}}
+
+        <div class="column is-4">
+          <div class="card card-dashboard is-brand-money-inverse">
+            <header class="card-header">
+              <p class="card-header-title subtitle">
+                Earnings
+              </p>
+            </header>
+            <div class="card-content">
+              {{#if Template.subscriptionsReady}}
+                <p><span class="is-size-3">{{formatNumber this.deltaIncome.totalInCurrency}} </span><span class="is-size-5">{{userCurrencyLabel}}</span><span class="is-size-4"> this month</span></p>
+                <p class="has-text-grey-dark">
+                  {{#if this.deltaIncome.tokens}}
+                    {{formatNumber this.deltaIncome.tokens}} tokens ({{formatNumber this.deltaIncome.tokensToCurrency}} {{userCurrencyLabel}})<br>
+                  {{/if}}
+                  {{#if this.deltaIncome.extra}}
+                    {{formatNumber this.deltaIncome.extra}} {{userCurrencyLabel}} of extra income
+                  {{/if}}
+                </p>
+              {{else}}
+                <span class="is-size-3">&nbsp;</span>
+              {{/if}}
+            </div>
+          </div>
+
+          <div class="card card-dashboard is-brand-money-inverse">
+            <header class="card-header">
+              <p class="card-header-title subtitle">
+                Payouts
+              </p>
+            </header>
+            <div class="card-content">
+              {{#if Template.subscriptionsReady}}
+                <p><span class="is-size-5">$</span><span class="is-size-3">{{formatNumber payout}} </span><!--<span class="is-size-5">USD</span>--><span class="is-size-4"> this half of the month</span></p>
+              {{else}}
+                <span class="is-size-3">&nbsp;</span>
+              {{/if}}
+            </div>
+          </div>
+        </div>
+
+        <div class="column is-4">
+          <div class="card card-dashboard is-brand-followers-inverse">
+            <!-- <div style="height: 100%; position: absolute; left: 0; right: 0; top: 0; bottom: 0;"> -->
+            <header class="card-header">
+              <!-- <div class="card-icon-box has-background-success">
+                <i class="fas fa-fw fa-dollar-sign fa-stack-1x fa-inverse"></i>
+              </div> -->
+              <p class="card-header-title subtitle">
+                Followers
+              </p>
+            </header>
+            <div class="card-content">
+              {{#if Template.subscriptionsReady}}
+                <div>
+                  <span class="is-size-4">{{this.deltaFollowers.sign}}</span><span class="is-size-3">{{this.deltaFollowers.value}}</span><span class="is-size-4"> this month</span>
+                </div>
+                <div class="has-text-grey-dark">
+                  <i class="fas fa-caret-up" data-fa-transform=""></i>
+                  20% more compared to last month
+                </div>
+              {{else}}
+                <span class="is-size-3">&nbsp;</span>
+              {{/if}}
+            </div>
+            <!-- <div class="card-footer">
+              <div class="card-footer-item">
+                <a href="#" class="has-text-gray">Details</a>
+              </div>
+            </div> -->
+            <!-- </div> -->
+          </div>
+        </div>
+
+        {{/with}}
+
+      </div>
+    </section>
 
   </div>
 

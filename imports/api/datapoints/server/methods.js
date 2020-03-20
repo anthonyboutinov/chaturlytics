@@ -274,7 +274,7 @@ Meteor.methods({
         }
 
         const thisDataPointDuration = moment(endTime).diff(lastDataPoint.endTime, 'minutes');
-        const tooShortOfAnInterval = Math.ceil(nextSyncOption.sooner / 2);
+        const tooShortOfAnInterval = Math.ceil(nextSyncOptions.sooner / 2);
         console.log({thisDataPointDuration, tooShortOfAnInterval, isItBelowThat: thisDataPointDuration <= tooShortOfAnInterval});
         // if it's less $lte 8 mim
         if (thisDataPointDuration <= tooShortOfAnInterval) {
@@ -371,6 +371,11 @@ Meteor.methods({
           } else {
             console.log("overrideLastPointInsteadOfCreatingANewOne, updating last dataPoint");
             dataPointContent.startTime = lastDataPoint.startTime;
+            dataPointContent.deltaFollowers += lastDataPoint.deltaFollowers;
+            dataPointContent.deltaVotesUp += lastDataPoint.deltaVotesUp;
+            dataPointContent.deltaVotesDown += lastDataPoint.deltaVotesDown;
+            dataPointContent.deltaTokens += lastDataPoint.deltaTokens;
+            dataPointContent.broadcastHasDropped = dataPointContent.broadcastHasDropped | lastDataPoint.broadcastHasDropped;
             DataPoints.update(lastDataPoint._id, {
               $set: dataPointContent
             });

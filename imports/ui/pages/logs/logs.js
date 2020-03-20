@@ -19,7 +19,7 @@ Template.Page_logs.onCreated(function () {
   instance.subscribe('dataPoints.lastOnes', instance.lastDataPointsLimit.get());
 
   instance.lastSessionsLimit = new ReactiveVar(pageSize);
-  instance.subscribe('sessions.lastOnes', instance.lastSessionsLimit.get());
+  instance.subscribe('sessions.recent', instance.lastSessionsLimit.get());
 
 
   instance.seconds = new ReactiveVar(0);
@@ -196,7 +196,7 @@ Template.Page_logs.events({
   'click .loadMore-sessions'(event, template) {
     template.loadingMoreDataPostFactum.set(true);
     template.lastSessionsLimit.set(template.lastSessionsLimit.get() + pageSize);
-    template.subscribe('sessions.lastOnes', template.lastSessionsLimit.get());
+    template.subscribe('sessions.recent', template.lastSessionsLimit.get());
   },
 
   // 'submit .get'(event) {

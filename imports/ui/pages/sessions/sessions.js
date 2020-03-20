@@ -15,8 +15,12 @@ Date.prototype.subMinutes = function(m){
 
 Template.Page_sessions.onCreated(function () {
   const instance = this;
-  instance.subscribe('sessions.all');
+
+  instance.limitMultiplier = 100;
+  instance.limit = new ReactiveVar(instance.limitMultiplier);
+
   instance.subscribe('userRates.latest');
+  instance.subscribe('sessions.count');
 
   instance.seconds = new ReactiveVar(0);
   instance.handle = Meteor.setInterval((function() {
@@ -25,6 +29,10 @@ Template.Page_sessions.onCreated(function () {
 
   sessionId = FlowRouter.getParam('_id') || false;
   instance.currentlyViewedSession = new ReactiveVar(sessionId ? Sessions.findOne(sessionId) : false);
+
+  this.autorun(()=>{
+    instance.subscribe('sessions.recent', instance.limit.get());
+  });
 
 });
 
@@ -36,6 +44,14 @@ Template.Page_sessions.helpers({
     }, {
       sort: {endTime: -1}
     });
+  },
+
+  sessionsCount() {
+    return Counts.findOne("sessions").count;
+  },
+
+  hasMoreSessions() {
+    return Template.instance().limit.get() < Counts.findOne("sessions").count;
   },
 
   ongoingSession() {
@@ -116,13 +132,9 @@ Template.Page_sessions.helpers({
     }
   },
 
-  notePreview() { // FIXME: set it as part of specification and rm all instances of this method from such places
-    if (!this.note) {
-      return;
-    }
-    const limit = 128;
-    const substring = this.note.replace(/<br> *<br>/g, '<br>').substring(0, limit);
-    return substring + (this.note.length > limit ? '…' : '');
+  notePreview() {
+    // this === session
+    return Sessions.notePreview(this);
   },
 
 });
@@ -143,5 +155,10 @@ Template.Page_sessions.events({
     instance.currentlyViewedSession.set(null);
     // console.log({currentlyViewedSessionSetTo: null});
   },
+
+  'click .do-show-more'(event, instance) {
+    event.preventDefault();
+    instance.limit.set(instance.limit.get() + instance.limitMultiplier);
+  }
 
 });

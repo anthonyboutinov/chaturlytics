@@ -121,38 +121,43 @@ body {
 
 .card-dashboard {
   margin-top: 1rem;
+  box-shadow: none !important;
+  border: none !important;
 
   .card-header {
-    box-shadow: none;
+    box-shadow: none !important;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-top: 1.5rem;
+    padding-bottom: 0.75rem;
+    display: block !important;
 
     &-title {
-      text-align: right;
-      display: grid;
-      padding-right: 1.5rem;
-      padding-bottom: 0.25rem;
-      padding-top: 1.25rem;
+      padding: 0;
+      // text-align: right;
+      // display: grid;
     }
-    .card-icon-box {
-      transform: translateY(-1rem);
-      display: block;
-      font-size: 4.25rem;
-      width: 1em;
-      height: 1em;
-      box-shadow: 0 14px 26px -12px rgba(127, 0, 255, 0.42), 0 4px 23px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(127, 0, 255, 0.2);
-      margin-left: 0.75rem;
-      margin-bottom: -1.5rem;
-      border-radius: 3px;
-
-      &>i {
-        font-size: 0.33em;
-        line-height: 4.25rem;
-        color: white;
-      }
-    }
+    // .card-icon-box {
+    //   transform: translateY(-1rem);
+    //   display: block;
+    //   font-size: 4.25rem;
+    //   width: 1em;
+    //   height: 1em;
+    //   box-shadow: 0 14px 26px -12px rgba(127, 0, 255, 0.42), 0 4px 23px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(127, 0, 255, 0.2);
+    //   margin-left: 0.75rem;
+    //   margin-bottom: -1.5rem;
+    //   border-radius: 3px;
+    //
+    //   &>i {
+    //     font-size: 0.33em;
+    //     line-height: 4.25rem;
+    //     color: white;
+    //   }
+    // }
   }
 
   .card-content {
-    text-align: right;
+    // text-align: right;
     padding-top: 0;
     padding-bottom: 1rem;
   }
@@ -161,7 +166,7 @@ body {
     border: none;
     position: absolute;
     bottom: 0;
-    left: 0;
+    right: 0;
     width: 5.75rem;
   }
 }
@@ -482,6 +487,24 @@ a.dropdown-item:hover:not(.is-active) {
   }
 }
 
+// @keyframes loading-color {
+//   0% {
+//     color: #f9f9fa;
+//   }
+//   50% {
+//     color: #fdfdfe;
+//   }
+//   100% {
+//     color: #f9f9fa;
+//   }
+// }
+//
+// .has-text-loading {
+//   animation-name: loading-color;
+//   animation-duration: 2s;
+//   animation-iteration-count: infinite;
+// }
+
 .help {
   font-size: 1em !important;
   color: hsl(0, 0%, 48%); // text-grey
@@ -593,4 +616,56 @@ input[type="checkbox"] {
   -webkit-line-clamp: 2;
   // line-height: 1.5;
   max-height: 3em;
+}
+
+.is-semitransparent-hoverable {
+  opacity: 0.6;
+  transition: opacity 0.5s ease-in-out;
+  &:hover, &:focus, &:active {
+    opacity: 0.92;
+  }
+}
+
+.is-brand {
+
+  &-broadcasts {
+    &-inverse {
+      background-image: linear-gradient(141deg,#1258af 0,#239fd1 71%,#2cc3e2 100%);
+      color: white !important;
+
+      .title, .subtitle {
+        color: #bcf3ff;
+      }
+    }
+  }
+
+  &-money {
+    &-inverse {
+      background-image: linear-gradient(141deg,#12af84 0,#23d172 71%,#96e22c 100%);
+      color: white !important;
+
+      .title, .subtitle {
+        color: #bcffd8;
+      }
+    }
+  }
+
+  &-followers {
+    &-inverse {
+      background-image: linear-gradient(141deg,#9eaf12 0,#d1c523 71%,#e29f2c 100%);
+      color: white !important;
+
+      .title, .subtitle {
+        color: #f4ffbc;
+      }
+    }
+  }
+
+}
+
+.hero.hero-dashboardView .hero-body {
+  @media screen and (min-width: 1024px) and (min-height: 800px) {
+    padding-bottom: 9rem;
+    padding-top: 9rem;
+  }
 }

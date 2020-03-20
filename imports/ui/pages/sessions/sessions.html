@@ -11,7 +11,11 @@
             {{#if Template.subscriptionsReady}}
             <tfoot>
               <tr>
-                <td>Total: {{formatNumber sessions.count}} items</td>
+                {{#if hasMoreSessions}}
+                <td>Displaying {{formatNumber sessions.count}} out of {{formatNumber sessionsCount}} items</td>
+                {{else}}
+                <td>Total: {{formatNumber sessionsCount}} items</td>
+                {{/if}}
               </tr>
             </tfoot>
             {{/if}}
@@ -98,6 +102,7 @@
               {{/if}}
             </tbody>
           </table>
+          {{#if hasMoreSessions}}<button class="do-show-more button is-fullwidth">More</button>{{/if}}
 
         </div>
 

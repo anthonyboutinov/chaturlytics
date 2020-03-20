@@ -91,20 +91,6 @@ Template.navbarQuickStats.helpers({
     });
   },
 
-  isBroadcasting() {
-    const lastSession = Sessions.findOne({}, {
-      sort: {startTime: -1}
-    });
-    if (lastSession && !lastSession.endTime) {
-      return true;
-    }
-    if (!lastSession || lastSession.endTime && lastSession.endTime < new Date()) {
-      return false;
-    } else {
-      return true;
-    }
-  },
-
   timeOnline() {
     Template.instance().recomputationTriggerOneMinute.get();
     const liveSession = Sessions.findOne({

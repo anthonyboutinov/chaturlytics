@@ -9,3 +9,5 @@ Chart.defaults.global.legend.labels.usePointStyle = true;
 Chart.defaults.global.legend.labels.padding = 20;
 
 import '/imports/ui/globalHelpers.js';
+
+Counts = new Mongo.Collection("counts");
