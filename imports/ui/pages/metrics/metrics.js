@@ -262,7 +262,7 @@ Template.Page_metrics.helpers({
           avgPrimaryCurrency,
           extraCurrency: extraCurrency ? extraCurrency : '–',
         });
-      } else if (!skipOffDays) {
+      } else if (!skipOffDays && instance.grouping.get() === 'years') {
         metrics.unshift({
           startTime: groupingDelegate.lowerMoment,
           endTime,
@@ -438,7 +438,7 @@ Template.Page_metrics.helpers({
     }
     const endTime = this.endTime || new Date();
     const duration = moment.duration(moment(endTime).diff(this.startTime));
-    return duration.format("h [hrs] m [min]");
+    return duration.format("h [h] m [min]");
   },
 
   ////

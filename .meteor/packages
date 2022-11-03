@@ -32,4 +32,3 @@ littledata:synced-cron
 oaf:moment-duration-format
 http@1.4.2
 stevezhu:lodash
-jquery

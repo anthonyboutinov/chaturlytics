@@ -5,6 +5,7 @@ import '../../components/sessionInfoView/sessionInfoView.js';
 // import { DataPoints } from '/imports/api/datapoints/datapoints.js';
 import { Sessions } from '/imports/api/sessions/sessions.js';
 import { Meteor } from 'meteor/meteor';
+import _ from 'lodash';
 
 Date.prototype.subMinutes = function(m){
   this.setMinutes(this.getMinutes()-m);
@@ -65,17 +66,33 @@ Template.Page_sessions.helpers({
   },
 
   timeframe() {
-    const start = this.startTime ? moment(this.startTime).format('lll') + ' - ' : '-∞ to ';
+    let start = this.startTime ? moment(this.startTime).format('lll') : '-∞ to ';
+    let middle = '';
     let end = '';
     let format = 'lll';
     if (this.endTime) {
       const isTheSameDay = moment(this.endTime).date() === moment(this.startTime).date();
       if (this.startTime && isTheSameDay) {
         format = 'LT';
+        middle = ' –&nbsp;';
+
+        // replace THIRD space character (' ') with '<br>'
+        let nextSpaceIndex = 0;
+        for (let repeater = 0; repeater < 3; repeater++) {
+          nextSpaceIndex = _.indexOf(start, " ", nextSpaceIndex + 1);
+        }
+        // console.log({start: start, thirdSpace: nextSpaceIndex, subStrA: start.substring(0, nextSpaceIndex), subStrB: start.substring(nextSpaceIndex + 1)})
+        if (nextSpaceIndex > 0) {
+          start = start.substring(0, nextSpaceIndex) + '<br>' + start.substring(nextSpaceIndex + 1);
+        }
+
+        end = moment(this.endTime).format(format).replace(' ', '&nbsp;');
+      } else {
+        middle = '<br>–&nbsp;';
+        end = moment(this.endTime).format(format);
       }
-      end = moment(this.endTime).format(format);
     }
-    return start + end;
+    return start + middle + end;
   },
 
   duration() {
@@ -90,7 +107,7 @@ Template.Page_sessions.helpers({
     }
     const endTime = this.endTime || new Date();
     const duration = moment.duration(moment(endTime).diff(this.startTime));
-    return duration.format("h [hrs] m [min]");
+    return duration.format("h [h] m [min]");
   },
 
   currentlyViewedSession() {

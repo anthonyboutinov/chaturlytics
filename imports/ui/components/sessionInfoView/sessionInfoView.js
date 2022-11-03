@@ -172,18 +172,22 @@ Template.sessionInfoView.helpers({
     //   // end = moment(session.endTime).format(format);
     // }
 
-    const start = session.startTime ? moment(session.startTime).format('lll') + ' - ' : '-∞ to ';
+    const start = session.startTime ? moment(session.startTime).format('lll') : '–∞ to ';
     let end = '';
+    let middle = '';
     let format = 'lll';
     if (session.endTime) {
-      const isLessThanHourLong = moment(session.endTime).date() === moment(session.startTime).date();
-      if (session.startTime && isLessThanHourLong) {
+      const onTheSameDate = moment(session.endTime).date() === moment(session.startTime).date();
+      if (session.startTime && onTheSameDate) {
         format = 'LT';
+        middle = ' – ';
+      } else {
+        middle = ' –<br>';
       }
       end = moment(session.endTime).format(format);
     }
 
-    return  start + end;
+    return  start + middle + end;
   },
 
   duration() {

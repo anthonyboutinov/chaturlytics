@@ -3,6 +3,8 @@ import { check } from 'meteor/check';
 import { DataPoints } from '../datapoints.js';
 import { UserProfiles } from '../../userprofiles/userprofiles.js';
 
+// sleep timers are for checking the behaviour of the app if there's big connection latency
+
 Meteor.publish('dataPoints.all', function () {
   if (!this.userId) {
     return this.ready();

@@ -30,7 +30,11 @@ Meteor.methods({
 
 
 
+  /* 
+  dataPoints.getDataPointsForAll
 
+  Selects user profiles for which data collection is enabled ('active') and for which it is time to run next sync. Cron task calls thie method every 5 minutes, and 'nextSync' limits the firing of the REST API calls to a rate that would not trigger the broadcasting service's to throttle the caller for too frequent requests. 
+  */ 
   'dataPoints.getDataPointsForAll'() {
     const now = new Date();
     const usernames = [];
@@ -55,7 +59,14 @@ Meteor.methods({
 
 
 
-
+  /**
+   * dataPoints.getDataPointFromChaturbate
+   * 
+   * Retrieves data from the broadcasting service and calls dataPoints.insertIndepenentlyFromRawData on success, otherwise calls dataPoints.emergencyEndSessionForUsername
+   * 
+   * @param {String} url -- REST API URL request
+   * @param {String} username 
+   */
   'dataPoints.getDataPointFromChaturbate'(url, username) {
     function _handleErrorsForGetDataPointFromChaturbate(error, url, username) {
       if (error.code === 'ECONNRESET') {
@@ -111,7 +122,15 @@ Meteor.methods({
 
 
 
-
+  /**
+   * dataPoints.emergencyEndSessionForUsername
+   * 
+   * If there was an error retrieving data from the broadcasting service, it ends the last Session for a given username and calls sessions.summarize for that session to calculate all of the corrsponding stats.
+   * 
+   * @param {*} username 
+   * @param {*} errorCode -- error code to attach to the lastSession
+   * @returns 
+   */
   'dataPoints.emergencyEndSessionForUsername'(username, errorCode) {
     function _emergencyEndSessionForUserId(userId, username) {
       const lastDataPoint = DataPoints.findOne({userId, username}, {
@@ -145,10 +164,10 @@ Meteor.methods({
 
   'dataPoints.insertIndepenentlyFromRawData'(rawDataPoint, username) {
 
+    // A timer that gets outputted to logs to see how long it takes to execute this code
     const __timer = new Date();
 
-    //TODO: create one now date and use it throughout the method:  const now = new Date();
-
+    // Mark username's token as expired if receives "Unauthorized" responce
     function _checkIfAuthorized(rawDataPoint, username) {
       if (rawDataPoint === 'Unauthorized') {
         UserProfiles.update({username}, {
@@ -160,6 +179,7 @@ Meteor.methods({
       }
     }
 
+    // This should never happen
     function _checkIfDataAndUsernameMatch(rawDataPoint, username) {
       if (username !== rawDataPoint.username) {
         throw "DataPoint does not belong to the provided username";

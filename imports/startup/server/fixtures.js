@@ -4,7 +4,9 @@ import { Meteor } from 'meteor/meteor';
 
 Meteor.startup(() => {
 
-  if (Meteor.users.find().count() === 0) {
+  let DEV_ALLOW_AUTO_USER_RESET = false
+
+  if (Meteor.users.find().count() === 0 && DEV_ALLOW_AUTO_USER_RESET) {
     const data = [
       {
         url: '***REMOVED_URL***',
@@ -20,36 +22,8 @@ Meteor.startup(() => {
         password: user.password,
         url: user.url,
       });
-      // console.log({newUser: Meteor.users.find(id).fetch()});
     });
 
   }
-
-  // if the Links collection is empty
-  // if (Links.find().count() === 0) {
-  //   const data = [
-  //     {
-  //       title: 'Do the Tutorial',
-  //       url: 'https://www.meteor.com/try',
-  //       createdAt: new Date(),
-  //     },
-  //     {
-  //       title: 'Follow the Guide',
-  //       url: 'http://guide.meteor.com',
-  //       createdAt: new Date(),
-  //     },
-  //     {
-  //       title: 'Read the Docs',
-  //       url: 'https://docs.meteor.com',
-  //       createdAt: new Date(),
-  //     },
-  //     {
-  //       title: 'Discussions',
-  //       url: 'https://forums.meteor.com',
-  //       createdAt: new Date(),
-  //     },
-  //   ];
-  //
-  //   data.forEach(link => Links.insert(link));
-  // }
+  
 });

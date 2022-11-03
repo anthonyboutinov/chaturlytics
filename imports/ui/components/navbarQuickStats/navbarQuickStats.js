@@ -99,7 +99,7 @@ Template.navbarQuickStats.helpers({
     if (liveSession) {
       return moment
         .duration(moment().diff(moment(liveSession.startTime), 'minutes'), 'minutes')
-        .format("h [hrs] m [min]");
+        .format("h [h] m [min]");
     }
   },
 

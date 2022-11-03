@@ -30,7 +30,8 @@
                       <i class="fas fa-user-circle"></i>
                     </span>
                     <span>
-                      {{#if currentUser}} {{currentUserProfile.username}} {{else}} Account {{/if}}
+                      {{#if currentUser}} Anthony {{else}} Account {{/if}}
+                      <!-- {{#if currentUser}} {{currentUserProfile.username}} {{else}} Account {{/if}} -->
                     </span>
                     <span class="icon is-small">
                       <i class="fas fa-angle-down" aria-hidden="true"></i>
@@ -97,7 +98,7 @@
             <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics.earnings'}}" href="/view/metrics/earnings"><i class="fad fa-fw fa-dollar-sign"></i>Earnings</a></li>
             <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics.followers'}}" href="/view/metrics/followers"><i class="fad fa-fw fa-heart"></i>Followers</a></li>
             <li><a class="{{isActiveAsCurrentRouteNamed 'view.metrics.viewers'}}" href="/view/metrics/viewers"><i class="fad fa-fw fa-eye"></i>Viewers</a></li>
-          </ul>-->
+          </ul> -->
         </li>
         <!-- <li>
           <a class="{{isActiveAsCurrentRouteNamed 'view.payouts'}}" href="/view/payouts">
@@ -113,17 +114,17 @@
         </li>
       </ul>
       <p class="menu-label">
-        <i class="fad fa-fw fa-cog"></i>Administration
+        <i class="fad fa-fw fa-cog"></i>Admin
       </p>
       <ul class="menu-list">
         <li>
           <a class="{{isActiveAsCurrentRouteNamed 'profiles'}}" href="/profiles">
             <i class="fad fa-fw fa-users"></i>Manage Profiles</a>
         </li>
-        <li>
+        <!-- <li>
           <a>
             <i class="fad fa-fw fa-money-check-alt"></i>Membership</a>
-        </li>
+        </li> -->
         <li>
           <a class="{{isActiveAsCurrentRouteNamed 'settings'}}" href="/settings">
             <i class="fad fa-fw fa-cog"></i>Settings</a>
@@ -152,7 +153,7 @@
             </div>
           </div>
         </div>
-        <div> Copyright &copy;&nbsp;2018&nbsp;Chaturlytics. All&nbsp;rights&nbsp;reserved. </div>
+        <div> 2018&nbsp;&copy;&nbsp;Chaturlytics. All&nbsp;rights&nbsp;reserved</div>
       </footer>
     </aside>
 

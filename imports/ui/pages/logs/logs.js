@@ -71,7 +71,7 @@ Template.Page_logs.helpers({
     }
     const endTime = this.endTime || new Date();
     const duration = moment.duration(moment(endTime).diff(this.startTime));
-    return duration.format("h [hrs] m [min]");
+    return duration.format("h [h] m [min]");
   },
 
   loadingMoreDataPostFactum: () => Template.instance().loadingMoreDataPostFactum.get(),
