@@ -53,6 +53,7 @@ Meteor.methods({
     }
     const set = { $set: {} };
     set.$set['displayOption_' + displayOptionName] = value;
+    console.log(this.userId, set);
     return Meteor.users.update(this.userId, set);
   },
 

@@ -114,7 +114,7 @@ Template.updateConversionRateSettingView.events({
 
     let _moment;
     if (!instance.dateNow.get()) {
-      _moment = moment(instance.find("#conversion-rate-date").value, "MMM D, YYYY");
+      _moment = moment(instance.find("#conversion-rate-date").value);
       if (!_moment.isValid()) {
         alert("Not a valid date.")
         return;

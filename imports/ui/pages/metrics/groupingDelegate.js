@@ -14,7 +14,7 @@ import { DataPoints } from '/imports/api/datapoints/datapoints.js';
       ...
     }
 */
-GroupingDelegate = class {
+class GroupingDelegate {
 
   constructor(originalGrouping, descriptiveDaterange) {
 

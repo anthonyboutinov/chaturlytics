@@ -70,6 +70,7 @@ Template.Page_metrics.onCreated(function() {
     instance.rowsSelected = new ReactiveVar([]);
     instance.showTheRest = new ReactiveVar(false);
     instance.dataIsPartiallyHidden = new ReactiveVar(false);
+    instance.displayCharts = new ReactiveVar(user.displayOption_metricsCharts || false); // if you want True by default, first, check the typeof(...)
 
     instance.userDataReady.set(true);
 
@@ -386,6 +387,8 @@ Template.Page_metrics.helpers({
 
   coloration: () => Template.instance().coloration.get(),
 
+  displayCharts: () => Template.instance().displayCharts.get(),
+
   skipOffDaysToggleApplicable: () => Template.instance().grouping.get() === 'days',
 
   timeframe() {
@@ -514,7 +517,7 @@ Template.Page_metrics.helpers({
 Template.Page_metrics.events({
 
   'click .set-grouping'(event, template) {
-    event.preventDefault();
+    // event.preventDefault();
     const self = this;
     _clearSelection(template);
     template.triggerChartsRedraw.set(false);
@@ -523,7 +526,7 @@ Template.Page_metrics.events({
   },
 
   'click .set-daterange'(event, template) {
-    event.preventDefault();
+    // event.preventDefault();
     const self = this;
     _clearSelection(template);
     template.triggerChartsRedraw.set(false);
@@ -531,8 +534,15 @@ Template.Page_metrics.events({
     Meteor.call('users.setDisplayOption', 'metricsDaterange', self.toString());
   },
 
+  'click .toggle-display-charts'(event, template) {
+    // event.preventDefault();
+    const value = !template.displayCharts.get();
+    template.displayCharts.set(value);
+    Meteor.call('users.setDisplayOption', 'metricsCharts', value);
+  },
+
   'click .toggle-skip-offdays'(event, template) {
-    event.preventDefault();
+    // event.preventDefault();
     const skipOffDays = template.skipOffDays;
     skipOffDays.set(!skipOffDays.get());
     _clearSelection(template);

@@ -9,40 +9,58 @@
     {{#if userDataReady}}
     <div class="level-right">
 
+      <div class="level-item">
+        <button class="button toggle-display-charts">
+          {{#if displayCharts}}
+          <figure class="icon">
+            <i class="fad fa-fw fa-toggle-on has-text-success" aria-hidden="true"></i>
+          </figure>
+          {{else}}
+          <figure class="icon">
+            <i class="fad fa-fw fa-toggle-off" aria-hidden="true"></i>
+          </figure>
+          {{/if}}
+          <span>Charts</span>
+        </button>
+      </div>
+
       {{#if skipOffDaysToggleApplicable}}
-        <div class="level-item">
-          <button class="button toggle-skip-offdays">
-            {{#if skipOffDays}}
-              <span class="icon is-small">
-                <i class="fas fa-fw fa-toggle-off" aria-hidden="true"></i>
-              </span>
-            {{else}}
-              <span class="icon is-small">
-                <i class="fas fa-fw fa-toggle-on" aria-hidden="true"></i>
-              </span>
-            {{/if}}
-            <span> Off-days</span>
-          </button>
-        </div>
+      <div class="level-item">
+        <button class="button toggle-skip-offdays">
+          {{#if skipOffDays}}
+          <figure class="icon is-small">
+            <i class="fad fa-fw fa-toggle-off" aria-hidden="true"></i>
+          </figure>
+          {{else}}
+          <figure class="icon is-small">
+            <i class="fad fa-fw fa-toggle-on has-text-success" aria-hidden="true"></i>
+          </figure>
+          {{/if}}
+          <span>Off-days</span>
+        </button>
+      </div>
       {{/if}}
 
       <div class="level-item">
         <div class="dropdown is-hoverable is-right">
           <div class="dropdown-trigger">
             <button class="button" aria-haspopup="true" aria-controls="dropdown-menu-metrics-daterange">
-              <span class="icon"><i class="fad fa-ruler-triangle"></i></span>
+              <figure class="icon">
+                <i class="fad fa-ruler-triangle"></i>
+              </figure>
               <span>{{daterangeLabel daterange}}</span>
-              <span class="icon is-small">
+              <figure class="icon is-small">
                 <i class="fas fa-angle-down" aria-hidden="true"></i>
-              </span>
+              </figure>
             </button>
           </div>
           <div class="dropdown-menu" role="menu" id="dropdown-menu-metrics-daterange">
             <div class="dropdown-content">
-              <div class="dropdown-item"><p class="menu-label">Change date range</p></div>
-              <hr class="dropdown-divider">
-              {{#each daterangeOptions}}
-                <a class="dropdown-item {{isActiveByEquals daterange this}} set-daterange" href="#">{{daterangeLabel this}}</a>
+              <div class="dropdown-item">
+                <p class="menu-label">Change date range</p>
+              </div>
+              <hr class="dropdown-divider"> {{#each daterangeOptions}}
+              <a class="dropdown-item {{isActiveByEquals daterange this}} set-daterange" href="#">{{daterangeLabel this}}</a>
               {{/each}}
             </div>
           </div>
@@ -53,19 +71,22 @@
         <div class="dropdown is-hoverable is-right">
           <div class="dropdown-trigger">
             <button class="button" aria-haspopup="true" aria-controls="dropdown-menu-metrics">
-              <span class="icon"><i class="fad fa-object-group"></i></span>
+              <figure class="icon">
+                <i class="fad fa-object-group"></i>
+              </figure>
               <span>{{groupingLabel grouping}}</span>
-              <span class="icon is-small">
+              <figure class="icon is-small">
                 <i class="fas fa-angle-down" aria-hidden="true"></i>
-              </span>
+              </figure>
             </button>
           </div>
           <div class="dropdown-menu" role="menu" id="dropdown-menu-metrics">
             <div class="dropdown-content">
-              <div class="dropdown-item"><p class="menu-label">Change grouping</p></div>
-              <hr class="dropdown-divider">
-              {{#each groupingOptions}}
-                <a class="dropdown-item {{isActiveByEquals grouping this}} set-grouping" href="#">{{groupingLabel this}}</a>
+              <div class="dropdown-item">
+                <p class="menu-label">Change grouping</p>
+              </div>
+              <hr class="dropdown-divider"> {{#each groupingOptions}}
+              <a class="dropdown-item {{isActiveByEquals grouping this}} set-grouping" href="#">{{groupingLabel this}}</a>
               {{/each}}
             </div>
           </div>
@@ -76,17 +97,14 @@
     {{/if}}
   </div>
 
-  {{#if userDataReady}}
-
+  {{#if userDataReady}} {{#if displayCharts}}
   <div class="columns margin-bottom-medium">
 
     <div class="column is-one-third">
       <div class="panel">
         <h2 class="panel-heading">Time Online</h2>
         <div class="panel-block">
-          {{#if triggerChartsRedraw}}
-            {{> chartView dataContext=timeOnlineChartSetup}}
-          {{/if}}
+          {{#if triggerChartsRedraw}} {{> chartView dataContext=timeOnlineChartSetup}} {{/if}}
         </div>
       </div>
     </div>
@@ -95,125 +113,131 @@
       <div class="panel">
         <h2 class="panel-heading">Income In Tokens</h2>
         <div class="panel-block">
-          {{#if triggerChartsRedraw}}
-            {{> chartView dataContext=incomeInTKNChartSetup}}
-          {{/if}}
+          {{#if triggerChartsRedraw}} {{> chartView dataContext=incomeInTKNChartSetup}} {{/if}}
         </div>
       </div>
     </div>
 
     <div class="column is-one-third">
       <div class="panel">
-        <h2 class="panel-heading">Total Income, <span class="tag is-round" style="background: #ebebeb; margin-bottom: -1em;">{{userCurrencyLabel}}</span></h2>
+        <h2 class="panel-heading">Total Income,
+          <span class="tag is-round" style="background: #ebebeb; margin-bottom: -1em;">{{userCurrencyLabel}}</span>
+        </h2>
         <div class="panel-block">
-          {{#if triggerChartsRedraw}}
-            {{> chartView dataContext=totalIncomeChartSetup}}
-          {{/if}}
+          {{#if triggerChartsRedraw}} {{> chartView dataContext=totalIncomeChartSetup}} {{/if}}
         </div>
       </div>
     </div>
 
-  </div>
+  </div>{{/if}}
 
   <!-- <div class="box">
     Charts: 1.1) Broadcasts count / density, 1.2) time online dnesity, 2) income dneisty, 3.1) followers density, 3.2) viewers density
   </div> -->
 
   <table class="table is-fullwidth is-size-7 rows-aligned-middle
-  {{#unless Template.subscriptionsReady}}loading-pulse is-large{{/unless}}"
-  style="margin-bottom:300px;">
+  {{#unless Template.subscriptionsReady}}loading-pulse is-large{{/unless}}" style="margin-bottom:300px;">
     <thead>
       <tr>
         <th>Timeframe</th>
-        {{#unless isActiveByEquals grouping 'years'}}<th>Broadcasts</th>{{/unless}}
+        {{#unless isActiveByEquals grouping 'years'}}
+        <th>Broadcasts</th>{{/unless}}
         <!-- <th>Number of<br>Broadcasts</th> -->
-        <th>Time<br>Online</th>
+        <th>Time
+          <br>Online</th>
         <!-- <th>Followers</th> -->
         <th>Income, TKN </th>
-        <th>Average<br>Income per<br>Hour During<br>Broadcasts, TKN </th>
-        <th>Extra Income, <span class="tag is-round" style="margin-top: -0.25em;">{{userCurrencyLabel}}</span> </th>
-        <th>Total<br>Income, <span class="tag is-round" style="margin-top: -0.25em;">{{userCurrencyLabel}}</span></th>
-        <th>Total<br>Avg Income<br>per Hour<br>During<br>Broadcasts, <span class="tag is-round" style="margin-top: -0.25em;">{{userCurrencyLabel}}</span></th>
+        <th>Average
+          <br>Income per
+          <br>Hour During
+          <br>Broadcasts, TKN </th>
+        <th>Extra Income,
+          <span class="tag is-round" style="margin-top: -0.25em;">{{userCurrencyLabel}}</span>
+        </th>
+        <th>Total
+          <br>Income,
+          <span class="tag is-round" style="margin-top: -0.25em;">{{userCurrencyLabel}}</span>
+        </th>
+        <th>Total
+          <br>Avg Income
+          <br>per Hour
+          <br>During
+          <br>Broadcasts,
+          <span class="tag is-round" style="margin-top: -0.25em;">{{userCurrencyLabel}}</span>
+        </th>
       </tr>
     </thead>
     <tfoot>
     </tfoot>
     <tbody>
-      {{#if Template.subscriptionsReady}}
-        {{#each metrics}}
-          <tr class="{{rowClasses}}">
-            <th class="{{rowClasses}} no-wrap">{{timeframe}}</th>
-            {{#unless isActiveByEquals grouping 'years'}}<td class="p-b-0">
-              {{#each sessions}}
-                <div class="dropdown is-hoverable">
-                  <div class="dropdown-trigger" aria-haspopup="true" aria-controls="dropdown-menu-session-{{@index}}">
-                    <a href="/view/sessions/{{_id}}">
-                      <div class="tag" style="margin-bottom:0.5em;">
-                        {{sessionIndex @index}}
-                      </div>
-                    </a>
-                  </div>
-                  <div class="dropdown-menu is-wide" role="menu" id="dropdown-menu-session-{{@index}}">
-                    <div class="dropdown-content">
-                      <div class="dropdown-item"><p class="menu-label">Broadcast {{sessionIndex @index}}</p></div>
-                      <div class="dropdown-item">
-                        <p class="has-text-weight-bold">{{timeframeForSession}}</p>
-                      </div>
-                      <div class="dropdown-item">
-                        <p class="has-text-weight-semibold">{{duration}}</p>
-                        <p class="has-text-weight-semibold">
-                          {{formatNumber deltaTokens}} TKN
-                          {{#if extraIncome}}+ {{totalExtraIncome}}{{/if}}
-                        </p>
-                      </div>
-                      {{#if note}}
-                        <div class="dropdown-item">
-                          <p class="has-text-grey">{{{note}}}</p>
-                        </div>
-                      {{/if}}
-                      <hr class="dropdown-divider">
-                      <a class="dropdown-item" href="/view/sessions/{{_id}}">
-                        <i class="fas fa-fw fa-info-circle"></i>
-                        Go to broadcast
-                      </a>
-                    </div>
-                  </div>
+      {{#if Template.subscriptionsReady}} {{#each metrics}}
+      <tr class="{{rowClasses}}">
+        <th class="{{rowClasses}} no-wrap">{{timeframe}}</th>
+        {{#unless isActiveByEquals grouping 'years'}}
+        <td class="p-b-0">
+          {{#each sessions}}
+          <div class="dropdown is-hoverable">
+            <div class="dropdown-trigger" aria-haspopup="true" aria-controls="dropdown-menu-session-{{@index}}">
+              <a href="/view/sessions/{{_id}}">
+                <div class="tag" style="margin-bottom:0.5em;">
+                  {{sessionIndex @index}}
                 </div>
-              {{/each}}
-              {{#if equals @index 0}}
-                {{#if isBroadcasting}}
-                <div class="tag is-success is-light" style="margin-bottom:0.5em;">
-                  <i class="fad fa-spinner-third fa-pulse"></i>
+              </a>
+            </div>
+            <div class="dropdown-menu is-wide" role="menu" id="dropdown-menu-session-{{@index}}">
+              <div class="dropdown-content">
+                <div class="dropdown-item">
+                  <p class="menu-label">Broadcast {{sessionIndex @index}}</p>
+                </div>
+                <div class="dropdown-item">
+                  <p class="has-text-weight-bold">{{timeframeForSession}}</p>
+                </div>
+                <div class="dropdown-item">
+                  <p class="has-text-weight-semibold">{{duration}}</p>
+                  <p class="has-text-weight-semibold">
+                    {{formatNumber deltaTokens}} TKN {{#if extraIncome}}+ {{totalExtraIncome}}{{/if}}
+                  </p>
+                </div>
+                {{#if note}}
+                <div class="dropdown-item">
+                  <p class="has-text-grey">{{{note}}}</p>
                 </div>
                 {{/if}}
-              {{/if}}
-            </td>{{/unless}}
-            <!-- <td class="has-text-right">{{formatNumber numBroadcasts}}</td> -->
-            <td class="has-text-right no-wrap">{{timeOnline}}</td>
-            <!-- <td class="has-text-right no-wrap">{{deltaFollowers}}</td> -->
-            <td class="has-text-right no-wrap" data-value="{{deltaTokens}}" __style="{{deltaTokensStyle}}"
-              title="{{formatNumber deltaTokensToPrimaryCurrency}} {{userCurrencyLabel}} ({{formatNumber deltaTokensToUSD}} USD)">
-              {{formatNumber deltaTokens}}
-            </td>
-            <td class="has-text-right no-wrap" data-value="{{avgTokens}}" __style="{{avgTokensStyle}}"
-              title="{{formatNumber avgTokensToPrimaryCurrency}} {{userCurrencyLabel}} ({{formatNumber avgTokensToUSD}} USD)">
-              {{formatNumber avgTokens}}
-            </td>
-            <td class="has-text-right no-wrap" data-value={{extraCurrency}}>{{formatNumber extraCurrency}}</td>
-            <th class="has-text-right no-wrap" data-value="{{totalDeltaPrimaryCurrency}}" style="{{totalDeltaPrimaryCurrencyStyle}} border-left:2px solid #dbdbdb;">{{formatNumber totalDeltaPrimaryCurrency}}</th>
-            <th class="has-text-right no-wrap" data-value="{{avgPrimaryCurrency}}" style="{{avgPrimaryCurrencyStyle}}">{{formatNumber avgPrimaryCurrency}}</th>
-          </tr>
-        {{/each}}
-      {{/if}}
+                <hr class="dropdown-divider">
+                <a class="dropdown-item" href="/view/sessions/{{_id}}">
+                  <i class="fas fa-fw fa-info-circle"></i>
+                  Go to broadcast
+                </a>
+              </div>
+            </div>
+          </div>
+          {{/each}} {{#if equals @index 0}} {{#if isBroadcasting}}
+          <div class="tag is-success is-light" style="margin-bottom:0.5em;">
+            <i class="fad fa-spinner-third fa-pulse"></i>
+          </div>
+          {{/if}} {{/if}}
+        </td>{{/unless}}
+        <!-- <td class="has-text-right">{{formatNumber numBroadcasts}}</td> -->
+        <td class="has-text-right no-wrap">{{timeOnline}}</td>
+        <!-- <td class="has-text-right no-wrap">{{deltaFollowers}}</td> -->
+        <td class="has-text-right no-wrap" data-value="{{deltaTokens}}" __style="{{deltaTokensStyle}}" title="{{formatNumber deltaTokensToPrimaryCurrency}} {{userCurrencyLabel}} ({{formatNumber deltaTokensToUSD}} USD)">
+          {{formatNumber deltaTokens}}
+        </td>
+        <td class="has-text-right no-wrap" data-value="{{avgTokens}}" __style="{{avgTokensStyle}}" title="{{formatNumber avgTokensToPrimaryCurrency}} {{userCurrencyLabel}} ({{formatNumber avgTokensToUSD}} USD)">
+          {{formatNumber avgTokens}}
+        </td>
+        <td class="has-text-right no-wrap" data-value={{extraCurrency}}>{{formatNumber extraCurrency}}</td>
+        <th class="has-text-right no-wrap" data-value="{{totalDeltaPrimaryCurrency}}" style="{{totalDeltaPrimaryCurrencyStyle}} border-left:2px solid #dbdbdb;">{{formatNumber totalDeltaPrimaryCurrency}}</th>
+        <th class="has-text-right no-wrap" data-value="{{avgPrimaryCurrency}}" style="{{avgPrimaryCurrencyStyle}}">{{formatNumber avgPrimaryCurrency}}</th>
+      </tr>
+      {{/each}} {{/if}}
 
     </tbody>
   </table>
 
   {{#if dataIsPartiallyHidden}}
   <button class="is-fullwidth button is-medium show-the-rest" style="margin-bottom:calc(300px - 2rem);margin-top:calc(-300px + 2rem);">Show the rest</button>
-  {{/if}}
-
-  {{#if rowsSelected}}
+  {{/if}} {{#if rowsSelected}}
   <div class="details-container">
     <div class="container is-fluid">
       <div class="level">
@@ -221,26 +245,26 @@
         <div class="level-right">
           <div class="level-item">
             <div class="tags has-addons">
-                <span class="tag has-background-grey-dark has-text-white">SUM</span>
-                <span class="tag has-text-weight-semibold is-wide is-translucent-light">{{formatNumber selectedCellsSum}}</span>
+              <span class="tag has-background-grey-dark has-text-white">SUM</span>
+              <span class="tag has-text-weight-semibold is-wide is-translucent-light">{{formatNumber selectedCellsSum}}</span>
             </div>
           </div>
           <div class="level-item">
             <div class="tags has-addons">
-                <span class="tag has-background-grey-dark has-text-white">AVERAGE</span>
-                <span class="tag has-text-weight-semibold is-wide is-translucent-light">{{formatNumber selectedCellsAvg}}</span>
+              <span class="tag has-background-grey-dark has-text-white">AVERAGE</span>
+              <span class="tag has-text-weight-semibold is-wide is-translucent-light">{{formatNumber selectedCellsAvg}}</span>
             </div>
           </div>
           <div class="level-item">
             <div class="tags has-addons">
-                <span class="tag has-background-grey-dark has-text-white">MAX</span>
-                <span class="tag has-text-weight-semibold is-wide is-translucent-light">{{formatNumber selectedCellsMax}}</span>
+              <span class="tag has-background-grey-dark has-text-white">MAX</span>
+              <span class="tag has-text-weight-semibold is-wide is-translucent-light">{{formatNumber selectedCellsMax}}</span>
             </div>
           </div>
           <div class="level-item">
             <div class="tags has-addons">
-                <span class="tag has-background-grey-dark has-text-white">COUNTA</span>
-                <span class="tag has-text-weight-semibold is-wide is-translucent-light">{{formatNumber rowsSelected.length}}</span>
+              <span class="tag has-background-grey-dark has-text-white">COUNTA</span>
+              <span class="tag has-text-weight-semibold is-wide is-translucent-light">{{formatNumber rowsSelected.length}}</span>
             </div>
           </div>
           <div class="level-item">
@@ -250,9 +274,7 @@
       </div>
     </div>
   </div>
-  {{/if}}
-
-  {{else}}
+  {{/if}} {{else}}
 
   <div class="loading-pulse is-large"></div>
 

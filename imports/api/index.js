@@ -6,5 +6,6 @@ if (Meteor.isServer) {
   import './datapoints';
   import './currencies';
   import './userRates';
+  import './payouts';
 
 }
